@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copetón 🍻 - Compara precios de tragos en Chile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #c2410c;
+      --primary-light: #ea580c;
+      --primary-dark: #9a3412;
+      --accent: #7c3aed;
+      --bg: #f8f8fa;
+      --bg2: #ffffff;
+      --bg3: #f1f1f5;
+      --card: #ffffff;
+      --card-hover: #fafafa;
+      --border: #e2e2ea;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --green: #059669;
+      --red: #dc2626;
+      --gold: #d97706;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ──────────────────────────────── */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .header-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--primary); }
+    .header-sub { font-size: 0.78rem; color: var(--muted); }
+    .search-wrap {
+      flex: 1; min-width: 240px; position: relative;
+    }
+    .search-wrap input {
+      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--bg3); border: 1.5px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--primary-light); }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; }
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+    .btn-outline {
+      padding: 0.5rem 1rem; border: 1.5px solid var(--border);
+      border-radius: 8px; background: transparent; color: var(--muted);
+      font-size: 0.8rem; cursor: pointer; transition: all 0.2s; font-weight: 500;
+    }
+    .btn-outline:hover, .btn-outline.active { border-color: var(--primary-light); color: var(--primary-light); }
+
+
+    /* ── LAYOUT ──────────────────────────────── */
+    .main { max-width: 1400px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .main { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+    .filter-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.1rem;
+    }
+    .filter-title { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.85rem; }
+    .filter-label { font-size: 0.82rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 0.35rem; margin-top: 0.75rem; }
+    .filter-label:first-of-type { margin-top: 0; }
+    select, input[type=range], input[type=number], input[type=text] {
+      width: 100%; padding: 0.45rem 0.75rem;
+      background: var(--bg3); border: 1.5px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 0.85rem;
+    }
+    select:focus, input[type=number]:focus, input[type=text]:focus { outline: none; border-color: var(--primary-light); }
+    input[type=text]::placeholder { color: var(--muted); }
+    input[type=range] { padding: 0; accent-color: var(--primary-light); }
+    .price-display { font-size: 0.8rem; color: var(--gold); font-weight: 600; text-align: right; margin-top: 0.25rem; }
+    .store-filter { display: flex; flex-direction: column; gap: 0.4rem; }
+    .store-checkbox { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.82rem; color: var(--muted); }
+    .store-checkbox input { width: auto; accent-color: var(--primary-light); }
+    .store-checkbox:hover { color: var(--text); }
+    .store-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .btn-reset { width: 100%; padding: 0.5rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.8rem; cursor: pointer; margin-top: 0.75rem; transition: all 0.2s; }
+    .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── RESULTS ─────────────────────────────── */
+    .results-area { display: flex; flex-direction: column; gap: 1rem; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .results-count { font-size: 0.85rem; color: var(--muted); }
+    .results-count strong { color: var(--text); }
+    .sort-row { display: flex; gap: 0.4rem; align-items: center; }
+    .sort-select { padding: 0.4rem 0.75rem; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.82rem; width: auto; }
+    .view-toggle { display: flex; gap: 0.25rem; }
+    .view-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--bg3); border: 1.5px solid var(--border); color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .view-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ── GRID ────────────────────────────────── */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .products-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    /* ── CARD ────────────────────────────────── */
+    .product-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      cursor: pointer; position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: #d1d1da; }
+    .product-card.list-view { display: grid; grid-template-columns: 80px 1fr auto; align-items: center; }
+
+    .card-image {
+      height: 180px; display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; position: relative; overflow: hidden;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+    .list-view .card-image { height: 80px; font-size: 2.5rem; }
+    .card-product-img {
+      width: 100%; height: 100%; object-fit: contain; padding: 0.75rem;
+      transition: transform 0.3s;
+    }
+    .product-card:hover .card-product-img { transform: scale(1.05); }
+    .list-view .card-product-img { padding: 0.4rem; }
+    .card-emoji-fallback {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%; font-size: 2.8rem;
+      opacity: 0.5;
+    }
+    .list-view .card-emoji-fallback { font-size: 2rem; }
+    .card-image.loading-img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.03) 50%, transparent 100%);
+      animation: shimmer 1.5s infinite;
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+    .card-badge {
+      position: absolute; top: 0.5rem; left: 0.5rem;
+      padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+    }
+    .card-cat-badge {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.62rem; font-weight: 600;
+      background: rgba(255,255,255,0.9); color: #4b5563; border: 1px solid #e5e7eb;
+      backdrop-filter: blur(4px);
+    }
+    .badge-new { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .badge-promo { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .badge-top { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+
+    .card-body { padding: 1rem; }
+    .list-view .card-body { padding: 0.75rem; }
+
+    .card-brand { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .card-name { font-size: 0.95rem; font-weight: 600; color: var(--text); margin: 0.2rem 0 0.6rem; line-height: 1.3; }
+    .list-view .card-name { font-size: 0.9rem; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.75rem; }
+    .tag { background: #f3f4f6; color: var(--muted); font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 20px; font-weight: 500; }
+    .tag.alc { color: #92400e; border: 1px solid #fde68a; background: #fffbeb; }
+
+    .price-section { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .price-from { font-size: 0.7rem; color: var(--muted); }
+    .price-value { font-size: 1.25rem; font-weight: 700; color: var(--green); }
+    .price-context { font-size: 0.7rem; font-weight: 600; margin-top: 0.15rem; }
+    .price-context.ctx-green { color: var(--green); }
+    .price-context.ctx-muted { color: var(--muted); }
+    .price-context.ctx-amber { color: var(--gold); }
+    .price-unit { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; font-weight: 500; }
+    .price-unit strong { color: #92400e; font-weight: 600; }
+    .stores-count { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .stores-count strong { color: var(--text); }
+    .pack-badge { display: inline-block; font-size: 0.6rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px; padding: 0.1rem 0.35rem; font-weight: 600; margin-left: 0.3rem; vertical-align: middle; }
+    .store-unit-price { font-size: 0.72rem; color: var(--muted); }
+    .list-view .price-value { font-size: 1.1rem; }
+    .price-max { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; }
+
+    .store-mini { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .store-chip {
+      font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.45rem;
+      border-radius: 20px; border: 1px solid transparent;
+    }
+
+    .btn-compare { width: 100%; padding: 0.55rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1.5px solid var(--primary); background: transparent; color: var(--primary-light); }
+    .btn-compare:hover { background: var(--primary); color: #fff; }
+    .btn-compare.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ── MODAL ───────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200;
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal-header {
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+      position: sticky; top: 0; background: var(--card); z-index: 1; border-radius: 16px 16px 0 0;
+    }
+    .modal-close { background: #f3f4f6; border: none; color: var(--muted); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; transition: all 0.2s; }
+    .modal-close:hover { color: var(--text); background: #e5e7eb; }
+    .modal-body { padding: 1.25rem 1.5rem; }
+    .modal-emoji { font-size: 3.5rem; margin-bottom: 0.5rem; display: block; }
+    .modal-brand { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .modal-name { font-size: 1.3rem; font-weight: 700; margin: 0.2rem 0 0.75rem; }
+    .modal-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+    .modal-attrs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .attr-pill { background: #f3f4f6; border: 1px solid var(--border); border-radius: 20px; font-size: 0.78rem; padding: 0.3rem 0.7rem; color: var(--text); }
+    .attr-pill.gold { border-color: #fde68a; color: #92400e; background: #fffbeb; }
+
+    .stores-title { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+    .store-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--bg2); margin-bottom: 0.5rem; gap: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .store-row:hover { border-color: var(--primary-light); }
+    .store-row-left { display: flex; align-items: center; gap: 0.6rem; }
+    .store-logo { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .store-info-name { font-size: 0.88rem; font-weight: 600; }
+    .store-info-type { font-size: 0.72rem; color: var(--muted); }
+    .store-row-right { display: flex; align-items: center; gap: 0.75rem; }
+    .store-price { font-size: 1.05rem; font-weight: 700; color: var(--green); }
+    .store-price.cheapest { color: var(--green); font-size: 1.1rem; }
+    .store-price.pricey { color: var(--muted); }
+    .btn-store {
+      padding: 0.4rem 0.9rem; border-radius: 8px; background: var(--primary);
+      color: #fff; font-size: 0.78rem; font-weight: 600; text-decoration: none;
+      white-space: nowrap; transition: background 0.2s;
+    }
+    .btn-store:hover { background: var(--primary-light); }
+    .modal-disclaimer { font-size: 0.75rem; color: var(--muted); margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; line-height: 1.5; }
+
+    /* ── COMPARE BAR ─────────────────────────── */
+    .compare-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 0.75rem 1.5rem; display: none; align-items: center; gap: 1rem;
+    }
+    .compare-bar.show { display: flex; }
+    .compare-items { display: flex; gap: 0.5rem; flex: 1; overflow-x: auto; }
+    .compare-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.35rem 0.75rem; font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.5rem; }
+    .compare-item-remove { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+    .compare-item-remove:hover { color: var(--red); }
+    .btn-compare-now { padding: 0.55rem 1.25rem; background: var(--primary); border: none; border-radius: 8px; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .btn-compare-now:hover { background: var(--primary-light); }
+    .btn-clear-compare { padding: 0.5rem 0.75rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+
+    /* ── COMPARE TABLE ───────────────────────── */
+    .compare-table-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .compare-table th, .compare-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .compare-table th { background: var(--bg3); color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .compare-table td:first-child { color: var(--muted); font-size: 0.78rem; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-price-cell { font-weight: 700; }
+    .best-price { color: var(--green); }
+
+    /* ── EMPTY STATE ─────────────────────────── */
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .empty h3 { color: var(--text); margin-bottom: 0.5rem; }
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 2rem; }
+    footer a { color: var(--primary-light); text-decoration: none; }
+
+    /* ── SKELETON LOADER ─────────────────────── */
+    .skeleton-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .skeleton-card .sk-img { height: 160px; background: var(--bg3); }
+    .skeleton-card .sk-body { padding: 1rem; }
+    .skeleton-card .sk-line { height: 12px; background: var(--bg3); border-radius: 6px; margin-bottom: 0.6rem; animation: shimmer 1.5s infinite; background-size: 200% 100%; background-image: linear-gradient(90deg, #f1f1f5 0%, #e5e7eb 50%, #f1f1f5 100%); }
+    .skeleton-card .sk-line.w60 { width: 60%; }
+    .skeleton-card .sk-line.w80 { width: 80%; }
+    .skeleton-card .sk-line.w40 { width: 40%; height: 20px; }
+
+    /* ── MOBILE FILTER BUTTON ───────────────── */
+    .mobile-filter-btn {
+      display: none; position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 140; padding: 0.65rem 1.5rem; border-radius: 24px;
+      background: var(--primary); color: #fff; border: none;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: all 0.2s;
+    }
+    .mobile-filter-btn:hover { background: var(--primary-light); }
+    @media (max-width: 900px) { .mobile-filter-btn { display: flex; align-items: center; gap: 0.4rem; } }
+
+    /* ── MOBILE FILTER SHEET ────────────────── */
+    .filter-sheet-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 160; backdrop-filter: blur(4px);
+    }
+    .filter-sheet-overlay.open { display: block; }
+    .filter-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 161;
+      background: var(--card); border-radius: 16px 16px 0 0;
+      max-height: 80vh; overflow-y: auto; padding: 1.25rem;
+      transform: translateY(100%); transition: transform 0.3s ease;
+    }
+    .filter-sheet-overlay.open .filter-sheet { transform: translateY(0); }
+    .filter-sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .filter-sheet-header h3 { font-size: 1rem; margin: 0; }
+    .filter-sheet-close { background: var(--bg3); border: none; color: var(--muted); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+
+    /* ── UTILITIES ───────────────────────────── */
+    .hidden { display: none !important; }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+      .card-image { height: 100px; font-size: 2.5rem; }
+      .card-body { padding: 0.65rem; }
+      .card-name { font-size: 0.82rem; margin: 0.15rem 0 0.4rem; }
+      .card-brand { font-size: 0.62rem; }
+      .card-tags { display: none; }
+      .price-value { font-size: 1.05rem; }
+      .btn-compare { padding: 0.45rem; font-size: 0.75rem; min-height: 44px; }
+      .store-mini { display: none; }
+    }
+    @media (max-width: 380px) {
+      .products-grid { grid-template-columns: 1fr 1fr; }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+    /* ── STATUS BAR ──────────────────────────────────── */
+    .status-bar {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: 0.45rem 1.5rem; font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 0.4rem; }
+    .dot-green  { background: var(--green); }
+    .dot-yellow { background: var(--gold); animation: pulse 1.5s infinite; }
+    .dot-gray   { background: #9ca3af; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .btn-refresh {
+      padding: 0.3rem 0.75rem; background: var(--primary); border: none;
+      border-radius: 6px; color: #fff; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; white-space: nowrap;
+    }
+    .btn-refresh:hover { background: var(--primary-light); }
+    .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+    .progress-wrap { height: 4px; background: var(--border); position: fixed; top: 0; left: 0; right: 0; z-index: 999; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--gold)); transition: width 0.4s; }
+    .scrape-banner {
+      display: none; background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a;
+      border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1rem;
+    }
+    .scrape-banner.active { display: block; }
+    .scrape-banner-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .scrape-banner-title { font-size: 0.85rem; font-weight: 600; color: var(--gold); }
+    .scrape-banner-pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .scrape-banner-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem; }
+    .scrape-banner-fill { height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--gold)); border-radius: 3px; transition: width 0.5s; }
+    .scrape-banner-detail { font-size: 0.78rem; color: var(--muted); }
+    .scrape-banner-detail strong { color: var(--text); }
+    .price-source-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
+    }
+    .badge-real     { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .badge-estimated{ background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .badge-loading  { background: #f3f4f6; color: var(--muted); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar" id="statusBar">
+  <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+    <span id="statusIndicator"><span class="status-dot dot-gray"></span>Cargando...</span>
+    <span id="lastUpdatedText" style="color:var(--muted)"></span>
+    <span id="priceSourceBadge" class="price-source-badge badge-loading">⏳ Conectando...</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.5rem">
+    <span id="scrapeProgressText" style="color:var(--muted);display:none"></span>
+    <button class="btn-refresh" id="refreshBtn" onclick="openScrapeModal()">⚡ Actualizar precios</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="logo">🍻 <span>Copetón</span></div>
+      <div class="header-sub">Compara precios de tragos en tiempo real desde múltiples tiendas en Chile</div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar por nombre, marca o tipo..." />
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" onclick="openLogModal()" title="Historial de scraping">📋 Log</button>
+      <button class="btn-outline" onclick="openConfigModal()" title="Configurar tiendas y productos">⚙ Config</button>
+      <button class="btn-outline" id="compareToggleBtn" onclick="openCompareModal()" style="display:none">Comparar (<span id="compareCount">0</span>)</button>
+    </div>
+  </div>
+</header>
+
+
+<!-- MAIN -->
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="filter-card">
+      <div class="filter-title">Filtros</div>
+
+      <label class="filter-label">Ordenar por</label>
+      <select id="sortSelect" onchange="render()">
+        <option value="price_asc">Precio: menor a mayor</option>
+        <option value="price_desc">Precio: mayor a menor</option>
+        <option value="ppl_asc">Precio/Litro: menor a mayor</option>
+        <option value="name_asc">Nombre A–Z</option>
+        <option value="alc_asc">Alcohol: menor a mayor</option>
+        <option value="alc_desc">Alcohol: mayor a menor</option>
+      </select>
+
+      <label class="filter-label">Precio máximo</label>
+      <input type="range" id="priceRange" min="0" max="80000" step="500" value="80000" oninput="updatePriceDisplay();render()" />
+      <div class="price-display" id="priceDisplay">Hasta $80.000</div>
+
+      <label class="filter-label">% Alcohol</label>
+      <select id="alcFilter" onchange="render()">
+        <option value="">Todos</option>
+        <option value="0">Sin alcohol (0%)</option>
+        <option value="low">Bajo (0.1–5%)</option>
+        <option value="mid">Medio (5.1–20%)</option>
+        <option value="high">Alto (+20%)</option>
+      </select>
+
+      <label class="filter-label">Tipo de trago</label>
+      <select id="catFilterSel" onchange="state.category=this.value;renderCats();render()">
+        <option value="all">Todos los tipos</option>
+        <option value="cerveza">🍺 Cerveza</option>
+        <option value="sin_alcohol">🫧 Sin Alcohol</option>
+        <option value="pisco">🥃 Pisco</option>
+        <option value="gin">🌿 Gin</option>
+        <option value="whisky">🥃 Scotch Blend</option>
+        <option value="single_malt">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Single Malt</option>
+        <option value="whisky_bourbon">🥃 Bourbon &amp; Irish</option>
+        <option value="whisky_japones">🗾 Whisky Japonés</option>
+        <option value="ron">🍹 Ron</option>
+        <option value="vodka">❄️ Vodka</option>
+        <option value="tequila">🌵 Tequila</option>
+        <option value="mezcal">🌵 Mezcal</option>
+        <option value="vino">🍷 Vino</option>
+        <option value="espumante">🥂 Espumante</option>
+        <option value="aperitivo">🧡 Aperitivos</option>
+        <option value="licor">🫙 Licores</option>
+        <option value="cognac">🍶 Cognac &amp; Brandy</option>
+        <option value="vermut">🍸 Vermut</option>
+        <option value="rtd">🥤 RTD / Cocktails</option>
+      </select>
+
+      <label class="filter-label">Marca</label>
+      <div style="position:relative">
+        <input type="text" id="brandFilterInput" list="brandDatalist" placeholder="Buscar marca..." autocomplete="off"
+          oninput="onBrandInput(this.value)" style="padding-right:2rem" />
+        <span id="brandClearBtn" onclick="clearBrandFilter()" title="Limpiar"
+          style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:0.9rem;display:none">✕</span>
+      </div>
+      <datalist id="brandDatalist"></datalist>
+
+      <label class="filter-label">Volumen</label>
+      <select id="volumeFilterSel" onchange="state.volumeFilter=this.value;render()">
+        <option value="">Todos los volúmenes</option>
+        <option value="small">Lata / Botellín (≤ 400ml)</option>
+        <option value="medium">Formato mediano (500–650ml)</option>
+        <option value="standard">Botella estándar (700–760ml)</option>
+        <option value="large">Litro o más (900ml+)</option>
+        <option value="pack">Pack / Multipack</option>
+      </select>
+
+
+      <label class="filter-label">Tiendas disponibles</label>
+      <div class="store-filter" id="storeFilterList"></div>
+
+      <button class="btn-reset" onclick="resetFilters()">↺ Limpiar filtros</button>
+    </div>
+
+    <div class="filter-card">
+      <div class="filter-title">💡 Tips</div>
+      <p style="font-size:0.78rem;color:var(--muted);line-height:1.6">Los precios son <strong style="color:var(--text)">referenciales</strong> y pueden variar. Haz clic en "Ver en tienda" para ver el precio actual y disponibilidad real.</p>
+      <p style="font-size:0.78rem;color:var(--muted);line-height:1.6;margin-top:0.6rem">Usa el botón <strong style="color:var(--text)">Comparar</strong> para poner productos lado a lado.</p>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <div class="results-area">
+    <!-- SCRAPE PROGRESS BANNER -->
+    <div class="scrape-banner" id="scrapeBanner">
+      <div class="scrape-banner-header">
+        <span class="scrape-banner-title">⚡ Actualizando precios...</span>
+        <span class="scrape-banner-pct" id="scrapeBannerPct">0%</span>
+      </div>
+      <div class="scrape-banner-bar">
+        <div class="scrape-banner-fill" id="scrapeBannerFill" style="width:0%"></div>
+      </div>
+      <div class="scrape-banner-detail" id="scrapeBannerDetail">Iniciando...</div>
+    </div>
+    <div class="results-header">
+      <div class="results-count">Mostrando <strong id="resultCount">0</strong> productos</div>
+      <div class="sort-row">
+        <select class="sort-select" id="sortSelectMobile" onchange="document.getElementById('sortSelect').value=this.value;render()">
+          <option value="price_asc">↑ Precio</option>
+          <option value="price_desc">↓ Precio</option>
+          <option value="ppl_asc">$/Litro</option>
+          <option value="name_asc">A–Z</option>
+          <option value="alc_desc">% Alc ↓</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Vista cuadrícula">⊞</button>
+          <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="Vista lista">☰</button>
+        </div>
+      </div>
+    </div>
+    <div id="productsContainer"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Copetón · Los precios son orientativos y pueden variar. Verifica siempre en el portal de la tienda.</p>
+  <p style="margin-top:0.4rem">Bebe con responsabilidad. 🍻 · <a href="#">¿Error en un precio? Avísanos</a></p>
+</footer>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal" onclick="closeConfigModal(event)">
+  <div class="modal" id="configContent" style="max-width:680px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3 style="margin:0;font-size:1.1rem">⚙ Configuración</h3>
+        <p style="margin:0.25rem 0 0;font-size:0.8rem;color:var(--muted)">Selecciona las tiendas y productos que quieres incluir</p>
+      </div>
+      <button onclick="closeConfigModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div style="padding:0 1.5rem">
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1rem">
+        <button id="cfgTabStores" onclick="switchCfgTab('stores')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid var(--primary-light);color:var(--text);font-weight:600;cursor:pointer;font-size:0.9rem">Tiendas</button>
+        <button id="cfgTabProducts" onclick="switchCfgTab('products')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:0.9rem">Productos</button>
+      </div>
+    </div>
+    <div id="cfgBody" style="padding:0 1.5rem 1.5rem;overflow-y:auto;max-height:55vh"></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn-reset" onclick="closeConfigModal()" style="width:auto;padding:0.5rem 1.2rem">Cancelar</button>
+      <button onclick="saveConfig()" style="padding:0.5rem 1.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem">Guardar configuración</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-overlay" id="compareModal" onclick="closeCompareModal(event)">
+  <div class="modal" id="compareContent" style="max-width:800px"></div>
+</div>
+
+<!-- LOG MODAL -->
+<div class="modal-overlay" id="logModal" onclick="closeLogModal(event)">
+  <div class="modal" id="logContent" style="max-width:780px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3 style="margin:0;font-size:1.1rem">📋 Historial de scraping</h3>
+        <p style="margin:0.25rem 0 0;font-size:0.8rem;color:var(--muted)">Registro de cada ejecución y sus resultados</p>
+      </div>
+      <button onclick="closeLogModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div id="logBody" style="padding:1.25rem 1.5rem;overflow-y:auto;max-height:70vh">
+      <div style="text-align:center;color:var(--muted);padding:2rem">Cargando...</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRAPE CONFIG MODAL -->
+<div class="modal-overlay" id="scrapeModal" onclick="closeScrapeModal(event)">
+  <div class="modal" id="scrapeContent" style="max-width:720px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3 style="margin:0;font-size:1.1rem">⚡ Configurar scraping</h3>
+        <p style="margin:0.25rem 0 0;font-size:0.8rem;color:var(--muted)">Selecciona qué quieres actualizar. Menos productos = más rápido.</p>
+      </div>
+      <button onclick="closeScrapeModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div style="padding:0 1.5rem">
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1rem">
+        <button id="scrTabCats" onclick="switchScrapeTab('cats')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid var(--primary-light);color:var(--text);font-weight:600;cursor:pointer;font-size:0.9rem">Categorías</button>
+        <button id="scrTabBrands" onclick="switchScrapeTab('brands')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:0.9rem">Marcas</button>
+        <button id="scrTabStores" onclick="switchScrapeTab('stores')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:0.9rem">Tiendas</button>
+        <button id="scrTabProducts" onclick="switchScrapeTab('products')" style="padding:0.6rem 1.2rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:0.9rem">Productos</button>
+      </div>
+    </div>
+    <div id="scrapeBody" style="padding:0 1.5rem 1rem;overflow-y:auto;max-height:55vh"></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;justify-content:space-between;align-items:center">
+      <div id="scrapeEstimate" style="font-size:0.8rem;color:var(--muted)"></div>
+      <div style="display:flex;gap:0.75rem">
+        <button class="btn-reset" onclick="closeScrapeModal()" style="width:auto;padding:0.5rem 1.2rem">Cancelar</button>
+        <button id="scrapeGoBtn" onclick="launchSelectiveScrape()" style="padding:0.5rem 1.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem">⚡ Iniciar scraping</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE FILTER BUTTON -->
+<button class="mobile-filter-btn" id="mobileFilterBtn" onclick="openFilterSheet()">
+  🔍 Filtrar <span id="mobileFilterCount"></span>
+</button>
+
+<!-- MOBILE FILTER SHEET -->
+<div class="filter-sheet-overlay" id="filterSheetOverlay" onclick="closeFilterSheet(event)">
+  <div class="filter-sheet" onclick="event.stopPropagation()">
+    <div class="filter-sheet-header">
+      <h3>Filtros</h3>
+      <button class="filter-sheet-close" onclick="closeFilterSheet()">✕</button>
+    </div>
+    <div id="mobileFilterContent"></div>
+    <button onclick="closeFilterSheet()" style="width:100%;padding:0.65rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.9rem;margin-top:1rem;cursor:pointer;min-height:44px">Aplicar filtros</button>
+  </div>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div class="compare-items" id="compareItems"></div>
+  <button class="btn-clear-compare" onclick="clearCompare()">Limpiar</button>
+  <button class="btn-compare-now" onclick="openCompareModal()">Comparar ahora →</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const STORES = {
+  lider:      { name: 'Lider',           emoji: '🛒', color: '#003087', text: '#fff', type: 'Supermercado', url: q => `https://www.lider.cl/supermercado/search?text=${encodeURIComponent(q)}` },
+  unimarc:    { name: 'Unimarc',         emoji: '🛒', color: '#e8000d', text: '#fff', type: 'Supermercado', url: q => `https://www.unimarc.cl/search?q=${encodeURIComponent(q)}` },
+  jumbo:      { name: 'Jumbo',           emoji: '🛒', color: '#009540', text: '#fff', type: 'Supermercado', url: q => `https://www.jumbo.cl/busca?ft=${encodeURIComponent(q)}` },
+  labarra:    { name: 'La Barra',        emoji: '🍺', color: '#8B4513', text: '#fff', type: 'Licorería',    url: q => `https://www.labarra.cl/search?q=${encodeURIComponent(q)}` },
+  descorcha:  { name: 'Descorcha',       emoji: '🍷', color: '#722F37', text: '#fff', type: 'Vinos',        url: q => `https://www.descorcha.cl/search?q=${encodeURIComponent(q)}` },
+  liquidos:   { name: 'Líquidos',        emoji: '💧', color: '#1565c0', text: '#fff', type: 'Licorería',    url: q => `https://www.liquidos.cl/buscar?q=${encodeURIComponent(q)}` },
+  operals:    { name: 'Operals',         emoji: '🏪', color: '#2e7d32', text: '#fff', type: 'Licorería',    url: q => `https://www.operals.cl/search?q=${encodeURIComponent(q)}` },
+  booz:       { name: 'Booz',            emoji: '🚀', color: '#FF6B35', text: '#fff', type: 'Delivery',     url: q => `https://www.booz.cl/search?q=${encodeURIComponent(q)}` },
+  elbrindis:  { name: 'El Brindis',      emoji: '🥂', color: '#c41e3a', text: '#fff', type: 'Licorería',    url: q => `https://www.elbrindis.cl/search?q=${encodeURIComponent(q)}` },
+  lanegradelivery: { name: 'La Negra',   emoji: '🖤', color: '#222',    text: '#fff', type: 'Delivery',     url: q => `https://www.lanegradelivery.cl/search?q=${encodeURIComponent(q)}` },
+  tost:       { name: 'Tost',            emoji: '🥃', color: '#F7931E', text: '#222', type: 'Delivery',     url: q => `https://www.tost.cl/search?q=${encodeURIComponent(q)}` },
+  eattouch:   { name: 'Eat Touch',       emoji: '📱', color: '#6d28d9', text: '#fff', type: 'Delivery',     url: q => `https://www.eattouch.cl/search?q=${encodeURIComponent(q)}` },
+  micocacola: { name: 'Mi Coca-Cola',    emoji: '🥤', color: '#e2001a', text: '#fff', type: 'Delivery',     url: q => `https://www.micocacola.cl/search?q=${encodeURIComponent(q)}` },
+};
+
+const CATS = [
+  { id: 'all',            name: 'Todos',           emoji: '🍹' },
+  { id: 'cerveza',        name: 'Cerveza',         emoji: '🍺' },
+  { id: 'sin_alcohol',    name: 'Sin Alcohol',     emoji: '🫧' },
+  { id: 'pisco',          name: 'Pisco',           emoji: '🥃' },
+  { id: 'gin',            name: 'Gin',             emoji: '🌿' },
+  { id: 'whisky',         name: 'Scotch Blend',    emoji: '🥃' },
+  { id: 'single_malt',    name: 'Single Malt',     emoji: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+  { id: 'whisky_bourbon', name: 'Bourbon & Irish', emoji: '🥃' },
+  { id: 'whisky_japones', name: 'Whisky Japonés',  emoji: '🗾' },
+  { id: 'ron',            name: 'Ron',             emoji: '🍹' },
+  { id: 'vodka',          name: 'Vodka',           emoji: '❄️' },
+  { id: 'tequila',        name: 'Tequila',         emoji: '🌵' },
+  { id: 'mezcal',         name: 'Mezcal',          emoji: '🌵' },
+  { id: 'vino',           name: 'Vino',            emoji: '🍷' },
+  { id: 'espumante',      name: 'Espumante',       emoji: '🥂' },
+  { id: 'aperitivo',      name: 'Aperitivos',      emoji: '🧡' },
+  { id: 'licor',          name: 'Licores',         emoji: '🫙' },
+  { id: 'cognac',         name: 'Cognac & Brandy', emoji: '🍶' },
+  { id: 'vermut',         name: 'Vermut',          emoji: '🍸' },
+  { id: 'rtd',            name: 'RTD / Cocktails', emoji: '🥤' },
+];
+
+// ── Configuración activa (cargada desde /api/config) ──
+let activeProdIds = null;   // null = todos habilitados
+let activeStoreIds = null;  // null = todas habilitadas
+let cfgState = { stores: {}, products: {}, tab: 'stores' };
+
+function getActiveProducts() {
+  return activeProdIds ? PRODUCTS.filter(p => activeProdIds.includes(p.id)) : PRODUCTS;
+}
+
+async function loadConfig() {
+  try {
+    const r = await fetch('http://localhost:3000/api/config', { signal: AbortSignal.timeout(2000) });
+    if (!r.ok) return;
+    const cfg = await r.json();
+    activeProdIds = cfg.enabledProducts || null;
+    activeStoreIds = cfg.enabledStores || null;
+    if (activeStoreIds) state.storeFilter = activeStoreIds.filter(id => STORES[id]);
+  } catch { /* modo offline - mostrar todo */ }
+}
+
+// Precios orientativos en CLP (enero 2025)
+const PRODUCTS = [
+  // ─── CERVEZAS ────────────────────────────────────────
+  { id:'e1', name:'Escudo Lata 350ml', brand:'Escudo', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'350ml', desc:'La cerveza chilena más popular. Lager suave y refrescante, ideal para cualquier ocasión.', badge:'top',
+    prices:{ lider:850, unimarc:890, jumbo:880, booz:1200, eattouch:1100, lanegradelivery:1150, tost:1200 } },
+  { id:'e2', name:'Escudo Pack 6 Latas', brand:'Escudo', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'6×350ml', desc:'Pack de 6 latas Escudo, el clásico chileno.',
+    prices:{ lider:4490, unimarc:4690, jumbo:4590, booz:6000, liquidos:5200, operals:5400 } },
+  { id:'e3', name:'Cristal Lata 350ml', brand:'Cristal', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'350ml', desc:'Cerveza nacional refrescante. Un clásico de reuniones y asados chilenos.',
+    prices:{ lider:840, unimarc:880, jumbo:870, booz:1180, eattouch:1090, lanegradelivery:1100 } },
+  { id:'e4', name:'Heineken Lata 330ml', brand:'Heineken', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'330ml', desc:'Icónica cerveza holandesa tipo lager. Sabor equilibrado y refrescante.',
+    prices:{ lider:1090, unimarc:1150, jumbo:1100, labarra:1350, booz:1500, liquidos:1250, operals:1300 } },
+  { id:'e5', name:'Corona Botella 355ml', brand:'Corona', cat:'cerveza', emoji:'🍺', alc:4.5, vol:'355ml', desc:'Cerveza mexicana de carácter suave. Perfecta con un toque de limón.',
+    prices:{ lider:1290, unimarc:1350, jumbo:1300, labarra:1600, booz:1700, elbrindis:1550, liquidos:1400 } },
+  { id:'e6', name:'Budweiser Lata 355ml', brand:'Budweiser', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'355ml', desc:'American lager de cuerpo suave y sabor limpio. Refrescante y versátil.',
+    prices:{ lider:990, unimarc:1050, jumbo:1010, booz:1280, eattouch:1200, lanegradelivery:1250 } },
+  { id:'e7', name:'Stella Artois Lata 330ml', brand:'Stella Artois', cat:'cerveza', emoji:'🍺', alc:5.2, vol:'330ml', desc:'Cerveza belga premium con amargor suave y final largo.',
+    prices:{ lider:1150, unimarc:1220, jumbo:1180, labarra:1450, booz:1550, elbrindis:1400 } },
+  { id:'e8', name:'Kunstmann Torobayo 330ml', brand:'Kunstmann', cat:'cerveza', emoji:'🍺', alc:5.5, vol:'330ml', desc:'Cerveza artesanal chilena. Lager con carácter malteado y herencia alemana.',
+    prices:{ labarra:1550, operals:1600, liquidos:1500, booz:1800, elbrindis:1650, lanegradelivery:1700 } },
+  { id:'e9', name:'Kross Golden Ale 330ml', brand:'Kross', cat:'cerveza', emoji:'🍺', alc:4.7, vol:'330ml', desc:'Ale artesanal chilena. Suave, afrutada y muy aromática.',
+    prices:{ labarra:1690, operals:1750, liquidos:1600, booz:1900, elbrindis:1750 } },
+  { id:'e10', name:'Austral Calafate 330ml', brand:'Austral', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'330ml', desc:'Cerveza patagónica con calafate. Notas frutales únicas del sur de Chile.',
+    prices:{ labarra:1890, operals:1950, liquidos:1800, booz:2100, elbrindis:1900 } },
+  { id:'e11', name:'Patagonia Amber Lager 355ml', brand:'Patagonia', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'355ml', desc:'Amber lager de inspiración patagónica, con notas de caramelo y malta.',
+    prices:{ unimarc:1390, jumbo:1350, labarra:1600, booz:1800, liquidos:1500 } },
+  { id:'e12', name:'Sol Lata 355ml', brand:'Sol', cat:'cerveza', emoji:'🍺', alc:4.5, vol:'355ml', desc:'Cerveza mexicana clara y refrescante. Ideal para el verano.',
+    prices:{ lider:990, unimarc:1050, jumbo:1010, booz:1280, eattouch:1200 } },
+  { id:'e13', name:'Schneider Lata 500ml', brand:'Schneider', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'500ml', desc:'Cerveza nacional con mayor volumen. Ideal para compartir.',
+    prices:{ lider:990, unimarc:1050, jumbo:1010, booz:1300, lanegradelivery:1200 } },
+
+  // ─── SIN ALCOHOL ─────────────────────────────────────
+  { id:'sa1', name:'Heineken 0.0 Lata 330ml', brand:'Heineken', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'Toda la experiencia Heineken sin alcohol. Sabor completo, 0.0% alcohol.',
+    prices:{ lider:1090, unimarc:1150, jumbo:1100, labarra:1350, booz:1400 } },
+  { id:'sa2', name:'Budweiser Zero Lata 355ml', brand:'Budweiser', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'355ml', desc:'Cerveza sin alcohol con el sabor inconfundible de Budweiser.',
+    prices:{ lider:990, unimarc:1050, jumbo:1010, booz:1250, eattouch:1180 } },
+  { id:'sa3', name:'Corona Cero 330ml', brand:'Corona', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'La ligereza de Corona sin alcohol. Fresca y refrescante.',
+    prices:{ lider:1190, unimarc:1250, jumbo:1220, labarra:1490, booz:1600 } },
+  { id:'sa4', name:'Stella Artois Sin Alcohol 330ml', brand:'Stella Artois', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'La calidad premium de Stella sin el alcohol. Perfecta para conductores.',
+    prices:{ lider:1150, unimarc:1220, jumbo:1180, labarra:1420 } },
+  { id:'sa5', name:'Kunstmann Sin Alcohol 330ml', brand:'Kunstmann', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'Artesanal chilena sin alcohol, con todo el carácter de la marca.',
+    prices:{ labarra:1450, operals:1500, liquidos:1400, booz:1700 } },
+
+  // ─── PISCO ───────────────────────────────────────────
+  { id:'p1', name:'Capel 35° 750ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'El pisco cooperativo más vendido de Chile. Suave y versátil para cualquier combinación.',
+    prices:{ lider:5490, unimarc:5690, jumbo:5590, labarra:6500, liquidos:5900, operals:6000, booz:7000 } },
+  { id:'p2', name:'Capel 40° 750ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco Capel con mayor graduación. Más intenso en aroma y sabor.',
+    prices:{ lider:6990, unimarc:7200, jumbo:7100, labarra:8000, liquidos:7500, operals:7600, booz:8500 } },
+  { id:'p3', name:'Capel Doble Destilado 40° 700ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:40, vol:'700ml', desc:'Pisco doble destilado de mayor pureza y carácter. Experiencia premium.',
+    prices:{ lider:8490, unimarc:8800, jumbo:8600, labarra:10000, liquidos:9200, elbrindis:9500 } },
+  { id:'p4', name:'Control C 35° 750ml', brand:'Control C', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'Pisco chileno de gran calidad y precio accesible. Ideal para preparar piscolas.',
+    prices:{ lider:5290, unimarc:5490, jumbo:5390, labarra:6300, liquidos:5700, booz:6800, lanegradelivery:6200 } },
+  { id:'p5', name:'Alto del Carmen 35° 750ml', brand:'Alto del Carmen', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'Pisco del Valle del Huasco, con notas florales y frutales elegantes.',
+    prices:{ lider:5990, unimarc:6200, jumbo:6100, labarra:7000, descorcha:6800, operals:6500 } },
+  { id:'p6', name:'Mistral Gran Mistral 40° 750ml', brand:'Mistral', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco premium de VSOP. Añejado en roble, complejo y elegante.',
+    prices:{ lider:8990, unimarc:9200, jumbo:9100, labarra:10500, liquidos:9800, descorcha:10200 } },
+  { id:'p7', name:'ABA 35° 750ml', brand:'ABA', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'Pisco chileno de precio económico. Ideal para grandes ocasiones.',
+    prices:{ lider:4990, unimarc:5200, jumbo:5100, booz:6200, lanegradelivery:5800 } },
+  // PISCO 1L
+  { id:'pl1', name:'Capel 35° 1000ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'El pisco más popular de Chile en formato litro. Mejor relación precio-volumen.',
+    prices:{ lider:6990, unimarc:7290, jumbo:7100 } },
+  { id:'pl2', name:'Capel 40° 1000ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:40, vol:'1000ml', desc:'Pisco Capel de mayor graduación en formato litro. Intenso y rendidor.',
+    prices:{ lider:8990, unimarc:9290, jumbo:9100 } },
+  { id:'pl3', name:'Control C 35° 1000ml', brand:'Control C', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'Pisco accesible en formato litro. El favorito para piscolas en cantidad.',
+    prices:{ lider:6790, unimarc:6990, jumbo:6890 } },
+  { id:'pl4', name:'Alto del Carmen 35° 1000ml', brand:'Alto del Carmen', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'Pisco del Valle del Huasco en litro. Notas florales y frutales elegantes.',
+    prices:{ lider:7490, unimarc:7790, jumbo:7600 } },
+  { id:'pl5', name:'ABA 35° 1000ml', brand:'ABA', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'Pisco económico en formato litro. Ideal para eventos y reuniones grandes.',
+    prices:{ lider:5990, unimarc:6290, jumbo:6100 } },
+  { id:'pl6', name:'Mistral 35° 1000ml', brand:'Mistral', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'Pisco Mistral en formato litro. Suave y versátil para cualquier mezcla.',
+    prices:{ lider:7490, unimarc:7790, jumbo:7600 } },
+  { id:'pl7', name:'Tres Erres 35° 1000ml', brand:'Tres Erres', cat:'pisco', emoji:'🥃', alc:35, vol:'1000ml', desc:'Pisco tradicional en formato litro. Buen equilibrio entre precio y calidad.',
+    prices:{ lider:6290, unimarc:6590, jumbo:6400 } },
+
+  // ─── GIN ─────────────────────────────────────────────
+  { id:'g1', name:'Gordon\'s London Dry Gin 750ml', brand:"Gordon's", cat:'gin', emoji:'🌿', alc:37.5, vol:'750ml', desc:'El gin más vendido del mundo. Fresco, cítrico y clásico.',
+    prices:{ lider:11990, unimarc:12500, jumbo:12200, labarra:14000, liquidos:13000, operals:13500, booz:15000 } },
+  { id:'g2', name:'Beefeater London Dry 750ml', brand:'Beefeater', cat:'gin', emoji:'🌿', alc:40, vol:'750ml', desc:'Gin londinense icónico con equilibrio perfecto de botánicos.',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17000, liquidos:16000, operals:16500, booz:18500 } },
+  { id:'g3', name:'Bombay Sapphire 750ml', brand:'Bombay Sapphire', cat:'gin', emoji:'🌿', alc:40, vol:'750ml', desc:'Gin azul de sabor complejo y aromático. 10 botánicos exóticos.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:19500, elbrindis:20000, booz:22500 } },
+  { id:'g4', name:'Tanqueray London Dry 750ml', brand:'Tanqueray', cat:'gin', emoji:'🌿', alc:43.1, vol:'750ml', desc:'Clásico gin de cuatro botánicos. Seco, elegante y versátil.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, liquidos:17500, operals:18000, booz:20000 } },
+  { id:'g5', name:'Hendrick\'s Gin 700ml', brand:"Hendrick's", cat:'gin', emoji:'🌿', alc:41.4, vol:'700ml', desc:'Gin escocés con pepino y rosa de Damasco. Delicado y floral.', badge:'top',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, operals:31500, booz:36000, elbrindis:33000 } },
+  { id:'g6', name:'Monkey 47 500ml', brand:'Monkey 47', cat:'gin', emoji:'🌿', alc:47, vol:'500ml', desc:'47 botánicos de la Selva Negra alemana. Gin ultra premium y complejo.',
+    prices:{ labarra:45000, liquidos:42000, descorcha:44000, operals:44000 } },
+
+  // ─── WHISKY ──────────────────────────────────────────
+  { id:'w1', name:'Johnnie Walker Red Label 750ml', brand:'Johnnie Walker', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend suave y versátil. El whisky más vendido del mundo.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, liquidos:15500, operals:16000, booz:18000 } },
+  { id:'w2', name:'Johnnie Walker Black Label 750ml', brand:'Johnnie Walker', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Añejado mínimo 12 años. Notas de vainilla, caramelo y humo suave.',
+    prices:{ lider:22990, unimarc:23500, jumbo:23200, labarra:26000, liquidos:24500, elbrindis:25000, booz:28000 } },
+  { id:'w3', name:'Johnnie Walker Double Black 750ml', brand:'Johnnie Walker', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Intensidad dupla con mayor carácter ahumado. El favorito de los audaces.',
+    prices:{ lider:25990, unimarc:26500, jumbo:26200, labarra:29000, liquidos:27500, booz:31000 } },
+  { id:'w4', name:'Jack Daniel\'s Old No.7 750ml', brand:"Jack Daniel's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Tennessee whiskey icónico. Filtrado por carbón de arce, suave y ahumado.', badge:'top',
+    prices:{ lider:19990, unimarc:20500, jumbo:20200, labarra:23000, liquidos:21500, operals:22000, booz:25000 } },
+  { id:'w5', name:"Jack Daniel's Apple 700ml", brand:"Jack Daniel's", cat:'whisky', emoji:'🥃', alc:35, vol:'700ml', desc:'Tennessee whiskey infusionado con manzana verde. Dulce y refrescante.',
+    prices:{ lider:20990, unimarc:21500, jumbo:21200, labarra:24000, liquidos:22500, booz:26000 } },
+  { id:'w6', name:'Chivas Regal 12 años 750ml', brand:'Chivas Regal', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blended Scotch suave y cremoso. Notas de miel, vainilla y fruta.',
+    prices:{ lider:23990, unimarc:24500, jumbo:24200, labarra:27000, liquidos:25500, elbrindis:26000 } },
+  { id:'w7', name:'Jameson Irish Whiskey 750ml', brand:'Jameson', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Triple destilado irlandés. Suave, ligero y fácil de disfrutar.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:19500, operals:20000, booz:23000 } },
+  { id:'w8', name:'Famous Grouse 750ml', brand:'Famous Grouse', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend escocés accesible y redondo. Ideal para whisky sour.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15000, liquidos:14000, booz:16500 } },
+  { id:'w9', name:'Glenfiddich 12 años 700ml', brand:'Glenfiddich', cat:'whisky', emoji:'🥃', alc:40, vol:'700ml', desc:'Single malt escocés con notas de pera, roble y manzana. Clásico indiscutible.', badge:'top',
+    prices:{ labarra:35000, liquidos:33000, descorcha:34000, elbrindis:35000, booz:40000 } },
+  { id:'w10', name:'Monkey Shoulder 700ml', brand:'Monkey Shoulder', cat:'whisky', emoji:'🥃', alc:40, vol:'700ml', desc:'Blend de tres maltas escocesas. Cremoso, vainillado y muy versátil para cócteles.',
+    prices:{ labarra:27000, liquidos:25000, operals:26000, elbrindis:26500, booz:30000 } },
+
+  // ─── RON ─────────────────────────────────────────────
+  { id:'r1', name:'Bacardi Carta Blanca 750ml', brand:'Bacardí', cat:'ron', emoji:'🍹', alc:37.5, vol:'750ml', desc:'Ron blanco clásico de Cuba. Suave, limpio y perfecto para mojitos.',
+    prices:{ lider:9990, unimarc:10500, jumbo:10200, labarra:12000, liquidos:11000, operals:11500, booz:13000 } },
+  { id:'r2', name:'Captain Morgan Original Spiced 750ml', brand:'Captain Morgan', cat:'ron', emoji:'🍹', alc:35, vol:'750ml', desc:'Ron especiado con notas de vainilla, canela y caramelo.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15000, liquidos:14000, booz:16500, elbrindis:14500 } },
+  { id:'r3', name:'Havana Club Añejo 3 años 700ml', brand:'Havana Club', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron cubano añejado 3 años. Ligero y aromático, ideal para coctelería.',
+    prices:{ lider:11990, unimarc:12500, jumbo:12200, labarra:14000, liquidos:13000, descorcha:13500, booz:15500 } },
+  { id:'r4', name:'Flor de Caña 4 años 700ml', brand:'Flor de Caña', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron nicaragüense premium. Suave y con gran equilibrio para cócteles.',
+    prices:{ labarra:11000, liquidos:10500, operals:11000, booz:13500, elbrindis:12000 } },
+  { id:'r5', name:'Santa Teresa 1796 700ml', brand:'Santa Teresa', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron venezolano ultra premium. Añejado y mezclado por el método solera.', badge:'top',
+    prices:{ labarra:28000, liquidos:26000, descorcha:27000, booz:32000 } },
+
+  // ─── VODKA ───────────────────────────────────────────
+  { id:'v1', name:'Smirnoff 750ml', brand:'Smirnoff', cat:'vodka', emoji:'❄️', alc:37.5, vol:'750ml', desc:'El vodka más vendido del mundo. Triple destilado, limpio y versátil.',
+    prices:{ lider:9990, unimarc:10500, jumbo:10200, labarra:12000, liquidos:11000, booz:13500, lanegradelivery:12500 } },
+  { id:'v2', name:'Absolut 750ml', brand:'Absolut', cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka sueco elaborado con trigo de invierno. Suave y elegante.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, liquidos:15500, operals:16000, booz:18000 } },
+  { id:'v3', name:'Grey Goose 750ml', brand:'Grey Goose', cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka francés de lujo. Elaborado con trigo de la Beauce y agua de Cognac.', badge:'top',
+    prices:{ labarra:31000, liquidos:29000, descorcha:30000, booz:36000, elbrindis:32000 } },
+  { id:'v4', name:'Belvedere 700ml', brand:'Belvedere', cat:'vodka', emoji:'❄️', alc:40, vol:'700ml', desc:'Vodka polaco de centeno Dankowskie. Ultra premium y cremoso.',
+    prices:{ labarra:34000, liquidos:32000, descorcha:33000, booz:39000 } },
+  { id:'v5', name:'Ciroc 750ml', brand:'Cîroc', cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka francés único destilado de uvas. Afrutado y distintivo.',
+    prices:{ labarra:36000, liquidos:34000, operals:35000, booz:41000 } },
+
+  // ─── TEQUILA ─────────────────────────────────────────
+  { id:'t1', name:'Jose Cuervo Especial Gold 750ml', brand:'Jose Cuervo', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila joven o gold. El tequila más vendido del mundo. Suave y accesible.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, liquidos:15500, booz:18000 } },
+  { id:'t2', name:'Jose Cuervo Silver 750ml', brand:'Jose Cuervo', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila blanco claro. Ideal para margaritas y shots.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, liquidos:15500 } },
+  { id:'t3', name:'Don Julio Blanco 750ml', brand:'Don Julio', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila 100% agave azul premium. Fresco, floral y de altísima calidad.', badge:'top',
+    prices:{ labarra:45000, liquidos:43000, descorcha:44000, booz:52000, elbrindis:46000 } },
+  { id:'t4', name:'Patrón Silver 750ml', brand:'Patrón', cat:'tequila', emoji:'🌵', alc:40, vol:'750ml', desc:'Tequila blanco premium artesanal. Suave, con notas cítricas y herbales.',
+    prices:{ labarra:48000, liquidos:46000, operals:47000, booz:55000 } },
+
+  // ─── VINO ─────────────────────────────────────────────
+  { id:'vt1', name:'Casillero del Diablo Cab. Sauv. 750ml', brand:'Casillero del Diablo', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'Tinto icónico chileno. Notas de frutas rojas, vainilla y madera suave.',
+    prices:{ lider:3990, unimarc:4200, jumbo:4100, labarra:5500, descorcha:5200, liquidos:4800, elbrindis:5000 } },
+  { id:'vt2', name:'Concha y Toro Frontera Merlot 750ml', brand:'Frontera', cat:'vino', emoji:'🍷', alc:12.5, vol:'750ml', desc:'Vino tinto accesible y afrutado. Muy popular en reuniones y asados.',
+    prices:{ lider:2490, unimarc:2600, jumbo:2550, labarra:3200, descorcha:3000, liquidos:2800 } },
+  { id:'vt3', name:'Santa Rita 120 Cab. Sauv. 750ml', brand:'Santa Rita 120', cat:'vino', emoji:'🍷', alc:13, vol:'750ml', desc:'Clásico tinto chileno de gran valor. Frutas maduras, taninos suaves.',
+    prices:{ lider:3490, unimarc:3700, jumbo:3600, labarra:4800, descorcha:4500, liquidos:4200 } },
+  { id:'vt4', name:'Gato Negro Cabernet Sauvignon 750ml', brand:'Gato Negro', cat:'vino', emoji:'🍷', alc:12.5, vol:'750ml', desc:'Tinto económico y muy popular en Chile. Fácil de beber y versátil.',
+    prices:{ lider:2290, unimarc:2400, jumbo:2350, labarra:3000, descorcha:2800 } },
+  { id:'vt5', name:'1865 Selected Vineyards 750ml', brand:'1865', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Reserva de alta calidad. Intenso en fruta, con estructura y elegancia.', badge:'top',
+    prices:{ lider:6990, unimarc:7200, jumbo:7100, labarra:8500, descorcha:8200, liquidos:7800 } },
+  { id:'vt6', name:'Casillero del Diablo Sauv. Blanc 750ml', brand:'Casillero del Diablo', cat:'vino', emoji:'🍷', alc:12.5, vol:'750ml', desc:'Vino blanco refrescante con notas de maracuyá, limón y hierbas.',
+    prices:{ lider:3990, unimarc:4200, jumbo:4100, labarra:5500, descorcha:5200, liquidos:4800 } },
+  { id:'vt7', name:'Santa Carolina Reserva Chardonnay 750ml', brand:'Santa Carolina', cat:'vino', emoji:'🍷', alc:13, vol:'750ml', desc:'Chardonnay tropical con toque de barrica. Elegante y versátil.',
+    prices:{ lider:4490, unimarc:4700, jumbo:4600, labarra:6000, descorcha:5800, liquidos:5400 } },
+  { id:'vt8', name:'Carta Vieja Rosé 750ml', brand:'Carta Vieja', cat:'vino', emoji:'🍷', alc:12, vol:'750ml', desc:'Rosé fresco y ligero. Aromas de fresa y durazno. Perfecto para el verano.',
+    prices:{ lider:2990, unimarc:3200, jumbo:3100, labarra:3900, descorcha:3700 } },
+
+  // ─── ESPUMANTE ────────────────────────────────────────
+  { id:'es1', name:'Valdivieso Extra Brut 750ml', brand:'Valdivieso', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'Espumante chileno clásico y accesible. Seco, refrescante y con burbujas finas.',
+    prices:{ lider:5490, unimarc:5700, jumbo:5600, labarra:6800, descorcha:6500, liquidos:6200, elbrindis:6500 } },
+  { id:'es2', name:'Undurraga Brut 750ml', brand:'Undurraga', cat:'espumante', emoji:'🥂', alc:12.5, vol:'750ml', desc:'Espumante premium nacional. Delicado y con notas de manzana y tostado.',
+    prices:{ lider:5990, unimarc:6200, jumbo:6100, labarra:7500, descorcha:7200, liquidos:7000 } },
+  { id:'es3', name:'Chandon Brut 750ml', brand:'Chandon', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'Espumante argentino de la casa Moët Hennessy. Elegante y muy festivo.', badge:'top',
+    prices:{ lider:11990, unimarc:12500, jumbo:12200, labarra:14500, descorcha:14000, liquidos:13500, elbrindis:14000 } },
+  { id:'es4', name:'Mumm Cordon Rouge 750ml', brand:'Mumm', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'Champagne francés de gran tradición. Potente, fresco y mineral.',
+    prices:{ labarra:22000, descorcha:21000, liquidos:20500, elbrindis:22000, booz:25000 } },
+  { id:'es5', name:'Moët & Chandon Brut Impérial 750ml', brand:'Moët & Chandon', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'El champagne más famoso del mundo. Elegante, fresco y festivo.', badge:'top',
+    prices:{ labarra:35000, descorcha:34000, liquidos:33000, elbrindis:36000 } },
+
+  // ─── APERITIVOS ───────────────────────────────────────
+  { id:'ap1', name:'Aperol 700ml', brand:'Aperol', cat:'aperitivo', emoji:'🧡', alc:11, vol:'700ml', desc:'Aperitivo italiano naranja. La base del icónico Aperol Spritz. Dulce y amargo.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:20000, operals:20500, booz:24000 } },
+  { id:'ap2', name:'Campari 700ml', brand:'Campari', cat:'aperitivo', emoji:'🍊', alc:25, vol:'700ml', desc:'Aperitivo italiano amargo con 60 ingredientes. Clave en Negroni y Americano.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:20000, booz:24000 } },
+  { id:'ap3', name:'Ramazzotti Amaro 700ml', brand:'Ramazzotti', cat:'aperitivo', emoji:'🌿', alc:30, vol:'700ml', desc:'Digestivo italiano con 33 hierbas y especias. Complejo y refrescante.',
+    prices:{ labarra:19000, liquidos:18000, operals:18500, booz:22000, elbrindis:19500 } },
+  { id:'ap4', name:'Fernet Branca 750ml', brand:'Fernet Branca', cat:'aperitivo', emoji:'🌿', alc:39, vol:'750ml', desc:'El digestivo amargo italiano por excelencia. 27 hierbas únicas. Con Coca-Cola es sublime.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, liquidos:17500, operals:18000, booz:21000 } },
+  { id:'ap5', name:'Jägermeister 700ml', brand:'Jägermeister', cat:'aperitivo', emoji:'🦌', alc:35, vol:'700ml', desc:'56 hierbas y especias alemanas. Dulce, amargo y especiado. Mejor bien frío.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:20000, booz:23500 } },
+  { id:'ap6', name:'Malibu Coco 700ml', brand:'Malibu', cat:'aperitivo', emoji:'🥥', alc:21, vol:'700ml', desc:'Licor de ron caribeño con coco. Dulce y tropical. Perfecto en verano.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15500, liquidos:14500, booz:17000 } },
+
+  // ─── LICORES ─────────────────────────────────────────
+  { id:'l1', name:'Baileys Irish Cream 700ml', brand:"Baileys", cat:'licor', emoji:'🫙', alc:17, vol:'700ml', desc:'Licor cremoso de whiskey irlandés y crema. Delicioso solo, con café o en cócteles.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, liquidos:17500, operals:18000, booz:21000 } },
+  { id:'l2', name:'Kahlúa Café 700ml', brand:'Kahlúa', cat:'licor', emoji:'☕', alc:20, vol:'700ml', desc:'Licor mexicano de café arabica. Esencial en White Russian y Espresso Martini.',
+    prices:{ lider:17990, unimarc:18500, jumbo:18200, labarra:21000, liquidos:20000, booz:24000 } },
+  { id:'l3', name:'Amaretto Disaronno 700ml', brand:'Disaronno', cat:'licor', emoji:'🍒', alc:28, vol:'700ml', desc:'Licor de almendras italiano. Dulce, suave y versátil. Excelente en cócteles.',
+    prices:{ labarra:19000, liquidos:18000, operals:18500, descorcha:18500, booz:22000 } },
+  { id:'l4', name:'Licor 43 700ml', brand:'Licor 43', cat:'licor', emoji:'🌟', alc:31, vol:'700ml', desc:'43 ingredientes naturales. Cítrico, vainillado y aromático. Muy versátil.',
+    prices:{ labarra:21000, liquidos:20000, operals:20500, booz:24500 } },
+  { id:'l5', name:'Grand Marnier 700ml', brand:'Grand Marnier', cat:'licor', emoji:'🍊', alc:40, vol:'700ml', desc:'Licor francés de brandy y naranjas. Exquisito solo o en cócteles de autor.', badge:'top',
+    prices:{ labarra:29000, liquidos:27000, descorcha:28000, elbrindis:29000 } },
+  { id:'l6', name:'Cointreau 700ml', brand:'Cointreau', cat:'licor', emoji:'🍋', alc:40, vol:'700ml', desc:'Triple sec premium francés. Esencial en Margarita, Cosmopolitan y Long Island.',
+    prices:{ lider:19990, unimarc:20500, jumbo:20200, labarra:23000, liquidos:22000, booz:26000 } },
+
+  // ─── CERVEZAS NUEVAS ─────────────────────────────────
+  { id:'bk1', name:'Becker Lata 350ml', brand:'Becker', cat:'cerveza', emoji:'🍺', alc:4.7, vol:'350ml', desc:'Lager chilena económica y refrescante. Un clásico de precio accesible para reuniones.',
+    prices:{ lider:790, unimarc:830, jumbo:820, booz:1100, lanegradelivery:1050 } },
+  { id:'bk2', name:'Royal Guard Lata 350ml', brand:'Royal Guard', cat:'cerveza', emoji:'🍺', alc:4.7, vol:'350ml', desc:'Lager chilena clásica y familiar. Suave y refrescante, ideal para el día a día.',
+    prices:{ lider:790, unimarc:820, jumbo:810, booz:1050 } },
+  { id:'bk3', name:'Kunstmann Lager 500ml', brand:'Kunstmann', cat:'cerveza', emoji:'🍺', alc:4.9, vol:'500ml', desc:'Lager artesanal chilena de herencia alemana en formato grande. Equilibrada y fácil de beber.',
+    prices:{ labarra:1800, operals:1850, liquidos:1750, booz:2100 } },
+  { id:'bk4', name:'Kunstmann IPA 330ml', brand:'Kunstmann', cat:'cerveza', emoji:'🍺', alc:5.5, vol:'330ml', desc:'India Pale Ale artesanal chilena con lúpulos aromáticos. Amarga y muy satisfactoria.', badge:'top',
+    prices:{ labarra:1890, operals:1950, liquidos:1800, booz:2200, elbrindis:1950 } },
+  { id:'bk5', name:'Kunstmann Märzen 330ml', brand:'Kunstmann', cat:'cerveza', emoji:'🍺', alc:5.5, vol:'330ml', desc:'Märzen estilo alemán de temporada. Malta caramelizada y final suave.',
+    prices:{ labarra:1750, operals:1800, liquidos:1700, booz:2050 } },
+  { id:'bk6', name:'Kross 5 330ml', brand:'Kross', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'330ml', desc:'Lager premium artesanal chilena de alta calidad. Limpia, refrescante y muy balanceada.',
+    prices:{ labarra:1590, operals:1650, liquidos:1550, booz:1900 } },
+  { id:'bk7', name:'Kross Märzen 330ml', brand:'Kross', cat:'cerveza', emoji:'🍺', alc:5.3, vol:'330ml', desc:'Märzen artesanal de estilo bávaro. Notas de malta y caramelo con final limpio.',
+    prices:{ labarra:1690, operals:1750, liquidos:1600, booz:1950 } },
+  { id:'bk8', name:'Austral Lager 330ml', brand:'Austral', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'330ml', desc:'Lager patagónica limpia y refrescante. Elaborada en el extremo sur de Chile.',
+    prices:{ labarra:1690, operals:1750, liquidos:1600, booz:1950 } },
+  { id:'bk9', name:'Patagonia Weisse 330ml', brand:'Patagonia', cat:'cerveza', emoji:'🍺', alc:5.3, vol:'330ml', desc:'Cerveza de trigo estilo alemán. Afrutada, con notas de banana y clavo.',
+    prices:{ unimarc:1490, jumbo:1450, labarra:1700, booz:1950 } },
+  { id:'bk10', name:'Heineken Lata 500ml', brand:'Heineken', cat:'cerveza', emoji:'🍺', alc:5.0, vol:'500ml', desc:'La icónica lager holandesa en formato grande. Ideal para alargar la tarde.',
+    prices:{ lider:1590, unimarc:1690, jumbo:1650, labarra:2000, booz:2200, lanegradelivery:2100 } },
+  { id:'bk11', name:'Corona Pack 6 Botellas 355ml', brand:'Corona', cat:'cerveza', emoji:'🍺', alc:4.5, vol:'6×355ml', desc:'Six-pack de la mexicana más popular. Refrescante con limón, perfecta para cualquier fiesta.',
+    prices:{ lider:7290, unimarc:7590, jumbo:7490, booz:9500 } },
+  { id:'bk12', name:'Stella Artois Lata 500ml', brand:'Stella Artois', cat:'cerveza', emoji:'🍺', alc:5.2, vol:'500ml', desc:'La premium belga en formato grande. Amargor suave y un final largo y elegante.',
+    prices:{ lider:1590, unimarc:1690, jumbo:1650, labarra:2000, booz:2200 } },
+  { id:'bk13', name:'Miller Lite Lata 355ml', brand:'Miller', cat:'cerveza', emoji:'🍺', alc:4.2, vol:'355ml', desc:'Lager americana baja en calorías. Suave, refrescante y fácil de beber.',
+    prices:{ lider:990, unimarc:1050, jumbo:1020, booz:1300 } },
+  { id:'bk14', name:'Coors Light Lata 355ml', brand:'Coors', cat:'cerveza', emoji:'🍺', alc:4.2, vol:'355ml', desc:'Light americana refrescante como las montañas de Colorado. Ligera y fácil de beber.',
+    prices:{ lider:990, unimarc:1050, jumbo:1020, booz:1300 } },
+  { id:'bk15', name:'Modelo Especial Botella 355ml', brand:'Modelo', cat:'cerveza', emoji:'🍺', alc:4.4, vol:'355ml', desc:'Lager mexicana premium de carácter suave y refrescante. Una de las más vendidas en el mundo.', badge:'top',
+    prices:{ lider:1590, unimarc:1650, jumbo:1620, labarra:1950, booz:2100, liquidos:1800 } },
+  { id:'bk16', name:'Dos Equis Lager Botella 355ml', brand:'Dos Equis', cat:'cerveza', emoji:'🍺', alc:4.2, vol:'355ml', desc:'Lager mexicana clásica y suave. Refrescante con notas de malta ligera.',
+    prices:{ lider:1390, unimarc:1450, jumbo:1420, labarra:1750, booz:1950 } },
+  { id:'bk17', name:'Negra Modelo Botella 355ml', brand:'Modelo', cat:'cerveza', emoji:'🍺', alc:5.4, vol:'355ml', desc:'Dark lager mexicana con notas de caramelo y café. Un estilo único y satisfactorio.',
+    prices:{ lider:1490, unimarc:1550, jumbo:1520, labarra:1850, booz:2000 } },
+  { id:'bk18', name:'Guinness Lata 440ml', brand:'Guinness', cat:'cerveza', emoji:'🍺', alc:4.2, vol:'440ml', desc:'La stout irlandesa más icónica del mundo. Cremosa, tostada y con sabor inconfundible.', badge:'top',
+    prices:{ lider:2290, unimarc:2490, jumbo:2390, labarra:2800, liquidos:2600, booz:3200 } },
+  { id:'bk19', name:'Leffe Blonde Botella 330ml', brand:'Leffe', cat:'cerveza', emoji:'🍺', alc:6.6, vol:'330ml', desc:'Ale belga de abadía con notas frutales y suave amargor. Una de las mejores ales del mundo.', badge:'top',
+    prices:{ lider:1990, unimarc:2100, jumbo:2050, labarra:2500, liquidos:2300, booz:2800 } },
+  { id:'bk20', name:'Hoegaarden Botella 330ml', brand:'Hoegaarden', cat:'cerveza', emoji:'🍺', alc:4.9, vol:'330ml', desc:'White ale belga clásica con coriandro y cascara de naranja. Afrutada y refrescante.',
+    prices:{ lider:1590, unimarc:1690, jumbo:1650, labarra:2000, liquidos:1850 } },
+  { id:'bk21', name:'Peroni Nastro Azzurro Botella 330ml', brand:'Peroni', cat:'cerveza', emoji:'🍺', alc:5.1, vol:'330ml', desc:'Lager italiana premium de caracter seco y refrescante. Estilo y elegancia italiana.',
+    prices:{ lider:1390, unimarc:1490, jumbo:1450, labarra:1750, liquidos:1600 } },
+  { id:'bk22', name:"Beck's Botella 330ml", brand:"Beck's", cat:'cerveza', emoji:'🍺', alc:5.0, vol:'330ml', desc:"Lager alemana clasica con caracter definido. Seca, limpia y muy refrescante.",
+    prices:{ lider:1290, unimarc:1390, jumbo:1350, booz:1700 } },
+  { id:'bk23', name:'Chimay Blue Botella 330ml', brand:'Chimay', cat:'cerveza', emoji:'🍺', alc:9.0, vol:'330ml', desc:'Trappist ale belga de alta fermentacion. Compleja, frutal y de intensidad sublime.', badge:'top',
+    prices:{ labarra:3990, liquidos:3700, descorcha:3800, operals:3900, booz:4500 } },
+  { id:'bk24', name:'Quilmes Lata 340ml', brand:'Quilmes', cat:'cerveza', emoji:'🍺', alc:4.9, vol:'340ml', desc:'La lager argentina mas popular. Clasica, suave y muy refrescante.',
+    prices:{ lider:1090, unimarc:1150, jumbo:1120, booz:1400, lanegradelivery:1300 } },
+  { id:'bk25', name:'Szot Pale Ale 330ml', brand:'Szot', cat:'cerveza', emoji:'🍺', alc:4.8, vol:'330ml', desc:'Craft chilena de autor. Pale Ale equilibrada con lupulos aromaticos y cuerpo suave.', badge:'new',
+    prices:{ labarra:2100, operals:2200, liquidos:2000, booz:2500 } },
+  { id:'bk26', name:'Kross Lupulus 330ml', brand:'Kross', cat:'cerveza', emoji:'🍺', alc:4.7, vol:'330ml', desc:'Hoppy lager artesanal chilena. Refrescante con notas de lupulo floral y citrico.',
+    prices:{ labarra:1790, operals:1850, liquidos:1700, booz:2050 } },
+  { id:'bk27', name:'Austral Porter 330ml', brand:'Austral', cat:'cerveza', emoji:'🍺', alc:6.0, vol:'330ml', desc:'Porter oscura patagonica con notas de chocolate, cafe y caramelo. Robusta y sedosa.', badge:'top',
+    prices:{ labarra:2100, operals:2200, liquidos:2000, elbrindis:2150, booz:2500 } },
+
+  // ─── SIN ALCOHOL NUEVAS ───────────────────────────────
+  { id:'sa6', name:'Morenita Malta 350ml', brand:'Morenita', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'350ml', desc:'Bebida de malta oscura sin alcohol. Dulce, tostada y muy nutritiva.',
+    prices:{ lider:590, unimarc:650, jumbo:630, booz:850 } },
+  { id:'sa7', name:"Beck's Blue Lata 330ml", brand:"Beck's", cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:"Sin alcohol alemana con el caracter de la marca. Lager limpia y refrescante.",
+    prices:{ lider:990, unimarc:1050, jumbo:1020, booz:1300 } },
+  { id:'sa8', name:'Erdinger Alkoholfrei 500ml', brand:'Erdinger', cat:'sin_alcohol', emoji:'🫧', alc:0.4, vol:'500ml', desc:'La mejor cerveza de trigo sin alcohol del mundo. Isotonica, nutritiva y deliciosa.', badge:'top',
+    prices:{ labarra:2200, operals:2300, liquidos:2100, booz:2700 } },
+  { id:'sa9', name:'Patagonia Non Alcoholic 355ml', brand:'Patagonia', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'355ml', desc:'Sin alcohol artesanal patagonica. Todo el sabor craft sin ningun grado de alcohol.',
+    prices:{ unimarc:1390, jumbo:1350, labarra:1700, booz:2000 } },
+
+  // ─── PISCO NUEVAS ─────────────────────────────────────
+  { id:'pm1', name:'Capel Mosto Verde 40 750ml', brand:'Capel', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco elaborado de mosto fresco sin fermentar completamente. Edicion especial de aromas unicos.', badge:'top',
+    prices:{ lider:19990, unimarc:20500, jumbo:20200, labarra:23000, liquidos:21500 } },
+  { id:'pm2', name:'Waqar Pisco 750ml', brand:'Waqar', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco artesanal premium del Valle del Elqui. Aromatico, complejo y elegante.', badge:'top',
+    prices:{ labarra:25000, liquidos:23000, descorcha:24000, operals:24500, booz:29000 } },
+  { id:'pm3', name:'Kappa Pisco Reserva 750ml', brand:'Kappa', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco artesanal de Limari. Expresion premiada con caracter mineral y floral.', badge:'new',
+    prices:{ labarra:22000, liquidos:21000, descorcha:22000, operals:22500, booz:26000 } },
+  { id:'pm4', name:'Tres Erres Reservado 750ml', brand:'Tres Erres', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Pisco reserva premium de caracter artesanal. Equilibrado con notas de uva muscat.',
+    prices:{ labarra:14000, liquidos:13000, operals:13500, booz:16000 } },
+  { id:'pm5', name:'Alto del Carmen 40 750ml', brand:'Alto del Carmen', cat:'pisco', emoji:'🥃', alc:40, vol:'750ml', desc:'Version 40 premium del Valle del Huasco. Mayor intensidad y complejidad aromatica.',
+    prices:{ lider:7990, unimarc:8200, jumbo:8100, labarra:9500, liquidos:8800 } },
+  { id:'pm6', name:'Centinela 35 750ml', brand:'Centinela', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'Pisco del Valle de Elqui de caracter tradicional. Suave, floral y muy versatil.',
+    prices:{ lider:5490, unimarc:5700, jumbo:5600, labarra:6800, liquidos:6200 } },
+  { id:'pm7', name:'Pisco Los Nichos 35 750ml', brand:'Los Nichos', cat:'pisco', emoji:'🥃', alc:35, vol:'750ml', desc:'Pisco artesanal de produccion limitada. Elaborado con cuidado en el Valle de Elqui.', badge:'new',
+    prices:{ labarra:8500, liquidos:8000, descorcha:8200, operals:8500 } },
+
+  // ─── GIN NUEVAS ───────────────────────────────────────
+  { id:'gn1', name:'Tanqueray No. Ten 750ml', brand:'Tanqueray', cat:'gin', emoji:'🌿', alc:47.3, vol:'750ml', desc:'Gin ultra premium con pomelo fresco, manzanilla y lima. El referente de los gin tonics premium.', badge:'top',
+    prices:{ labarra:28000, liquidos:26000, descorcha:27000, operals:27500, booz:32000 } },
+  { id:'gn2', name:'Tanqueray Flor de Sevilla 700ml', brand:'Tanqueray', cat:'gin', emoji:'🌿', alc:41.3, vol:'700ml', desc:'Dry gin con naranja de Sevilla. Dulce, citrico y deliciosamente diferente.',
+    prices:{ labarra:19000, liquidos:18000, operals:18500, booz:22000 } },
+  { id:'gn3', name:'Malfy Con Limone 700ml', brand:'Malfy', cat:'gin', emoji:'🌿', alc:41, vol:'700ml', desc:'Gin italiano elaborado con limones de Sicilia. Fresco, aromatico y perfectamente citrico.', badge:'top',
+    prices:{ labarra:24000, liquidos:22500, descorcha:23000, operals:23500, booz:28000 } },
+  { id:'gn4', name:'Malfy Rosa 700ml', brand:'Malfy', cat:'gin', emoji:'🌿', alc:41, vol:'700ml', desc:'Gin italiano con pomelo rosa siciliano. Delicado, floral y visualmente hermoso.',
+    prices:{ labarra:24000, liquidos:22500, operals:23500, booz:28000 } },
+  { id:'gn5', name:'Roku Gin 700ml', brand:'Roku', cat:'gin', emoji:'🌿', alc:43, vol:'700ml', desc:'Gin japones con 6 botanicos unicos incluyendo flor de sakura y te verde sencha.', badge:'top',
+    prices:{ labarra:27000, liquidos:25500, descorcha:26000, operals:26500, booz:31000 } },
+  { id:'gn6', name:'The Botanist 700ml', brand:'The Botanist', cat:'gin', emoji:'🌿', alc:46, vol:'700ml', desc:'Gin artesanal de Islay con 22 botanicos silvestres de la isla. Complejo y excepcional.', badge:'top',
+    prices:{ labarra:35000, liquidos:33000, descorcha:34000, operals:34500, booz:40000 } },
+  { id:'gn7', name:'Gin Mare 700ml', brand:'Gin Mare', cat:'gin', emoji:'🌿', alc:42.7, vol:'700ml', desc:'Gin mediterraneo con aceitunas Arbequina, albahaca y tomillo. Unico y gastronomico.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, booz:43000 } },
+  { id:'gn8', name:'Beefeater Pink Gin 750ml', brand:'Beefeater', cat:'gin', emoji:'🌿', alc:37.5, vol:'750ml', desc:'Gin londinense de fresas naturales. Rosado, delicado y perfecto para gin tonics frutales.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, liquidos:17500 } },
+
+  // ─── SCOTCH BLEND NUEVAS ─────────────────────────────
+  { id:'wb1', name:"Ballantine's Finest 750ml", brand:"Ballantine's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend escoces suave y muy accesible. Uno de los mas vendidos del mundo con equilibrio impecable.',
+    prices:{ lider:11990, unimarc:12500, jumbo:12200, labarra:14500, liquidos:13500, booz:16500 } },
+  { id:'wb2', name:"Ballantine's 12 años 750ml", brand:"Ballantine's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend envejecido 12 anos. Mayor complejidad y suavidad que el Finest, con notas de miel.',
+    prices:{ lider:18990, unimarc:19500, jumbo:19200, labarra:22000, liquidos:20500, booz:24000 } },
+  { id:'wb3', name:'J&B Rare 750ml', brand:'J&B', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend escoces ligero y de aromas suaves. El clasico del estilo Speyside para mezclar.',
+    prices:{ lider:10990, unimarc:11500, jumbo:11200, labarra:13000, liquidos:12000, booz:15000 } },
+  { id:'wb4', name:"William Lawson's 750ml", brand:"William Lawson's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend joven y de precio muy accesible. Suave y sin complicaciones, ideal para mezclas.',
+    prices:{ lider:9990, unimarc:10500, jumbo:10200, labarra:12000, booz:14000 } },
+  { id:'wb5', name:"Teacher's Highland Cream 750ml", brand:"Teacher's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend escoces con un toque ahumado de Highland. Robusto y de caracter definido.',
+    prices:{ lider:8990, unimarc:9500, jumbo:9200, labarra:11000, booz:13000 } },
+  { id:'wb6', name:'Label 5 750ml', brand:'Label 5', cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend joven y economico de origen escoces. Muy popular por su suavidad y precio amigable.',
+    prices:{ lider:9490, unimarc:9990, jumbo:9700, labarra:11500, booz:13500 } },
+  { id:'wb7', name:"Grant's Triple Wood 750ml", brand:"Grant's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend madurado en tres tipos de madera. Complejo y suave con notas de vainilla y roble.',
+    prices:{ lider:10990, unimarc:11500, jumbo:11200, labarra:13000, liquidos:12000, booz:15000 } },
+  { id:'wb8', name:"Dewar's White Label 750ml", brand:"Dewar's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend de Highland con doble maduracion. Suave, aromatico y muy versatil para cocteles.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15500, liquidos:14500, booz:17000 } },
+  { id:'wb9', name:"Dewar's 12 años 750ml", brand:"Dewar's", cat:'whisky', emoji:'🥃', alc:40, vol:'750ml', desc:'Blended malt premium con doble maduracion por 12 anos. Cremoso, herbal y elegante.',
+    prices:{ lider:18990, unimarc:19500, jumbo:19200, labarra:22000, booz:25000 } },
+  { id:'wb10', name:'Johnnie Walker Green Label 750ml', brand:'Johnnie Walker', cat:'whisky', emoji:'🥃', alc:43, vol:'750ml', desc:'15 anos de maduracion, blended malt de cuatro destilerias. Expresion premium y compleja.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, elbrindis:37500, booz:43000 } },
+
+  // ─── SINGLE MALT NUEVAS ───────────────────────────────
+  { id:'sm1', name:'The Glenlivet 12 anos 700ml', brand:'The Glenlivet', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'Single malt de Speyside suave y frutal. El pionero del single malt escoces. Notas de pera y miel.', badge:'top',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, operals:31500, booz:37000 } },
+  { id:'sm2', name:'The Glenlivet 15 anos 700ml', brand:'The Glenlivet', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'French Oak Reserve anejado 15 anos. Mayor riqueza con notas de fruta tropical y especias.', badge:'top',
+    prices:{ labarra:42000, liquidos:40000, descorcha:41000, booz:48000 } },
+  { id:'sm3', name:'Glenfiddich 15 anos 700ml', brand:'Glenfiddich', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'Solera Reserve de Speyside. Sistema de maduracion unico que produce un whisky muy complejo.',
+    prices:{ labarra:42000, liquidos:40000, descorcha:41000, elbrindis:42000, booz:49000 } },
+  { id:'sm4', name:'Glenfiddich 18 anos 700ml', brand:'Glenfiddich', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'Small Batch Reserve de 18 anos. Exquisito, con notas de roble americano y europeo.', badge:'top',
+    prices:{ labarra:62000, liquidos:59000, descorcha:60000, elbrindis:62000, booz:72000 } },
+  { id:'sm5', name:'Laphroaig 10 anos 700ml', brand:'Laphroaig', cat:'single_malt', emoji:'🥃', alc:43, vol:'700ml', desc:'Single malt de Islay ahumado y turbado. El mas medicinal y caracteristico. Para amantes del peaty.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, operals:37500, booz:44000 } },
+  { id:'sm6', name:'Oban 14 anos 700ml', brand:'Oban', cat:'single_malt', emoji:'🥃', alc:43, vol:'700ml', desc:'Highland con influencia del mar y turba suave. Complejo equilibrio entre dulzor y ahumado.', badge:'top',
+    prices:{ labarra:52000, liquidos:50000, descorcha:51000, booz:59000 } },
+  { id:'sm7', name:'The Macallan 12 anos Sherry Cask 700ml', brand:'The Macallan', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'El single malt mas codiciado. Madurado en barricas de jerez con notas de fruta seca y madera.', badge:'top',
+    prices:{ labarra:62000, liquidos:59000, descorcha:61000, elbrindis:62000, booz:72000 } },
+  { id:'sm8', name:'The Dalmore 12 anos 700ml', brand:'The Dalmore', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'Highland con maduracion en barricas de jerez. Notas de naranja, chocolate y nuez.',
+    prices:{ labarra:45000, liquidos:43000, descorcha:44000, elbrindis:45000, booz:52000 } },
+  { id:'sm9', name:'Highland Park 12 anos 700ml', brand:'Highland Park', cat:'single_malt', emoji:'🥃', alc:40, vol:'700ml', desc:'Orkney malt con equilibrio unico entre ahumado, floral y dulce de miel y brezo.',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, operals:37500, booz:44000 } },
+
+  // ─── BOURBON & IRISH ──────────────────────────────────
+  { id:'bi1', name:"Jack Daniel's Single Barrel 750ml", brand:"Jack Daniel's", cat:'whisky_bourbon', emoji:'🥃', alc:45, vol:'750ml', desc:'Expresion premium de la destileria. Un unico barril seleccionado, mas complejo e intenso.', badge:'top',
+    prices:{ labarra:45000, liquidos:43000, elbrindis:44000, booz:52000 } },
+  { id:'bi2', name:"Jack Daniel's Tennessee Honey 700ml", brand:"Jack Daniel's", cat:'whisky_bourbon', emoji:'🥃', alc:35, vol:'700ml', desc:'Tennessee whiskey infusionado con miel natural. Dulce, suave y muy accesible.',
+    prices:{ lider:20990, unimarc:21500, jumbo:21200, labarra:24000, liquidos:22500, booz:26000 } },
+  { id:'bi3', name:'Gentleman Jack 750ml', brand:"Jack Daniel's", cat:'whisky_bourbon', emoji:'🥃', alc:40, vol:'750ml', desc:'Doble filtracion por carbon de arce. Mas suave y elegante que el Old No.7.', badge:'top',
+    prices:{ lider:24990, unimarc:25500, jumbo:25200, labarra:28000, liquidos:26500, booz:31000 } },
+  { id:'bi4', name:'Jim Beam White 750ml', brand:'Jim Beam', cat:'whisky_bourbon', emoji:'🥃', alc:40, vol:'750ml', desc:'El bourbon mas vendido del mundo. Clasico, accesible y perfecto para mezclas.',
+    prices:{ lider:10990, unimarc:11500, jumbo:11200, labarra:13000, liquidos:12000, booz:15000 } },
+  { id:'bi5', name:'Jim Beam Black 750ml', brand:'Jim Beam', cat:'whisky_bourbon', emoji:'🥃', alc:43, vol:'750ml', desc:'Extra anejado para mayor profundidad y caracter. Mas robusto que el Jim Beam clasico.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, liquidos:17500, booz:21000 } },
+  { id:'bi6', name:"Maker's Mark 750ml", brand:"Maker's Mark", cat:'whisky_bourbon', emoji:'🥃', alc:45, vol:'750ml', desc:"Bourbon de trigo suave y sedoso. Sellado con cera roja, el favorito de los conocedores.", badge:'top',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, operals:31500, booz:37000 } },
+  { id:'bi7', name:'Bulleit Bourbon 750ml', brand:'Bulleit', cat:'whisky_bourbon', emoji:'🥃', alc:45, vol:'750ml', desc:'Alta proporcion de centeno para un perfil especiado y complejo. Muy popular entre bartenders.', badge:'top',
+    prices:{ labarra:28000, liquidos:26000, descorcha:27000, operals:27500, booz:33000 } },
+  { id:'bi8', name:'Woodford Reserve 750ml', brand:'Woodford Reserve', cat:'whisky_bourbon', emoji:'🥃', alc:43.2, vol:'750ml', desc:'Bourbon premium de Kentucky en pequenas barricas. Seco, especiado y absolutamente elegante.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, elbrindis:37500, booz:44000 } },
+  { id:'bi9', name:'Wild Turkey 101 750ml', brand:'Wild Turkey', cat:'whisky_bourbon', emoji:'🥃', alc:50.5, vol:'750ml', desc:'Bourbon potente anejado en barricas de roble. Intenso, especiado y de caracter sin concesiones.',
+    prices:{ labarra:22000, liquidos:21000, operals:21500, booz:26000 } },
+  { id:'bi10', name:'Jameson Black Barrel 700ml', brand:'Jameson', cat:'whisky_bourbon', emoji:'🥃', alc:40, vol:'700ml', desc:'Jameson con terminacion en barricas de bourbon. Mayor dulzor y notas de vainilla y caramelo.', badge:'top',
+    prices:{ labarra:24000, liquidos:22500, operals:23000, elbrindis:23500, booz:28000 } },
+  { id:'bi11', name:'Bushmills Original 700ml', brand:'Bushmills', cat:'whisky_bourbon', emoji:'🥃', alc:40, vol:'700ml', desc:'Triple destilado en la destileria mas antigua del mundo. Suave, ligero y de gran calidad.',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17500, liquidos:16500, booz:20000 } },
+  { id:'bi12', name:'Tullamore D.E.W. 700ml', brand:'Tullamore D.E.W.', cat:'whisky_bourbon', emoji:'🥃', alc:40, vol:'700ml', desc:'Triple blend irlandes con pot still, grain y malt. Suave, frutal y perfectamente equilibrado.',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17500, liquidos:16500, booz:20000 } },
+
+  // ─── WHISKY JAPONES ───────────────────────────────────
+  { id:'wj1', name:'Suntory Toki 700ml', brand:'Suntory', cat:'whisky_japones', emoji:'🥃', alc:43, vol:'700ml', desc:'Blend japones suave y floral. Notas de albahaca, menta y jengibre. Perfecto en highball.', badge:'top',
+    prices:{ labarra:30000, liquidos:28000, descorcha:29000, operals:29500, booz:35000 } },
+  { id:'wj2', name:'Nikka From the Barrel 500ml', brand:'Nikka', cat:'whisky_japones', emoji:'🥃', alc:51.4, vol:'500ml', desc:'Blend japones de alta graduacion sin reducir. Potente, complejo y con caracter excepcional.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, elbrindis:37500, booz:43000 } },
+  { id:'wj3', name:'Nikka Days 700ml', brand:'Nikka', cat:'whisky_japones', emoji:'🥃', alc:40, vol:'700ml', desc:'Blend japones suave y versatil. Ideal para cocteles y para iniciarse en el whisky japones.',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, operals:31500, booz:37000 } },
+  { id:'wj4', name:'Yamazaki 12 anos 700ml', brand:'Yamazaki', cat:'whisky_japones', emoji:'🥃', alc:43, vol:'700ml', desc:'El single malt japones mas iconico de Suntory. Frutal, complejo y sumamente elegante.', badge:'top',
+    prices:{ labarra:85000, liquidos:80000, descorcha:82000, elbrindis:85000, booz:98000 } },
+  { id:'wj5', name:'Hibiki Harmony 700ml', brand:'Hibiki', cat:'whisky_japones', emoji:'🥃', alc:43, vol:'700ml', desc:'Blend japones premium de mas de 30 maltas de las tres destilerias de Suntory. Armonico y exquisito.', badge:'top',
+    prices:{ labarra:75000, liquidos:71000, descorcha:73000, elbrindis:75000, booz:88000 } },
+  { id:'wj6', name:'Iwai Tradition 750ml', brand:'Mars Whisky', cat:'whisky_japones', emoji:'🥃', alc:40, vol:'750ml', desc:'Blend japones accesible de la destileria Mars Shinshu en los Alpes japoneses. Frutal y suave.',
+    prices:{ labarra:28000, liquidos:26000, operals:27000, booz:32000 } },
+
+  // ─── RON NUEVAS ───────────────────────────────────────
+  { id:'rn1', name:'Bacardi Oro 750ml', brand:'Bacardi', cat:'ron', emoji:'🍹', alc:37.5, vol:'750ml', desc:'Ron dorado anejado de Bacardi. Suave con notas de vainilla, almendra y caramelo ligero.',
+    prices:{ lider:10990, unimarc:11500, jumbo:11200, labarra:13500, liquidos:12500, booz:15000 } },
+  { id:'rn2', name:'Bacardi 8 anos 700ml', brand:'Bacardi', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron premium anejado 8 anos. Complejo y sedoso con notas de fruta, vainilla y madera.', badge:'top',
+    prices:{ labarra:18000, liquidos:17000, operals:17500, booz:21000 } },
+  { id:'rn3', name:'Captain Morgan Black 750ml', brand:'Captain Morgan', cat:'ron', emoji:'🍹', alc:40, vol:'750ml', desc:'Ron oscuro especiado de Captain Morgan. Mayor cuerpo e intensidad que el Original Spiced.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, liquidos:15500, booz:19000 } },
+  { id:'rn4', name:'Havana Club Anejo 7 anos 700ml', brand:'Havana Club', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron cubano premium anejado 7 anos. Complejo, aromatico y de excepcional calidad.', badge:'top',
+    prices:{ labarra:18000, liquidos:17000, descorcha:17500, booz:21000 } },
+  { id:'rn5', name:'Flor de Cana 7 anos 700ml', brand:'Flor de Cana', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron nicaraguense premium anejado 7 anos. Equilibrado, con notas de roble y frutas tropicales.', badge:'top',
+    prices:{ labarra:16000, liquidos:15000, operals:15500, booz:19000 } },
+  { id:'rn6', name:'Ron Zacapa 23 Solera 750ml', brand:'Zacapa', cat:'ron', emoji:'🍹', alc:40, vol:'750ml', desc:'Ron guatemalteco ultra premium elaborado por el sistema Solera. Dulce, complejo y excepcional.', badge:'top',
+    prices:{ labarra:48000, liquidos:46000, descorcha:47000, elbrindis:48000, booz:56000 } },
+  { id:'rn7', name:'Diplomatico Reserva Exclusiva 700ml', brand:'Diplomatico', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron venezolano ultra premium pot still. Opulento con notas de chocolate, naranja y especias.', badge:'top',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, booz:37000 } },
+  { id:'rn8', name:'Appleton Estate Signature 700ml', brand:'Appleton Estate', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron jamaicano blend anejado de la famosa destileria. Frutal, especiado y de alta calidad.', badge:'top',
+    prices:{ labarra:22000, liquidos:21000, operals:21500, booz:26000 } },
+  { id:'rn9', name:'Don Papa 700ml', brand:'Don Papa', cat:'ron', emoji:'🍹', alc:40, vol:'700ml', desc:'Ron filipino premium con notas de vainilla, miel y frutas confitadas. Dulce y muy especial.', badge:'top',
+    prices:{ labarra:28000, liquidos:26000, descorcha:27000, booz:32000 } },
+  { id:'rn10', name:'Brugal Anejo 700ml', brand:'Brugal', cat:'ron', emoji:'🍹', alc:38, vol:'700ml', desc:'Ron dominicano anejado clasico. Ligero y seco con notas de vainilla y roble.',
+    prices:{ labarra:14000, liquidos:13500, operals:13900, booz:17000 } },
+
+  // ─── VODKA NUEVAS ─────────────────────────────────────
+  { id:'vn1', name:'Smirnoff 1L', brand:'Smirnoff', cat:'vodka', emoji:'❄️', alc:37.5, vol:'1L', desc:'El vodka mas vendido del mundo en formato grande. Triple destilado, limpio y versatil.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, booz:18500 } },
+  { id:'vn2', name:'Ketel One 700ml', brand:'Ketel One', cat:'vodka', emoji:'❄️', alc:40, vol:'700ml', desc:'Vodka holandes de grano artesanal. Suave, con caracter definido y finish limpio.', badge:'top',
+    prices:{ labarra:24000, liquidos:22500, descorcha:23000, operals:23500, booz:28000 } },
+  { id:'vn3', name:'Russian Standard 750ml', brand:'Russian Standard', cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka ruso premium elaborado con trigo de las estepas y agua filtrada del Lago Ladoga.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15500, liquidos:14500, booz:18000 } },
+  { id:'vn4', name:'Stolichnaya 750ml', brand:'Stolichnaya', cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka ruso clasico triple destilado. Suave y equilibrado, con mas de 80 anos de tradicion.',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17500, liquidos:16500, booz:20000 } },
+  { id:'vn5', name:'Crystal Head 700ml', brand:'Crystal Head', cat:'vodka', emoji:'❄️', alc:40, vol:'700ml', desc:'Vodka canadiense en botella de calavera de cristal. Cuatro veces destilado, ultra puro.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, booz:43000 } },
+  { id:'vn6', name:"Tito's Handmade 750ml", brand:"Tito's", cat:'vodka', emoji:'❄️', alc:40, vol:'750ml', desc:'Vodka artesanal de Texas elaborado en alambique pot still. Suave, limpio y sin aditivos.', badge:'top',
+    prices:{ labarra:22000, liquidos:21000, operals:21500, booz:26000 } },
+
+  // ─── TEQUILA NUEVAS ───────────────────────────────────
+  { id:'tn1', name:'Don Julio Reposado 750ml', brand:'Don Julio', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Reposado anejado 8 meses en barricas de roble americano. Equilibrio de agave y madera.', badge:'top',
+    prices:{ labarra:52000, liquidos:50000, descorcha:51000, booz:60000 } },
+  { id:'tn2', name:'Don Julio Anejo 700ml', brand:'Don Julio', cat:'tequila', emoji:'🌵', alc:38, vol:'700ml', desc:'Anejado 18 meses en barricas pequenas. Complejo con notas de caramelo, chocolate y agave.', badge:'top',
+    prices:{ labarra:62000, liquidos:59000, descorcha:61000, booz:72000 } },
+  { id:'tn3', name:'Patron Reposado 750ml', brand:'Patron', cat:'tequila', emoji:'🌵', alc:40, vol:'750ml', desc:'Reposado premium artesanal con mas de dos meses en barrica. Suave, complejo y elegante.', badge:'top',
+    prices:{ labarra:55000, liquidos:52000, operals:53000, booz:64000 } },
+  { id:'tn4', name:'1800 Silver 750ml', brand:'1800', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila 100% agave azul doble destilado. Fresco, limpio y perfecto para margaritas.', badge:'top',
+    prices:{ labarra:28000, liquidos:26500, descorcha:27000, operals:27500, booz:32000 } },
+  { id:'tn5', name:'Olmeca Gold 750ml', brand:'Olmeca', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila gold accesible y versatil. Popular en bares chilenos para shots y mezclas.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15500, booz:18000 } },
+  { id:'tn6', name:'El Jimador Silver 750ml', brand:'El Jimador', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila blanco 100% agave de precio accesible. Limpio y vegetal, ideal para margaritas.',
+    prices:{ lider:13990, unimarc:14500, jumbo:14200, labarra:16500, booz:19000 } },
+  { id:'tn7', name:'Cazadores Reposado 750ml', brand:'Cazadores', cat:'tequila', emoji:'🌵', alc:40, vol:'750ml', desc:'Tequila reposado 100% agave de los Altos de Jalisco. Suave con notas de agave y roble.',
+    prices:{ labarra:22000, liquidos:21000, operals:21500, booz:26000 } },
+  { id:'tn8', name:'Herradura Reposado 750ml', brand:'Herradura', cat:'tequila', emoji:'🌵', alc:40, vol:'750ml', desc:'Premium reposado anejado 11 meses en barrica. Complejo, con caracter agave y mucha elegancia.', badge:'top',
+    prices:{ labarra:42000, liquidos:40000, descorcha:41000, booz:48000 } },
+  { id:'tn9', name:'Espolon Blanco 750ml', brand:'Espolon', cat:'tequila', emoji:'🌵', alc:40, vol:'750ml', desc:'Tequila blanco 100% agave moderno y artistico. Fresco, citrico y muy popular en cocteleria.', badge:'new',
+    prices:{ labarra:22000, liquidos:21000, operals:21500, booz:26000 } },
+  { id:'tn10', name:'Jose Cuervo Tradicional Reposado 750ml', brand:'Jose Cuervo', cat:'tequila', emoji:'🌵', alc:38, vol:'750ml', desc:'Tequila reposado 100% agave de la casa mas famosa. Herbal, con notas de vainilla y madera.',
+    prices:{ lider:15990, unimarc:16500, jumbo:16200, labarra:18500, booz:21000 } },
+
+  // ─── MEZCAL ───────────────────────────────────────────
+  { id:'mz1', name:'Del Maguey Vida 700ml', brand:'Del Maguey', cat:'mezcal', emoji:'🌵', alc:42, vol:'700ml', desc:'Mezcal artesanal de San Luis del Rio, Oaxaca. Ahumado, complejo y de caracter unico.', badge:'top',
+    prices:{ labarra:45000, liquidos:43000, descorcha:44000, elbrindis:44500, booz:52000 } },
+  { id:'mz2', name:'El Silencio Espadin 700ml', brand:'El Silencio', cat:'mezcal', emoji:'🌵', alc:40, vol:'700ml', desc:'Mezcal joven de agave espadin. Accesible, ahumado y perfecto para iniciarse en el mezcal.',
+    prices:{ labarra:18000, liquidos:17000, operals:17500, booz:21000 } },
+  { id:'mz3', name:'Banhez Mezcal 700ml', brand:'Banhez', cat:'mezcal', emoji:'🌵', alc:38, vol:'700ml', desc:'Mezcal con agave barril y tobala del Istmo de Tehuantepec. Floral, frutal y sorprendente.', badge:'new',
+    prices:{ labarra:22000, liquidos:21000, descorcha:21500, booz:26000 } },
+  { id:'mz4', name:'Wahaka Espadin 700ml', brand:'Wahaka', cat:'mezcal', emoji:'🌵', alc:46, vol:'700ml', desc:'Mezcal artesanal de San Dionisio Ocotepec. Alta graduacion y profundo caracter ahumado.', badge:'top',
+    prices:{ labarra:38000, liquidos:36000, descorcha:37000, booz:43000 } },
+  { id:'mz5', name:'Montelobos Espadin 700ml', brand:'Montelobos', cat:'mezcal', emoji:'🌵', alc:43.2, vol:'700ml', desc:'Creacion de Ivan Saldana. Mezcal Joven equilibrado con herbal, ahumado y notas florales.', badge:'top',
+    prices:{ labarra:35000, liquidos:33000, descorcha:34000, elbrindis:35000, booz:40000 } },
+
+  // ─── VINO NUEVAS ──────────────────────────────────────
+  { id:'vi1', name:'Concha y Toro Marques de Casa Concha Cab. Sauv. 750ml', brand:'Concha y Toro', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Cabernet Sauvignon premium del Peumo. Complejo, estructurado y de enorme potencial de guarda.', badge:'top',
+    prices:{ lider:9990, unimarc:10500, jumbo:10200, labarra:12500, descorcha:12000, liquidos:11500 } },
+  { id:'vi2', name:'Montes Alpha Cabernet Sauvignon 750ml', brand:'Montes', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Iconico tinto premium de Apalta. Frutas negras, tabaco y cedro en una expresion magnifica.', badge:'top',
+    prices:{ lider:8990, unimarc:9500, jumbo:9200, labarra:11000, descorcha:10500, liquidos:10000 } },
+  { id:'vi3', name:'Montes Classic Series Cab. Sauv. 750ml', brand:'Montes', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'La linea accesible de Montes sin sacrificar calidad. Frutal, con taninos suaves y buena estructura.',
+    prices:{ lider:4990, unimarc:5200, jumbo:5100, labarra:6500, descorcha:6200 } },
+  { id:'vi4', name:'Errazuriz Estate Series Cab. Sauv. 750ml', brand:'Errazuriz', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'Cabernet del Valle de Aconcagua. Fruta madura, buen cuerpo y final especiado.',
+    prices:{ lider:4990, unimarc:5200, jumbo:5100, labarra:6500, descorcha:6000 } },
+  { id:'vi5', name:'Cono Sur Reserva Especial Carmenere 750ml', brand:'Cono Sur', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'La variedad iconica de Chile en su mejor expresion reserva. Frutal y especiado con caracter.', badge:'top',
+    prices:{ lider:4990, unimarc:5200, jumbo:5100, labarra:6500, descorcha:6200 } },
+  { id:'vi6', name:'Undurraga TH Cabernet Sauvignon 750ml', brand:'Undurraga', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Expresion Terroir Hunter de parcelas seleccionadas. Sofisticado y de gran profundidad.', badge:'top',
+    prices:{ lider:7990, unimarc:8200, jumbo:8100, labarra:9500, descorcha:9200 } },
+  { id:'vi7', name:'Santa Ema Reserva Merlot 750ml', brand:'Santa Ema', cat:'vino', emoji:'🍷', alc:13, vol:'750ml', desc:'Merlot de Maipo Valley con notas de ciruela y chocolate. Suave, afrutado y muy agradable.',
+    prices:{ lider:4490, unimarc:4700, jumbo:4600, labarra:5800, descorcha:5500 } },
+  { id:'vi8', name:'MontGras Reserva Carmenere 750ml', brand:'MontGras', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'Carmenere del Valle de Colchagua. Frutas rojas maduras, pimenton y especias en equilibrio.',
+    prices:{ lider:4490, unimarc:4700, jumbo:4600, labarra:5800, descorcha:5500 } },
+  { id:'vi9', name:'Emiliana Organico Carmenere 750ml', brand:'Emiliana', cat:'vino', emoji:'🍷', alc:13, vol:'750ml', desc:'Vino organico certificado de produccion sostenible. Carmenere frutal con caracter genuino.', badge:'top',
+    prices:{ lider:4990, unimarc:5200, jumbo:5100, labarra:6500, descorcha:6200 } },
+  { id:'vi10', name:'Casillero del Diablo Carmenere 750ml', brand:'Casillero del Diablo', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'Tinto iconico chileno con la variedad emblematica del pais. Frutal, herbaceo y muy accesible.',
+    prices:{ lider:3990, unimarc:4200, jumbo:4100, labarra:5500, descorcha:5200 } },
+  { id:'vi11', name:'Frontera Cabernet Sauvignon 1.5L', brand:'Frontera', cat:'vino', emoji:'🍷', alc:12.5, vol:'1.5L', desc:'Magnum de vino tinto accesible y versatil. Ideal para reuniones grandes y asados.',
+    prices:{ lider:3990, unimarc:4200, jumbo:4100, booz:5500 } },
+  { id:'vi12', name:'William Cole Vineyards Reserva Syrah 750ml', brand:'William Cole', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Syrah premium de Casablanca Valley con notas de mora, pimienta negra y especias.', badge:'new',
+    prices:{ labarra:12000, liquidos:11500, descorcha:11800, booz:14000 } },
+  { id:'vi13', name:'Vina Los Vascos Gran Reserva 750ml', brand:'Los Vascos', cat:'vino', emoji:'🍷', alc:14, vol:'750ml', desc:'Colchagua premium respaldado por los Rothschild. Intenso, elegante y de gran estructura.', badge:'top',
+    prices:{ labarra:14000, liquidos:13500, descorcha:13800, elbrindis:14000 } },
+  { id:'vi14', name:'Matetic Corralillo Winemakers Blend 750ml', brand:'Matetic', cat:'vino', emoji:'🍷', alc:13.5, vol:'750ml', desc:'Blend organico del Valle de San Antonio. Complejo, elegante y de produccion sostenible.', badge:'top',
+    prices:{ labarra:16000, liquidos:15500, descorcha:15800, elbrindis:16000 } },
+  { id:'vi15', name:'Santa Rita Reserva Chardonnay 750ml', brand:'Santa Rita', cat:'vino', emoji:'🍷', alc:13, vol:'750ml', desc:'Chardonnay blanco de secano con notas de manzana, melocoton y vainilla sutil.',
+    prices:{ lider:5490, unimarc:5700, jumbo:5600, labarra:7000, descorcha:6800 } },
+
+  // ─── ESPUMANTE NUEVAS ─────────────────────────────────
+  { id:'esp1', name:'Cava Freixenet Cordon Negro Brut 750ml', brand:'Freixenet', cat:'espumante', emoji:'🥂', alc:11.5, vol:'750ml', desc:'La cava espanola mas vendida del mundo. Seca, refrescante y con burbujas persistentes.',
+    prices:{ lider:8990, unimarc:9500, jumbo:9200, labarra:11000, descorcha:10500 } },
+  { id:'esp2', name:'Cava Codorniu Clasico Brut 750ml', brand:'Codorniu', cat:'espumante', emoji:'🥂', alc:11.5, vol:'750ml', desc:'Cava espanola suave y afrutada de la bodega mas antigua del mundo. Elegante y accesible.',
+    prices:{ lider:8490, unimarc:8900, jumbo:8700, labarra:10500, descorcha:10000 } },
+  { id:'esp3', name:'Chandon Rose 750ml', brand:'Chandon', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'Espumante rose festivo de Moet Hennessy Argentina. Frutos rojos, flores y burbuja elegante.',
+    prices:{ lider:12990, unimarc:13500, jumbo:13200, labarra:15500, descorcha:15000 } },
+  { id:'esp4', name:'Veuve Clicquot Yellow Label Brut 750ml', brand:'Veuve Clicquot', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'El champagne iconico de la botella amarilla. Fresco, vinoso y de una calidad excepcional.', badge:'top',
+    prices:{ labarra:65000, liquidos:62000, descorcha:63000, elbrindis:65000, booz:75000 } },
+  { id:'esp5', name:'Valdivieso Blanc de Blancs 750ml', brand:'Valdivieso', cat:'espumante', emoji:'🥂', alc:12, vol:'750ml', desc:'Extra brut 100% Chardonnay chileno. Citrico, mineral y de burbujas muy finas.', badge:'top',
+    prices:{ lider:6990, unimarc:7200, jumbo:7100, labarra:8500, descorcha:8200 } },
+
+  // ─── APERITIVOS NUEVOS ────────────────────────────────
+  { id:'apn1', name:'Select Aperitivo 700ml', brand:'Select', cat:'aperitivo', emoji:'🧡', alc:17.5, vol:'700ml', desc:'Aperitivo italiano rojo veneziano. El clasico del Spritz veneciano, mas suave que el Campari.',
+    prices:{ labarra:21000, liquidos:20000, operals:20500, booz:24500 } },
+  { id:'apn2', name:'Cynar 700ml', brand:'Cynar', cat:'aperitivo', emoji:'🌿', alc:16.5, vol:'700ml', desc:'Aperitivo amaro italiano de alcachofa. Amargo, herbal y muy versatil para cocteles modernos.',
+    prices:{ labarra:16000, liquidos:15000, operals:15500, booz:19000 } },
+  { id:'apn3', name:'Montenegro Amaro 700ml', brand:'Montenegro', cat:'aperitivo', emoji:'🌿', alc:23, vol:'700ml', desc:'Amaro italiano con 40 botanicos seleccionados. Dulce, complejo y perfecto como digestivo.',
+    prices:{ labarra:18000, liquidos:17000, operals:17500, elbrindis:18000, booz:22000 } },
+  { id:'apn4', name:'Suze 700ml', brand:'Suze', cat:'aperitivo', emoji:'🌿', alc:15, vol:'700ml', desc:'Aperitivo frances de raiz de genciana. Amargo, floral y terroso. Muy de moda en cocteleria.', badge:'top',
+    prices:{ labarra:22000, liquidos:21000, descorcha:21500, booz:26000 } },
+  { id:'apn5', name:"Pimm's No.1 700ml", brand:"Pimm's", cat:'aperitivo', emoji:'🌿', alc:25, vol:'700ml', desc:"Licor ingles de base gin. El clasico del Pimm's Cup. Herbal, frutal y muy refrescante.",
+    prices:{ labarra:16000, liquidos:15000, operals:15500, booz:19000 } },
+
+  // ─── LICORES NUEVOS ───────────────────────────────────
+  { id:'ln1', name:'Frangelico 700ml', brand:'Frangelico', cat:'licor', emoji:'🫙', alc:20, vol:'700ml', desc:'Licor italiano de avellanas tostadas. Dulce, suave y delicioso en cafe o como digestivo.',
+    prices:{ labarra:17000, liquidos:16000, operals:16500, booz:20000 } },
+  { id:'ln2', name:'Midori Melon 700ml', brand:'Midori', cat:'licor', emoji:'🍈', alc:20, vol:'700ml', desc:'Licor japones de melon de color verde intenso. Dulce y afrutado, imprescindible en cocteleria.',
+    prices:{ labarra:17000, liquidos:16000, operals:16500, booz:20000 } },
+  { id:'ln3', name:'Chambord 500ml', brand:'Chambord', cat:'licor', emoji:'🫙', alc:16.5, vol:'500ml', desc:'Licor frances de frambuesa negra y moras. Lujoso, intenso y esencial en muchos cocteles.', badge:'top',
+    prices:{ labarra:28000, liquidos:26500, descorcha:27000, booz:33000 } },
+  { id:'ln4', name:'St-Germain Elderflower 700ml', brand:'St-Germain', cat:'licor', emoji:'🌸', alc:20, vol:'700ml', desc:'Licor frances de flor de sauco artesanal. Elegante, floral y deliciosamente diferente.', badge:'top',
+    prices:{ labarra:28000, liquidos:26500, descorcha:27000, elbrindis:28000, booz:33000 } },
+  { id:'ln5', name:'Limoncello Pallini 500ml', brand:'Pallini', cat:'licor', emoji:'🍋', alc:26, vol:'500ml', desc:'Limoncello italiano premium elaborado con limones de Sorrento. Fresco, intenso y aromatico.',
+    prices:{ labarra:14000, liquidos:13000, operals:13500, booz:16500 } },
+  { id:'ln6', name:'Sambuca Molinari 700ml', brand:'Molinari', cat:'licor', emoji:'🌟', alc:38, vol:'700ml', desc:'Anis italiano clasico de Civitavecchia. El sambuca mas vendido del mundo. Dulce e intenso.',
+    prices:{ labarra:16000, liquidos:15000, operals:15500, booz:19000 } },
+  { id:'ln7', name:'Drambuie 700ml', brand:'Drambuie', cat:'licor', emoji:'🍯', alc:40, vol:'700ml', desc:'Licor escoces de whisky, miel y hierbas. Clave en el Rusty Nail. Unico y adictivo.', badge:'top',
+    prices:{ labarra:24000, liquidos:22500, descorcha:23000, booz:28000 } },
+  { id:'ln8', name:'Southern Comfort 750ml', brand:'Southern Comfort', cat:'licor', emoji:'🍑', alc:35, vol:'750ml', desc:'Licor americano de whisky con frutas y especias. Dulce y versatil, popular en shots y mezclas.',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17500, booz:21000 } },
+
+  // ─── COGNAC & BRANDY ──────────────────────────────────
+  { id:'cog1', name:'Hennessy VS 700ml', brand:'Hennessy', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'El cognac mas vendido del mundo. Mezcla de mas de 40 eaux-de-vie. Suave y afrutado.', badge:'top',
+    prices:{ labarra:35000, liquidos:33000, descorcha:34000, elbrindis:35000, booz:41000 } },
+  { id:'cog2', name:'Hennessy VSOP 700ml', brand:'Hennessy', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'Superior anejado entre 4 y 8 anos. Mayor complejidad con notas de nuez, tostado y frutas.', badge:'top',
+    prices:{ labarra:52000, liquidos:50000, descorcha:51000, elbrindis:52000, booz:60000 } },
+  { id:'cog3', name:'Remy Martin VSOP 700ml', brand:'Remy Martin', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'Cognac de Grande y Petite Champagne. Aromatico, elegante y con final largo y especiado.', badge:'top',
+    prices:{ labarra:48000, liquidos:46000, descorcha:47000, elbrindis:48000, booz:55000 } },
+  { id:'cog4', name:'Courvoisier VSOP 700ml', brand:'Courvoisier', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'El cognac napoleonico. Suave, con notas de flores, vainilla y frutos secos. Muy elegante.',
+    prices:{ labarra:42000, liquidos:40000, descorcha:41000, booz:49000 } },
+  { id:'cog5', name:'Torres 10 Brandy 700ml', brand:'Torres', cat:'cognac', emoji:'🍶', alc:38, vol:'700ml', desc:'Brandy espanol premium de la familia Torres. Diez anos de maduracion, suave y frutal.', badge:'top',
+    prices:{ lider:14990, unimarc:15500, jumbo:15200, labarra:17500, liquidos:16500, booz:20000 } },
+  { id:'cog6', name:'Cardenal Mendoza 700ml', brand:'Cardenal Mendoza', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'Brandy de Jerez premium espanol, madurado por el sistema Solera. Complejo y sofisticado.', badge:'top',
+    prices:{ labarra:28000, liquidos:26500, descorcha:27000, elbrindis:28000, booz:33000 } },
+  { id:'cog7', name:'Martell VS 700ml', brand:'Martell', cat:'cognac', emoji:'🍶', alc:40, vol:'700ml', desc:'Cognac suave y afrutado de la casa mas antigua de Cognac. Ligero, accesible y de gran calidad.',
+    prices:{ labarra:32000, liquidos:30000, descorcha:31000, booz:37000 } },
+
+  // ─── VERMUT ───────────────────────────────────────────
+  { id:'vmt1', name:'Martini Bianco 750ml', brand:'Martini', cat:'vermut', emoji:'🍸', alc:15, vol:'750ml', desc:'Vermut blanco dulce y suave de Italia. Notas de vainilla y flores blancas. Solo con hielo.',
+    prices:{ lider:5990, unimarc:6300, jumbo:6100, labarra:7500, descorcha:7200, liquidos:6800 } },
+  { id:'vmt2', name:'Martini Rosso 750ml', brand:'Martini', cat:'vermut', emoji:'🍸', alc:15, vol:'750ml', desc:'El vermut rojo italiano mas iconico. Dulce amargo con notas herbales. Base del Negroni.',
+    prices:{ lider:5990, unimarc:6300, jumbo:6100, labarra:7500, descorcha:7200 } },
+  { id:'vmt3', name:'Martini Extra Dry 750ml', brand:'Martini', cat:'vermut', emoji:'🍸', alc:18, vol:'750ml', desc:'Vermut seco para Martinis perfectos. Delicado, herbal y elegante. El preferido de los bartenders.',
+    prices:{ lider:5990, unimarc:6300, jumbo:6100, labarra:7500, liquidos:6800 } },
+  { id:'vmt4', name:'Martini Rosato 750ml', brand:'Martini', cat:'vermut', emoji:'🍸', alc:15, vol:'750ml', desc:'Vermut rosado floral y frutal. Una alternativa elegante entre el Bianco y el Rosso.',
+    prices:{ lider:5990, unimarc:6300, jumbo:6100, labarra:7500, liquidos:6800 } },
+  { id:'vmt5', name:'Cinzano Bianco 750ml', brand:'Cinzano', cat:'vermut', emoji:'🍸', alc:15, vol:'750ml', desc:'Vermut blanco italiano alternativa al Martini. Dulce, aromatico y muy versatil.',
+    prices:{ lider:5490, unimarc:5700, jumbo:5600, labarra:6800, liquidos:6400 } },
+  { id:'vmt6', name:'Noilly Prat Extra Dry 750ml', brand:'Noilly Prat', cat:'vermut', emoji:'🍸', alc:18, vol:'750ml', desc:'Vermut frances seco de alta calidad. El secreto del Martini perfecto segun los maestros.', badge:'top',
+    prices:{ labarra:12000, liquidos:11000, descorcha:11500, operals:11500 } },
+  { id:'vmt7', name:'Martini Aperitivo Spritz 750ml', brand:'Martini', cat:'vermut', emoji:'🍸', alc:8, vol:'750ml', desc:'Premezcla lista para el aperitivo estilo Spritz. Solo agregar agua con gas y naranja.', badge:'new',
+    prices:{ lider:6990, unimarc:7300, jumbo:7100, labarra:8500, liquidos:8000 } },
+
+  // ─── RTD / READY TO DRINK ─────────────────────────────
+  { id:'rtd1', name:'Smirnoff Ice Limon 275ml', brand:'Smirnoff', cat:'rtd', emoji:'🥤', alc:5, vol:'275ml', desc:'Vodka Smirnoff con limon efervescente. El clasico alcopop refrescante para toda ocasion.',
+    prices:{ lider:1290, unimarc:1390, jumbo:1350, booz:1600, eattouch:1500, lanegradelivery:1550 } },
+  { id:'rtd2', name:'Smirnoff Ice Tropical 275ml', brand:'Smirnoff', cat:'rtd', emoji:'🥤', alc:5, vol:'275ml', desc:'Vodka Smirnoff con mezcla de frutas tropicales. Dulce, frutal y muy refrescante.',
+    prices:{ lider:1290, unimarc:1390, jumbo:1350, booz:1600, eattouch:1500 } },
+  { id:'rtd3', name:'Bacardi Breezer Naranja 275ml', brand:'Bacardi', cat:'rtd', emoji:'🥤', alc:4, vol:'275ml', desc:'Ron Bacardi con naranja, el clasico playero. Dulce, citrico y muy facil de beber.',
+    prices:{ lider:1290, unimarc:1390, jumbo:1350, booz:1600 } },
+  { id:'rtd4', name:'Pisco Sour Don Homero Lata 250ml', brand:'Don Homero', cat:'rtd', emoji:'🥤', alc:5.5, vol:'250ml', desc:'Pisco sour listo para tomar en formato lata. El coctel nacional chileno en version conveniente.', badge:'new',
+    prices:{ booz:1800, eattouch:1700, lanegradelivery:1750, tost:1900 } },
+  { id:'rtd5', name:'Fernet con Coca-Cola Lata 310ml', brand:'Fernet', cat:'rtd', emoji:'🥤', alc:8.5, vol:'310ml', desc:'El clasico argentino-chileno en lata lista para tomar. Amargo, refrescante y adictivo.', badge:'top',
+    prices:{ lider:1990, unimarc:2100, jumbo:2050, booz:2500, eattouch:2300, lanegradelivery:2400 } },
+  { id:'rtd6', name:"Jack Daniel's & Coca-Cola Lata 330ml", brand:"Jack Daniel's", cat:'rtd', emoji:'🥤', alc:5, vol:'330ml', desc:'El iconico Jack & Coke en lata. Tennessee whiskey y Coca-Cola en proporciones perfectas.', badge:'top',
+    prices:{ lider:1990, unimarc:2100, jumbo:2050, labarra:2400, booz:2600, lanegradelivery:2500 } },
+  { id:'rtd7', name:'Hard Seltzer Gato Negro 330ml', brand:'Gato Negro', cat:'rtd', emoji:'🥤', alc:4.5, vol:'330ml', desc:'Agua gasificada alcoholica chilena, baja en calorias. Refrescante y ligera para cualquier ocasion.', badge:'new',
+    prices:{ lider:1490, unimarc:1550, jumbo:1520, booz:1900 } },
+  { id:'rtd8', name:'Heineken 0.0 Limon 330ml', brand:'Heineken', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'Heineken sin alcohol con toque de limon. Refrescante, baja en calorias y perfecta para conducir.',
+    prices:{ lider:1090, unimarc:1150, jumbo:1120, booz:1400, eattouch:1300 } },
+  { id:'rtd9', name:'Corona Cero Limon 330ml', brand:'Corona', cat:'sin_alcohol', emoji:'🫧', alc:0.0, vol:'330ml', desc:'Corona sin alcohol con sabor a limon. Ligera, refrescante y perfecta para quienes no beben.',
+    prices:{ lider:1190, unimarc:1250, jumbo:1220, booz:1500 } },
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  category: 'all',
+  search: '',
+  sortBy: 'price_asc',
+  priceMax: 80000,
+  alcFilter: '',
+  storeFilter: Object.keys(STORES),
+  viewMode: 'grid',
+  compareList: [],
+  openModal: null,
+  volumeFilter: '',
+  brandFilter: '',
+  unitFilter: '',
+};
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function fmtPrice(n) {
+  return '$' + Math.round(n).toLocaleString('es-CL');
+}
+function getMinPrice(p) {
+  const vals = Object.entries(p.prices)
+    .filter(([s]) => state.storeFilter.includes(s))
+    .map(([,v]) => v);
+  return vals.length ? Math.min(...vals) : null;
+}
+function getMaxPrice(p) {
+  const vals = Object.values(p.prices);
+  return vals.length ? Math.max(...vals) : null;
+}
+function getPriceContext(p) {
+  const vals = Object.entries(p.prices).filter(([s]) => state.storeFilter.includes(s)).map(([,v]) => v);
+  if (vals.length < 2) return null;
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const min = Math.min(...vals);
+  const diff = Math.round(((avg - min) / avg) * 100);
+  if (diff >= 15) return { text: `${diff}% bajo promedio`, cls: 'ctx-green' };
+  if (diff >= 5) return { text: `${diff}% bajo promedio`, cls: 'ctx-muted' };
+  return null;
+}
+function getCheapestStore(p) {
+  const entries = Object.entries(p.prices).filter(([s]) => state.storeFilter.includes(s));
+  if (!entries.length) return null;
+  return entries.reduce((a, b) => a[1] < b[1] ? a : b);
+}
+
+function getVolGroup(vol) {
+  if (!vol) return 'other';
+  const ml = parseInt(vol.replace(/[^\d]/g, '')) || 0;
+  // Detect packs
+  if (vol.includes('×') || vol.toLowerCase().includes('pack') || vol.toLowerCase().includes('6x')) return 'pack';
+  if (ml <= 0) return 'other';
+  if (ml <= 400) return 'small';    // latas, botellines
+  if (ml <= 650) return 'medium';   // 500ml
+  if (ml <= 800) return 'standard'; // 700-750ml
+  return 'large';                   // 1L+
+}
+
+// ═══════════════════════════════════════════════════════
+// FILTERS & SORT
+// ═══════════════════════════════════════════════════════
+function getFiltered() {
+  let list = [...getActiveProducts()];
+
+  if (state.category !== 'all') list = list.filter(p => p.cat === state.category);
+
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    list = list.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.brand.toLowerCase().includes(q) ||
+      (CATS.find(c => c.id === p.cat)?.name.toLowerCase().includes(q))
+    );
+  }
+
+  list = list.filter(p => {
+    const min = getMinPrice(p);
+    return min !== null && min <= state.priceMax;
+  });
+
+  if (state.alcFilter) {
+    if (state.alcFilter === '0') list = list.filter(p => p.alc === 0);
+    else if (state.alcFilter === 'low') list = list.filter(p => p.alc > 0 && p.alc <= 5);
+    else if (state.alcFilter === 'mid') list = list.filter(p => p.alc > 5 && p.alc <= 20);
+    else if (state.alcFilter === 'high') list = list.filter(p => p.alc > 20);
+  }
+
+  // Volume filter
+  if (state.volumeFilter) {
+    list = list.filter(p => getVolGroup(p.vol) === state.volumeFilter);
+  }
+
+  // Brand filter (exact match from datalist or partial text search)
+  if (state.brandFilter) {
+    const q = state.brandFilter.toLowerCase();
+    list = list.filter(p => p.brand.toLowerCase().includes(q));
+  }
+
+  // Unit filter
+  if (state.unitFilter === 'pack') {
+    list = list.filter(p => getVolGroup(p.vol) === 'pack');
+  } else if (state.unitFilter === 'single') {
+    list = list.filter(p => getVolGroup(p.vol) !== 'pack');
+  }
+
+  list.sort((a, b) => {
+    const sa = state.sortBy;
+    if (sa === 'price_asc') return (getMinPrice(a)||0) - (getMinPrice(b)||0);
+    if (sa === 'price_desc') return (getMinPrice(b)||0) - (getMinPrice(a)||0);
+    if (sa === 'ppl_asc') {
+      const getPPL = p => { const c = getCheapestStore(p); return c && p._storeDetails?.[c[0]]?.pricePerLiter || 999999; };
+      return getPPL(a) - getPPL(b);
+    }
+    if (sa === 'name_asc') return a.name.localeCompare(b.name);
+    if (sa === 'alc_asc') return a.alc - b.alc;
+    if (sa === 'alc_desc') return b.alc - a.alc;
+    return 0;
+  });
+
+  return list;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function renderCats() {
+  // Categorías se manejan solo desde el sidebar
+}
+
+function renderStoreFilters() {
+  const el = document.getElementById('storeFilterList');
+  el.innerHTML = Object.entries(STORES).filter(([id]) => !activeStoreIds || activeStoreIds.includes(id)).map(([id, s]) => `
+    <label class="store-checkbox">
+      <input type="checkbox" ${state.storeFilter.includes(id) ? 'checked' : ''} onchange="toggleStore('${id}')" />
+      <span class="store-dot" style="background:${s.color}"></span>
+      ${s.name}
+    </label>
+  `).join('');
+}
+
+function renderVolumeFilter() {
+  const el = document.getElementById('volumeFilterSel');
+  if (!el) return;
+  el.value = state.volumeFilter;
+}
+
+function renderBrandFilter() {
+  const dl = document.getElementById('brandDatalist');
+  if (!dl) return;
+  const brands = [...new Set(PRODUCTS.map(p => p.brand))].sort((a, b) => a.localeCompare(b));
+  dl.innerHTML = brands.map(b => `<option value="${b.replace(/"/g, '&quot;')}"></option>`).join('');
+  const input = document.getElementById('brandFilterInput');
+  if (input) input.value = state.brandFilter;
+  const clearBtn = document.getElementById('brandClearBtn');
+  if (clearBtn) clearBtn.style.display = state.brandFilter ? 'block' : 'none';
+}
+
+function onBrandInput(val) {
+  // Only apply filter when the typed value exactly matches a known brand (chosen from datalist)
+  // OR treat any non-empty input as a partial text filter
+  const brands = [...new Set(PRODUCTS.map(p => p.brand))];
+  const exact = brands.find(b => b.toLowerCase() === val.trim().toLowerCase());
+  state.brandFilter = exact || (val.trim().length >= 2 ? val.trim() : '');
+  const clearBtn = document.getElementById('brandClearBtn');
+  if (clearBtn) clearBtn.style.display = val.trim() ? 'block' : 'none';
+  render();
+}
+
+function clearBrandFilter() {
+  state.brandFilter = '';
+  const input = document.getElementById('brandFilterInput');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('brandClearBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
+  render();
+}
+
+function renderUnitFilter() {
+  const el = document.getElementById('unitFilterSel');
+  if (!el) return;
+  el.value = state.unitFilter;
+}
+
+function updatePriceDisplay() {
+  const v = parseInt(document.getElementById('priceRange').value);
+  state.priceMax = v;
+  document.getElementById('priceDisplay').textContent =
+    v >= 80000 ? 'Sin límite' : `Hasta ${fmtPrice(v)}`;
+}
+
+function renderProducts() {
+  const list = getFiltered();
+  const container = document.getElementById('productsContainer');
+  document.getElementById('resultCount').textContent = list.length;
+
+  if (!list.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>Sin resultados</h3><p>Prueba con otros filtros o amplía la búsqueda.</p></div>`;
+    return;
+  }
+
+  const gridClass = state.viewMode === 'grid' ? 'products-grid' : 'products-list';
+  const listView = state.viewMode === 'list';
+
+  container.innerHTML = `<div class="${gridClass}">${list.map(p => renderCard(p, listView)).join('')}</div>`;
+}
+
+function renderCard(p, listView) {
+  const min = getMinPrice(p);
+  const max = getMaxPrice(p);
+  const cheap = getCheapestStore(p);
+  const ctx = getPriceContext(p);
+  const isComparing = state.compareList.includes(p.id);
+  const storeCount = Object.keys(p.prices).filter(s => state.storeFilter.includes(s)).length;
+
+  // Precio por litro del más barato
+  const cheapDetails = cheap && p._storeDetails?.[cheap[0]];
+  const perLiter = cheapDetails?.pricePerLiter;
+  const packInfo = cheapDetails?.packSize > 1 ? cheapDetails.packSize : null;
+
+  const storeChips = Object.entries(p.prices)
+    .filter(([sid]) => state.storeFilter.includes(sid))
+    .map(([sid]) => {
+      const s = STORES[sid];
+      return s ? `<span class="store-chip" style="background:${s.color}22;color:${s.color};border-color:${s.color}44">${s.name}</span>` : '';
+    }).join('');
+
+  const badgeHTML = p.badge === 'top' ? '<span class="card-badge badge-top">⭐ Top</span>'
+    : p.badge === 'new' ? '<span class="card-badge badge-new">Nuevo</span>'
+    : p.badge === 'promo' ? '<span class="card-badge badge-promo">Promo</span>' : '';
+
+  const imgHtml = p.image
+    ? `<img src="${p.image}" alt="${p.name}" class="card-product-img" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="card-emoji-fallback" style="display:none">${p.emoji}</span>`
+    : `<span class="card-emoji-fallback">${p.emoji}</span>`;
+
+  const unitPriceHtml = perLiter
+    ? `<div class="price-unit"><strong>${fmtPrice(perLiter)}/L</strong>${packInfo ? `<span class="pack-badge">${packInfo}-pack</span>` : ''}</div>`
+    : '';
+
+  return `
+    <div class="product-card ${listView ? 'list-view' : ''}" onclick="openProduct('${p.id}')">
+      <div class="card-image">
+        ${imgHtml}
+        ${badgeHTML}
+        <span class="card-cat-badge">${(CATS.find(c => c.id === p.cat)?.emoji || '')} ${(CATS.find(c => c.id === p.cat)?.name) || p.cat}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-brand">${p.brand}</div>
+        <div class="card-name">${p.name}</div>
+        ${!listView ? `<div class="card-tags">
+          ${p.alc > 0 ? `<span class="tag alc">🍹 ${p.alc}% alc.</span>` : '<span class="tag alc">🫧 Sin alcohol</span>'}
+          <span class="tag">${p.vol}</span>
+        </div>` : ''}
+        <div class="price-section">
+          <span class="price-from">Desde</span>
+          <span class="price-value">${min ? fmtPrice(min) : 'N/D'}</span>
+          ${max && max !== min ? `<span class="price-max">${fmtPrice(max)}</span>` : ''}
+        </div>
+        ${unitPriceHtml}
+        ${ctx && !listView ? `<div class="price-context ${ctx.cls}">${ctx.text}</div>` : ''}
+        ${!listView ? `<div class="stores-count">En <strong>${storeCount}</strong> tienda${storeCount !== 1 ? 's' : ''}</div>` : ''}
+        ${!listView ? `<div class="store-mini">${storeChips}</div>` : ''}
+        <button class="btn-compare ${isComparing ? 'selected' : ''}"
+          onclick="event.stopPropagation();toggleCompare('${p.id}')">
+          ${isComparing ? '✓ Comparando' : '+ Comparar'}
+        </button>
+      </div>
+      ${listView ? `<div style="padding:1rem;display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;flex-shrink:0">
+        ${p.alc > 0 ? `<span class="tag alc">🍹 ${p.alc}% alc.</span>` : '<span class="tag alc">🫧 Sin alcohol</span>'}
+        <span class="tag">${p.vol}</span>
+        ${perLiter ? `<span style="font-size:0.7rem;color:var(--gold);font-weight:600">${fmtPrice(perLiter)}/L</span>` : ''}
+        ${cheap ? `<span style="font-size:0.7rem;color:var(--muted)">Mejor: ${STORES[cheap[0]]?.name}</span>` : ''}
+      </div>` : ''}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// PRODUCT MODAL
+// ═══════════════════════════════════════════════════════
+function openProduct(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  state.openModal = id;
+
+  const prices = Object.entries(p.prices).sort(([,a],[,b]) => a - b);
+  const minPrice = prices[0]?.[1];
+
+  const storeRowsHTML = prices.map(([sid, price], i) => {
+    const s = STORES[sid];
+    if (!s) return '';
+    const isCheapest = i === 0;
+    const priceClass = isCheapest ? 'cheapest' : price > minPrice * 1.3 ? 'pricey' : '';
+    const searchTerm = p.name.replace(/[°°·%]/g, '').replace(/\s+/g, ' ').trim();
+    const storeUrl = p._realUrls?.[sid]?.url || s.url(searchTerm);
+    const urlLabel = p._realUrls?.[sid]?.url ? 'Ver producto' : 'Buscar';
+    const detail = p._storeDetails?.[sid];
+    const perLiter = detail?.pricePerLiter;
+    const packSize = detail?.packSize;
+    const totalPrice = detail?.totalPrice;
+    const showPack = packSize && packSize > 1;
+    return `
+      <div class="store-row">
+        <div class="store-row-left">
+          <div class="store-logo" style="background:${s.color}22">${s.emoji}</div>
+          <div>
+            <div class="store-info-name">${s.name}</div>
+            <div class="store-info-type">${s.type}${isCheapest ? ' · 🏆 Más barato' : ''}</div>
+          </div>
+        </div>
+        <div class="store-row-right">
+          <div style="text-align:right">
+            <div class="store-price ${priceClass}">${fmtPrice(price)}${showPack ? '/un' : ''}</div>
+            ${showPack ? `<div class="store-unit-price">${fmtPrice(totalPrice)} (${packSize}-pack)</div>` : ''}
+            ${perLiter ? `<div class="store-unit-price">${fmtPrice(perLiter)}/L</div>` : ''}
+          </div>
+          <a class="btn-store" href="${storeUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${urlLabel} →</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const cat = CATS.find(c => c.id === p.cat);
+  const modalImgHtml = p.image
+    ? `<img src="${p.image}" alt="${p.name}" style="width:72px;height:72px;object-fit:contain;border-radius:10px;background:var(--bg3);padding:0.4rem;margin-bottom:0.4rem;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="modal-emoji" style="display:none">${p.emoji}</span>`
+    : `<span class="modal-emoji">${p.emoji}</span>`;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div>
+        ${modalImgHtml}
+        <div class="modal-brand">${p.brand} · ${cat?.name || p.cat}</div>
+        <div class="modal-name">${p.name}</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">${p.desc}</p>
+      <div class="modal-attrs">
+        <span class="attr-pill">${p.vol}</span>
+        <span class="attr-pill gold">${p.alc > 0 ? p.alc + '% alcohol' : 'Sin alcohol'}</span>
+        ${p.badge === 'top' ? '<span class="attr-pill" style="border-color:#3d2d00;color:var(--gold);background:#1a1200">⭐ Top ventas</span>' : ''}
+      </div>
+      <div id="sparklineContainer" style="margin-bottom:1rem"></div>
+      <div class="stores-title">Comparativa de precios (${prices.length} tiendas)</div>
+      ${storeRowsHTML}
+      <div class="modal-disclaimer">
+        ⚠️ Los precios son <strong>orientativos</strong> y pueden variar en cualquier momento. Haz clic en "Ver en tienda" para confirmar el precio y disponibilidad actuales.
+      </div>
+    </div>
+  `;
+  document.getElementById('productModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  loadSparkline(id);
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('productModal')) return;
+  document.getElementById('productModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function loadSparkline(productId) {
+  const container = document.getElementById('sparklineContainer');
+  if (!container) return;
+  try {
+    const res = await fetch(`${API || 'http://localhost:3000/api'}/history/${productId}`, { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    if (!data.success || !data.data.length || data.data.length < 2) {
+      container.innerHTML = '';
+      return;
+    }
+    const points = data.data.map(d => {
+      const vals = Object.values(d.prices);
+      return { date: d.date, price: Math.min(...vals) };
+    });
+    const min = Math.min(...points.map(p => p.price));
+    const max = Math.max(...points.map(p => p.price));
+    const w = 240, h = 40;
+    const range = max - min || 1;
+    const coords = points.map((p, i) => {
+      const x = (i / (points.length - 1)) * w;
+      const y = h - ((p.price - min) / range) * (h - 4) - 2;
+      return `${x},${y}`;
+    }).join(' ');
+    container.innerHTML = `
+      <div style="background:var(--bg3);border-radius:8px;padding:0.75rem">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem;font-weight:600">Tendencia de precio (${points.length} días)</div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="flex-shrink:0">
+            <polyline points="${coords}" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="font-size:0.7rem;color:var(--muted)">
+            <div>Min: <strong style="color:var(--green)">${fmtPrice(min)}</strong></div>
+            <div>Max: <strong style="color:var(--text)">${fmtPrice(max)}</strong></div>
+          </div>
+        </div>
+      </div>`;
+  } catch {
+    container.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════════════
+function toggleCompare(id) {
+  const idx = state.compareList.indexOf(id);
+  if (idx >= 0) {
+    state.compareList.splice(idx, 1);
+  } else {
+    if (state.compareList.length >= 4) {
+      alert('Puedes comparar hasta 4 productos a la vez.');
+      return;
+    }
+    state.compareList.push(id);
+  }
+  updateCompareBar();
+  render();
+}
+
+function clearCompare() {
+  state.compareList = [];
+  updateCompareBar();
+  render();
+}
+
+function updateCompareBar() {
+  const bar = document.getElementById('compareBar');
+  const btn = document.getElementById('compareToggleBtn');
+  const countEl = document.getElementById('compareCount');
+
+  if (state.compareList.length === 0) {
+    bar.classList.remove('show');
+    btn.style.display = 'none';
+    return;
+  }
+  bar.classList.add('show');
+  btn.style.display = 'block';
+  countEl.textContent = state.compareList.length;
+
+  document.getElementById('compareItems').innerHTML = state.compareList.map(id => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return p ? `<div class="compare-item">${p.emoji} ${p.name}<span class="compare-item-remove" onclick="toggleCompare('${id}')">✕</span></div>` : '';
+  }).join('');
+}
+
+function openCompareModal() {
+  if (!state.compareList.length) return;
+  const products = state.compareList.map(id => PRODUCTS.find(x => x.id === id)).filter(Boolean);
+  const allStores = [...new Set(products.flatMap(p => Object.keys(p.prices)))];
+
+  const headerCols = products.map(p => `<th style="text-align:center;color:var(--text)">${p.emoji} ${p.name}</th>`).join('');
+
+  const rows = [
+    ['Marca', p => p.brand],
+    ['Categoría', p => CATS.find(c => c.id === p.cat)?.name || p.cat],
+    ['Volumen', p => p.vol],
+    ['Alcohol', p => p.alc > 0 ? p.alc + '%' : 'Sin alcohol'],
+    ['Precio mínimo', p => {
+      const min = getMinPrice(p);
+      return min ? `<span style="color:var(--green);font-weight:700">${fmtPrice(min)}</span>` : 'N/D';
+    }],
+    ['Precio/Litro', p => {
+      const cheap = getCheapestStore(p);
+      const detail = cheap && p._storeDetails?.[cheap[0]];
+      return detail?.pricePerLiter ? `<span style="color:var(--gold);font-weight:700">${fmtPrice(detail.pricePerLiter)}/L</span>` : 'N/D';
+    }],
+    ['Precio máximo', p => {
+      const max = getMaxPrice(p);
+      return max ? fmtPrice(max) : 'N/D';
+    }],
+    ...allStores.map(sid => {
+      const s = STORES[sid];
+      return [s ? s.name : sid, p => {
+        const price = p.prices[sid];
+        if (!price) return '<span style="color:var(--muted)">—</span>';
+        const detail = p._storeDetails?.[sid];
+        const packLabel = detail?.packSize > 1 ? ` <span style="font-size:0.65rem;color:var(--muted)">(${detail.packSize}-pack)</span>` : '';
+        return fmtPrice(price) + packLabel;
+      }];
+    }),
+  ];
+
+  const rowsHTML = rows.map(([label, fn]) => `
+    <tr>
+      <td>${label}</td>
+      ${products.map(p => `<td style="text-align:center">${fn(p)}</td>`).join('')}
+    </tr>
+  `).join('');
+
+  document.getElementById('compareContent').innerHTML = `
+    <div class="modal-header">
+      <div><div class="modal-name">Comparativa de productos</div></div>
+      <button class="modal-close" onclick="closeCompareModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead><tr><th>Atributo</th>${headerCols}</tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>
+      <div class="modal-disclaimer">
+        ⚠️ Los precios son orientativos. Verifica disponibilidad real en cada tienda.
+      </div>
+    </div>
+  `;
+
+  document.getElementById('compareModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCompareModal(e) {
+  if (e && e.target !== document.getElementById('compareModal')) return;
+  document.getElementById('compareModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+function setCategory(id) {
+  state.category = id;
+  renderCats();
+  render();
+}
+
+function setView(v) {
+  state.viewMode = v;
+  document.getElementById('gridViewBtn').classList.toggle('active', v === 'grid');
+  document.getElementById('listViewBtn').classList.toggle('active', v === 'list');
+  render();
+}
+
+function toggleStore(id) {
+  const idx = state.storeFilter.indexOf(id);
+  if (idx >= 0) state.storeFilter.splice(idx, 1);
+  else state.storeFilter.push(id);
+  render();
+}
+
+function resetFilters() {
+  state.priceMax = 80000;
+  state.alcFilter = '';
+  state.storeFilter = activeStoreIds ? [...activeStoreIds] : Object.keys(STORES);
+  state.volumeFilter = '';
+  state.brandFilter = '';
+  state.unitFilter = '';
+  document.getElementById('priceRange').value = 80000;
+  document.getElementById('priceDisplay').textContent = 'Sin límite';
+  document.getElementById('alcFilter').value = '';
+  const bInput = document.getElementById('brandFilterInput');
+  if (bInput) bInput.value = '';
+  const bClear = document.getElementById('brandClearBtn');
+  if (bClear) bClear.style.display = 'none';
+  renderStoreFilters();
+  renderBrandFilter();
+  renderVolumeFilter();
+  renderUnitFilter();
+  render();
+}
+
+function render() {
+  state.sortBy = document.getElementById('sortSelect').value;
+  renderProducts();
+  requestAnimationFrame(initLazyImageLoading);
+}
+
+// ═══════════════════════════════════════════════════════
+// LAZY IMAGE LOADING (VTEX browser-side, cached)
+// ═══════════════════════════════════════════════════════
+const IMG_CACHE_KEY = 'copetonImgCache_v1';
+let imgCache = {};
+try { imgCache = JSON.parse(localStorage.getItem(IMG_CACHE_KEY) || '{}'); } catch {}
+
+// Map product id → search term for VTEX
+const PRODUCT_TERMS = {};
+PRODUCTS.forEach(p => { PRODUCT_TERMS[p.id] = (p.brand + ' ' + p.name).replace(/[^\w\s]/g, '').trim().slice(0, 50); });
+
+async function fetchVtexImage(term) {
+  const stores = [
+    'https://www.unimarc.cl',
+    'https://www.jumbo.cl',
+  ];
+  for (const base of stores) {
+    try {
+      const url = `${base}/api/catalog_system/pub/products/search?ft=${encodeURIComponent(term)}&_from=0&_to=0`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const img = data[0]?.items?.[0]?.images?.[0]?.imageUrl;
+      if (img) return img;
+    } catch {}
+  }
+  return null;
+}
+
+// Queue-based loader so we don't hammer the stores
+const imgQueue = [];
+let imgWorkerRunning = false;
+
+async function imgWorker() {
+  if (imgWorkerRunning) return;
+  imgWorkerRunning = true;
+  while (imgQueue.length) {
+    const { pid, term } = imgQueue.shift();
+    const p = PRODUCTS.find(x => x.id === pid);
+    if (!p || p.image) continue;
+    const img = await fetchVtexImage(term);
+    if (img) {
+      p.image = img;
+      imgCache[pid] = img;
+      try { localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(imgCache)); } catch {}
+      injectCardImage(pid, img);
+    }
+    await new Promise(r => setTimeout(r, 200)); // delay between requests
+  }
+  imgWorkerRunning = false;
+}
+
+function injectCardImage(pid, imgUrl) {
+  document.querySelectorAll(`.product-card`).forEach(card => {
+    if (!(card.getAttribute('onclick') || '').includes(`'${pid}'`)) return;
+    const imgDiv = card.querySelector('.card-image');
+    if (!imgDiv || imgDiv.querySelector('.card-product-img')) return;
+    const emojiEl = imgDiv.querySelector('.card-emoji-fallback');
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    img.className = 'card-product-img';
+    img.loading = 'lazy';
+    img.alt = pid;
+    img.onerror = () => { img.style.display = 'none'; if (emojiEl) emojiEl.style.display = 'flex'; };
+    if (emojiEl) {
+      emojiEl.style.display = 'none';
+      imgDiv.insertBefore(img, emojiEl);
+    } else {
+      imgDiv.appendChild(img);
+    }
+    imgDiv.classList.remove('loading-img');
+  });
+}
+
+function initLazyImageLoading() {
+  // Pre-load from cache first (instant)
+  for (const [pid, imgUrl] of Object.entries(imgCache)) {
+    const p = PRODUCTS.find(x => x.id === pid);
+    if (p && !p.image) { p.image = imgUrl; injectCardImage(pid, imgUrl); }
+  }
+
+  // Then lazy-load missing images as cards enter viewport
+  if (!window.IntersectionObserver) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const card = entry.target;
+      const match = (card.getAttribute('onclick') || '').match(/openProduct\('([^']+)'\)/);
+      if (!match) return;
+      const pid = match[1];
+      const p = PRODUCTS.find(x => x.id === pid);
+      if (!p || p.image || imgCache[pid] || imgQueue.find(q => q.pid === pid)) return;
+      card.querySelector('.card-image')?.classList.add('loading-img');
+      imgQueue.push({ pid, term: PRODUCT_TERMS[pid] || p.brand });
+      imgWorker();
+      observer.unobserve(card);
+    });
+  }, { rootMargin: '200px' });
+
+  document.querySelectorAll('.product-card').forEach(card => observer.observe(card));
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
+
+document.getElementById('alcFilter').addEventListener('change', e => {
+  state.alcFilter = e.target.value;
+  render();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeCompareModal();
+  }
+});
+
+(async () => {
+  await loadConfig();
+  renderCats();
+  renderStoreFilters();
+  renderBrandFilter();
+  renderVolumeFilter();
+  renderUnitFilter();
+  render();
+})();
+
+// ═══════════════════════════════════════════════════════
+// INTEGRACIÓN CON API LOCAL (server.js)
+// ═══════════════════════════════════════════════════════
+const API = 'http://localhost:3000/api';
+let realPrices = null;       // precios reales del caché
+let usingRealPrices = false;
+let statusPollInterval = null;
+
+/** Carga precios desde el servidor local */
+async function loadRealPrices() {
+  try {
+    const res = await fetch(`${API}/prices`, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error('sin caché');
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    realPrices = data.data.prices;
+    usingRealPrices = true;
+
+    // Inyectar precios reales en la estructura de PRODUCTS (sobreescribe los estimados)
+    mergeRealPricesIntoProducts(realPrices);
+
+    const updated = new Date(data.data.lastUpdated);
+    const duration = data.data.duration ? ` · tardó ${data.data.duration}` : '';
+    const ageHours = data.data.ageHours || 0;
+    const isStale = data.data.isStale || false;
+
+    let ageLabel = '';
+    if (ageHours < 1) ageLabel = 'hace menos de 1 hora';
+    else if (ageHours < 24) ageLabel = `hace ${ageHours}h`;
+    else ageLabel = `hace ${Math.floor(ageHours / 24)} día(s)`;
+
+    const staleWarning = isStale ? ' ⚠ datos antiguos' : '';
+    setStatusBar(
+      isStale ? 'stale' : 'real',
+      `Actualizado: ${ageLabel}${duration}${staleWarning}`,
+      data.data.stats
+    );
+    render();
+
+  } catch {
+    // Servidor no disponible → usar precios estimados
+    setStatusBar('estimated');
+  }
+}
+
+/** Mezcla los precios reales en el array PRODUCTS */
+function mergeRealPricesIntoProducts(realPricesMap) {
+  for (const product of PRODUCTS) {
+    const storeData = realPricesMap[product.id];
+    if (!storeData) continue;
+    // Construir objeto prices con datos reales
+    const newPrices = {};
+    const storeDetails = {};
+    for (const [storeId, info] of Object.entries(storeData)) {
+      if (info && info.price) {
+        newPrices[storeId] = info.unitPrice || info.price;
+        storeDetails[storeId] = {
+          url: info.url,
+          image: info.image,
+          name: info.name,
+          totalPrice: info.price,
+          unitPrice: info.unitPrice || info.price,
+          pricePerLiter: info.pricePerLiter || null,
+          packSize: info.packSize || 1,
+          volume: info.volume || null,
+        };
+      }
+    }
+    if (Object.keys(newPrices).length > 0) {
+      product.prices = newPrices;
+      product._realUrls = storeData;
+      product._storeDetails = storeDetails;
+      product._isReal = true;
+      // Extraer imagen del primer resultado que la tenga
+      if (!product.image) {
+        for (const info of Object.values(storeData)) {
+          if (info?.image) { product.image = info.image; break; }
+        }
+      }
+    }
+  }
+}
+
+/** Actualiza la status bar */
+function setStatusBar(mode, extraText = '', stats = null) {
+  const indicator = document.getElementById('statusIndicator');
+  const badge = document.getElementById('priceSourceBadge');
+  const lastUpdated = document.getElementById('lastUpdatedText');
+
+  if (mode === 'real') {
+    indicator.innerHTML = '<span class="status-dot dot-green"></span>Servidor conectado';
+    badge.className = 'price-source-badge badge-real';
+    badge.textContent = '🟢 Precios en tiempo real';
+  } else if (mode === 'stale') {
+    indicator.innerHTML = '<span class="status-dot dot-yellow"></span>Datos antiguos';
+    badge.className = 'price-source-badge badge-estimated';
+    badge.textContent = '🟡 Precios desactualizados — considera actualizar';
+  } else if (mode === 'scraping') {
+    indicator.innerHTML = '<span class="status-dot dot-yellow"></span>Scraping en progreso...';
+    badge.className = 'price-source-badge badge-loading';
+    badge.textContent = '⏳ Actualizando...';
+  } else {
+    indicator.innerHTML = '<span class="status-dot dot-gray"></span>Servidor no disponible';
+    badge.className = 'price-source-badge badge-estimated';
+    badge.textContent = '🟡 Precios estimados';
+  }
+  lastUpdated.textContent = extraText;
+
+  if (stats) {
+    lastUpdated.textContent += ` · ${stats.found} precios encontrados`;
+  }
+}
+
+/** Inicia scraping manual */
+async function triggerScrape() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Iniciando...';
+
+  try {
+    const res = await fetch(`${API}/scrape`, { method: 'POST', signal: AbortSignal.timeout(15000) });
+    const data = await res.json();
+    if (data.success) {
+      setStatusBar('scraping', 'Scraping iniciado...');
+      startStatusPolling();
+    } else {
+      alert(data.message || 'No se pudo iniciar el scraping.');
+      btn.disabled = false;
+      btn.textContent = '⚡ Actualizar precios';
+    }
+  } catch {
+    alert('No se puede conectar al servidor. ¿Está corriendo node server.js?');
+    btn.disabled = false;
+    btn.textContent = '⚡ Actualizar precios';
+  }
+}
+
+/** Polling de estado cada 2s durante el scraping */
+function startStatusPolling() {
+  if (statusPollInterval) clearInterval(statusPollInterval);
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('scrapeProgressText').style.display = 'inline';
+  document.getElementById('scrapeBanner').classList.add('active');
+
+  statusPollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`${API}/status`, { signal: AbortSignal.timeout(3000) });
+      const status = await res.json();
+
+      // Actualizar barra de progreso superior
+      document.getElementById('progressBar').style.width = status.progress + '%';
+
+      // Actualizar banner de progreso
+      document.getElementById('scrapeBannerPct').textContent = status.progress + '%';
+      document.getElementById('scrapeBannerFill').style.width = status.progress + '%';
+
+      if (status.currentStore && status.currentProduct) {
+        document.getElementById('scrapeProgressText').textContent =
+          `${status.progress}% · ${status.currentStore}: ${status.currentProduct}`;
+
+        const found = status.stats?.found || 0;
+        const notFound = status.stats?.notFound || 0;
+        const errors = status.stats?.errors || 0;
+        const elapsed = status.startTime ? Math.round((Date.now() - new Date(status.startTime).getTime()) / 1000) : 0;
+        const elapsedStr = elapsed > 60 ? `${Math.floor(elapsed/60)}m ${elapsed%60}s` : `${elapsed}s`;
+
+        document.getElementById('scrapeBannerDetail').innerHTML =
+          `<strong>${status.currentStore}</strong> buscando: ${status.currentProduct} · ` +
+          `${found} encontrados · ${elapsedStr} transcurridos`;
+      }
+
+      if (!status.running) {
+        // Scraping terminado
+        clearInterval(statusPollInterval);
+        statusPollInterval = null;
+        document.getElementById('progressWrap').style.display = 'none';
+        document.getElementById('scrapeProgressText').style.display = 'none';
+        document.getElementById('scrapeBanner').classList.remove('active');
+        document.getElementById('refreshBtn').disabled = false;
+        document.getElementById('refreshBtn').textContent = '⚡ Actualizar precios';
+
+        if (status.error) {
+          setStatusBar('estimated', `Error: ${status.error}`);
+        } else {
+          await loadRealPrices(); // recargar precios actualizados
+        }
+      }
+    } catch {
+      // ignorar errores de polling
+    }
+  }, 2000);
+}
+
+// Indicador visual en tarjeta si tiene precios reales
+const _baseRender = render;
+render = function() {
+  _baseRender();
+  // Agregar indicador de "precio real" en cards que lo tienen
+  document.querySelectorAll('.product-card').forEach(card => {
+    const onclickAttr = card.getAttribute('onclick') || '';
+    const match = onclickAttr.match(/openProduct\('([^']+)'\)/);
+    if (!match) return;
+    const pid = match[1];
+    const p = PRODUCTS.find(x => x.id === pid);
+    if (p?._isReal) {
+      const priceEl = card.querySelector('.price-value');
+      if (priceEl && !card.querySelector('.real-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'real-badge';
+        badge.style.cssText = 'font-size:0.55rem;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:20px;padding:0.1rem 0.35rem;font-weight:700;margin-left:0.3rem;vertical-align:middle';
+        badge.textContent = 'REAL';
+        priceEl.appendChild(badge);
+      }
+    }
+  });
+};
+
+// ══════════════════════════════════════════════════════
+// MODAL DE CONFIGURACIÓN
+// ══════════════════════════════════════════════════════
+
+function openConfigModal() {
+  Object.keys(STORES).forEach(function(id) {
+    cfgState.stores[id] = !activeStoreIds || activeStoreIds.includes(id);
+  });
+  PRODUCTS.forEach(function(p) {
+    cfgState.products[p.id] = !activeProdIds || activeProdIds.includes(p.id);
+  });
+  cfgState.tab = 'stores';
+  try { renderConfigBody(); } catch(e) { console.error('Config render error:', e); }
+  document.getElementById('configModal').classList.add('open');
+}
+
+function closeConfigModal(e) {
+  if (!e || e.target === document.getElementById('configModal')) {
+    document.getElementById('configModal').classList.remove('open');
+  }
+}
+
+function switchCfgTab(tab) {
+  cfgState.tab = tab;
+  document.getElementById('cfgTabStores').style.borderBottomColor = tab === 'stores' ? 'var(--primary-light)' : 'transparent';
+  document.getElementById('cfgTabStores').style.color = tab === 'stores' ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('cfgTabStores').style.fontWeight = tab === 'stores' ? '600' : '400';
+  document.getElementById('cfgTabProducts').style.borderBottomColor = tab === 'products' ? 'var(--primary-light)' : 'transparent';
+  document.getElementById('cfgTabProducts').style.color = tab === 'products' ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('cfgTabProducts').style.fontWeight = tab === 'products' ? '600' : '400';
+  renderConfigBody();
+}
+
+function renderCfgStoreChip(id, s) {
+  const on = cfgState.stores[id];
+  const bg = on ? s.color + '22' : 'transparent';
+  const border = on ? s.color : 'var(--border)';
+  return '<label style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.75rem;border:1px solid ' + border + ';border-radius:8px;cursor:pointer;background:' + bg + ';transition:all 0.15s">'
+    + '<input type="checkbox" ' + (on ? 'checked' : '') + ' onchange="cfgState.stores[\'' + id + '\']=this.checked;renderConfigBody()" style="accent-color:' + s.color + ';width:14px;height:14px">'
+    + '<span style="font-size:0.85rem;color:var(--text)">' + s.emoji + ' ' + s.name + '</span>'
+    + '</label>';
+}
+
+function renderCfgProductChip(p) {
+  const on = cfgState.products[p.id];
+  const border = on ? 'var(--primary-light)' : 'var(--border)';
+  const bg = on ? 'rgba(255,160,0,0.1)' : 'transparent';
+  return '<label style="display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.6rem;border:1px solid ' + border + ';border-radius:6px;cursor:pointer;background:' + bg + ';font-size:0.78rem;white-space:nowrap">'
+    + '<input type="checkbox" ' + (on ? 'checked' : '') + ' onchange="cfgState.products[\'' + p.id + '\']=this.checked;renderConfigBody()" style="accent-color:var(--primary-light);width:12px;height:12px">'
+    + p.name
+    + '</label>';
+}
+
+function renderCfgCategoryBlock(cat) {
+  const prods = PRODUCTS.filter(function(p) { return p.cat === cat.id; });
+  const enabledCount = prods.filter(function(p) { return cfgState.products[p.id]; }).length;
+  const allCat = enabledCount === prods.length;
+  const someCat = enabledCount > 0 && !allCat;
+  let html = '<details style="margin-bottom:0.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">'
+    + '<summary style="padding:0.6rem 0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.75rem;list-style:none;user-select:none">'
+    + '<input type="checkbox" ' + (allCat ? 'checked' : '') + ' data-cat="' + cat.id + '" data-indeterminate="' + someCat + '" onclick="event.stopPropagation();toggleCfgCategory(\'' + cat.id + '\',this.checked);renderConfigBody()" style="width:14px;height:14px;accent-color:var(--primary-light)">'
+    + '<span style="font-size:0.9rem;font-weight:600;flex:1">' + cat.emoji + ' ' + cat.name + '</span>'
+    + '<span style="font-size:0.75rem;color:var(--muted)">' + enabledCount + '/' + prods.length + '</span>'
+    + '</summary>'
+    + '<div style="padding:0.75rem;display:flex;flex-wrap:wrap;gap:0.4rem">';
+  prods.forEach(function(p) { html += renderCfgProductChip(p); });
+  html += '</div></details>';
+  return html;
+}
+
+function renderConfigBody() {
+  const body = document.getElementById('cfgBody');
+  if (!body) return;
+
+  if (cfgState.tab === 'stores') {
+    const groups = {};
+    Object.keys(STORES).forEach(function(id) {
+      const s = STORES[id];
+      if (!groups[s.type]) groups[s.type] = [];
+      groups[s.type].push(id);
+    });
+    let html = '';
+    Object.keys(groups).forEach(function(type) {
+      html += '<div style="margin-bottom:1.25rem">'
+        + '<div style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.5rem">' + type + '</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:0.5rem">';
+      groups[type].forEach(function(id) { html += renderCfgStoreChip(id, STORES[id]); });
+      html += '</div></div>';
+    });
+    body.innerHTML = html;
+  } else {
+    const allEnabled = PRODUCTS.every(function(p) { return cfgState.products[p.id]; });
+    const noneEnabled = !PRODUCTS.some(function(p) { return cfgState.products[p.id]; });
+    let html = '<div style="display:flex;gap:0.5rem;margin-bottom:1rem">'
+      + '<button onclick="Object.keys(cfgState.products).forEach(function(id){cfgState.products[id]=true});renderConfigBody()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:' + (allEnabled ? 'var(--primary)' : 'transparent') + ';color:' + (allEnabled ? '#fff' : 'var(--muted)') + ';cursor:pointer;font-size:0.8rem">Todo</button>'
+      + '<button onclick="Object.keys(cfgState.products).forEach(function(id){cfgState.products[id]=false});renderConfigBody()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:' + (noneEnabled ? 'var(--red)' : 'transparent') + ';color:' + (noneEnabled ? '#fff' : 'var(--muted)') + ';cursor:pointer;font-size:0.8rem">Ninguno</button>'
+      + '</div>';
+    CATS.forEach(function(cat) {
+      if (cat.id === 'all') return;
+      if (!PRODUCTS.some(function(p) { return p.cat === cat.id; })) return;
+      html += renderCfgCategoryBlock(cat);
+    });
+    body.innerHTML = html;
+    body.querySelectorAll('input[data-indeterminate="true"]').forEach(function(el) { el.indeterminate = true; });
+  }
+}
+
+function toggleCfgCategory(catId, enabled) {
+  PRODUCTS.forEach(function(p) { if (p.cat === catId) cfgState.products[p.id] = enabled; });
+}
+
+async function saveConfig() {
+  const enabledStores = Object.entries(cfgState.stores).filter(([,v]) => v).map(([k]) => k);
+  const enabledProducts = Object.entries(cfgState.products).filter(([,v]) => v).map(([k]) => k);
+  const allStores = enabledStores.length === Object.keys(STORES).length;
+  const allProducts = enabledProducts.length === PRODUCTS.length;
+  const cfg = {
+    enabledStores: allStores ? null : enabledStores,
+    enabledProducts: allProducts ? null : enabledProducts,
+  };
+  try {
+    await fetch('http://localhost:3000/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg),
+    });
+    // Aplicar en memoria sin recargar página
+    activeProdIds = cfg.enabledProducts;
+    activeStoreIds = cfg.enabledStores;
+    state.storeFilter = activeStoreIds ? [...activeStoreIds] : Object.keys(STORES);
+    document.getElementById('configModal').classList.remove('open');
+    renderStoreFilters();
+    renderBrandFilter();
+    render();
+  } catch {
+    alert('Error al guardar. ¿Está corriendo el servidor Copetón?');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MOBILE FILTER SHEET
+// ═══════════════════════════════════════════════════════
+function openFilterSheet() {
+  const content = document.getElementById('mobileFilterContent');
+  // Clone sidebar filters into mobile sheet
+  const sidebar = document.querySelector('.sidebar .filter-card');
+  if (sidebar) content.innerHTML = sidebar.innerHTML;
+  document.getElementById('filterSheetOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFilterSheet(e) {
+  if (e && e.target !== document.getElementById('filterSheetOverlay')) return;
+  document.getElementById('filterSheetOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  render();
+}
+
+function updateMobileFilterCount() {
+  let count = 0;
+  if (state.category !== 'all') count++;
+  if (state.alcFilter) count++;
+  if (state.priceMax < 80000) count++;
+  if (state.brandFilter) count++;
+  if (state.volumeFilter) count++;
+  if (state.unitFilter) count++;
+  const el = document.getElementById('mobileFilterCount');
+  if (el) el.textContent = count > 0 ? `(${count})` : '';
+}
+
+// Patch render to update mobile filter count
+const _renderForMobile = render;
+render = function() {
+  _renderForMobile();
+  updateMobileFilterCount();
+};
+
+// ═══════════════════════════════════════════════════════
+// SKELETON LOADERS
+// ═══════════════════════════════════════════════════════
+function showSkeletons() {
+  const container = document.getElementById('productsContainer');
+  const cards = Array.from({length: 8}, () => `
+    <div class="skeleton-card">
+      <div class="sk-img"></div>
+      <div class="sk-body">
+        <div class="sk-line w60"></div>
+        <div class="sk-line w80"></div>
+        <div class="sk-line w40"></div>
+      </div>
+    </div>
+  `).join('');
+  container.innerHTML = `<div class="products-grid">${cards}</div>`;
+}
+
+// Show skeletons initially, then load real data
+showSkeletons();
+
+// ═══════════════════════════════════════════════════════
+// LOG MODAL
+// ═══════════════════════════════════════════════════════
+
+async function openLogModal() {
+  document.getElementById('logModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  const body = document.getElementById('logBody');
+  body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:2rem">Cargando historial...</div>';
+
+  try {
+    const [logRes, reportRes] = await Promise.all([
+      fetch(`${API}/scrape-log`, { signal: AbortSignal.timeout(15000) }),
+      fetch(`${API}/report`, { signal: AbortSignal.timeout(15000) }),
+    ]);
+    const logData = await logRes.json();
+    const reportData = await reportRes.json();
+
+    let html = '';
+
+    // Resumen global
+    if (reportData.success && reportData.data) {
+      const rd = reportData.data;
+      const globalColor = rd.globalSuccessRate >= 40 ? 'var(--green)' : rd.globalSuccessRate >= 25 ? 'var(--gold)' : 'var(--red)';
+      html += '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem;display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center">';
+      html += `<div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Último scrape</div><div style="font-size:0.95rem;font-weight:600">${rd.duration || 'N/D'}</div></div>`;
+      html += `<div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Productos</div><div style="font-size:0.95rem;font-weight:600">${rd.scrapedProducts} <span style="color:var(--muted);font-weight:400">/ ${rd.totalCatalog}</span></div></div>`;
+      html += `<div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Éxito global</div><div style="font-size:0.95rem;font-weight:700;color:${globalColor}">${rd.globalSuccessRate}%</div></div>`;
+      html += `<div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Encontrados</div><div style="font-size:0.95rem;font-weight:600">${rd.globalStats?.found || 0}</div></div>`;
+      html += '</div>';
+    }
+
+    // Reporte actual de salud por tienda
+    if (reportData.success && reportData.data?.stores) {
+      html += '<div style="margin-bottom:1.5rem">';
+      html += '<div style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem">Rendimiento por tienda</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.5rem">';
+      for (const s of reportData.data.stores) {
+        const store = STORES[s.store];
+        const color = store?.color || 'var(--muted)';
+        const successColor = s.successRate >= 50 ? 'var(--green)' : s.successRate >= 30 ? 'var(--gold)' : 'var(--red)';
+        html += `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.75rem">`;
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">`;
+        html += `<div style="display:flex;align-items:center;gap:0.4rem">`;
+        html += `<span style="width:8px;height:8px;border-radius:50%;background:${color}"></span>`;
+        html += `<span style="font-size:0.88rem;font-weight:600">${store?.name || s.store}</span>`;
+        html += `</div>`;
+        html += `<span style="font-size:1rem;font-weight:700;color:${successColor}">${s.successRate}%</span>`;
+        html += `</div>`;
+        // Barra de éxito
+        html += `<div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:0.5rem">`;
+        html += `<div style="height:100%;width:${s.successRate}%;background:${successColor};border-radius:2px"></div>`;
+        html += `</div>`;
+        html += `<div style="font-size:0.75rem;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:0.2rem">`;
+        html += `<span>Encontrados: <strong style="color:var(--text)">${s.found}/${s.attempted}</strong></span>`;
+        html += `<span>Imágenes: <strong style="color:${s.imageRate >= 80 ? 'var(--green)' : 'var(--gold)'}">${s.imageRate}%</strong></span>`;
+        html += `<span>Promedio: <strong style="color:var(--text)">${s.avgPrice ? '$' + s.avgPrice.toLocaleString('es-CL') : 'N/D'}</strong></span>`;
+        html += `<span>Rango: <strong style="color:var(--text)">${s.minPrice ? '$' + s.minPrice.toLocaleString('es-CL') : ''}–${s.maxPrice ? '$' + s.maxPrice.toLocaleString('es-CL') : ''}</strong></span>`;
+        html += `</div></div>`;
+      }
+      html += '</div></div>';
+    }
+
+    // Historial de ejecuciones
+    if (logData.success && logData.data?.length) {
+      html += '<div style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem">Historial de ejecuciones</div>';
+      for (const log of logData.data) {
+        const date = new Date(log.lastUpdated);
+        const dateStr = date.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        const timeStr = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+        const found = log.stats?.found || 0;
+        const notFound = log.stats?.notFound || 0;
+        const total = found + notFound;
+        const rate = log.successRate || (total > 0 ? Math.round((found / total) * 100) : 0);
+        const rateColor = rate >= 40 ? 'var(--green)' : rate >= 25 ? 'var(--gold)' : 'var(--red)';
+        const imgRate = Math.round(log.withImage / Math.max(log.storeEntries, 1) * 100);
+
+        html += `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.6rem">`;
+
+        // Header: fecha + stats
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem">`;
+        html += `<div>`;
+        html += `<div style="font-size:0.9rem;font-weight:600">${dateStr} · ${timeStr}</div>`;
+        html += `<div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem">`;
+        html += `⏱ ${log.duration || 'N/D'} · ${log.products} productos · ${log.stores.length} tiendas · 📷 ${imgRate}%`;
+        html += `</div></div>`;
+        html += `<div style="text-align:right">`;
+        html += `<div style="font-size:1.1rem;font-weight:700;color:${rateColor}">${rate}% éxito</div>`;
+        html += `<div style="font-size:0.72rem;color:var(--muted)">${found} de ${total} intentos</div>`;
+        html += `</div></div>`;
+
+        // Barra de éxito
+        html += `<div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.6rem">`;
+        html += `<div style="height:100%;width:${rate}%;background:${rateColor};border-radius:3px"></div>`;
+        html += `</div>`;
+
+        // Desglose por tienda
+        html += `<div style="display:flex;flex-wrap:wrap;gap:0.4rem">`;
+        for (const sid of log.stores) {
+          const store = STORES[sid];
+          if (!store) continue;
+          const count = log.storeCounts?.[sid] || 0;
+          const storeRate = log.products > 0 ? Math.round((count / log.products) * 100) : 0;
+          const storeColor = storeRate >= 50 ? 'var(--green)' : storeRate >= 30 ? 'var(--gold)' : 'var(--red)';
+          html += `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:8px;background:${store.color}15;border:1px solid ${store.color}30;display:flex;align-items:center;gap:0.3rem">`;
+          html += `<span style="color:${store.color}">${store.name}</span>`;
+          html += `<strong style="color:${storeColor}">${count}</strong>`;
+          html += `</span>`;
+        }
+        html += `</div>`;
+
+        html += `</div>`;
+      }
+    } else {
+      html += '<div style="text-align:center;color:var(--muted);padding:2rem">No hay historial de scraping aún.</div>';
+    }
+
+    body.innerHTML = html;
+  } catch (e) {
+    body.innerHTML = `<div style="text-align:center;color:var(--red);padding:2rem">Error cargando historial: ${e.message}<br><span style="color:var(--muted);font-size:0.8rem">¿Está corriendo el servidor?</span></div>`;
+  }
+}
+
+function closeLogModal(e) {
+  if (e && e.target !== document.getElementById('logModal')) return;
+  document.getElementById('logModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════════
+// SCRAPE CONFIG MODAL
+// ═══════════════════════════════════════════════════════
+
+// Mapeo de ID de producto → categoría
+function getProductCat(id) {
+  if (/^e\d|^bk/.test(id)) return 'cerveza';
+  if (/^sa|^rtd[89]/.test(id)) return 'sin_alcohol';
+  if (/^p\d|^pm/.test(id)) return 'pisco';
+  if (/^g\d|^gn/.test(id)) return 'gin';
+  if (/^w\d|^wb/.test(id)) return 'whisky';
+  if (/^sm/.test(id)) return 'single_malt';
+  if (/^bi/.test(id)) return 'whisky_bourbon';
+  if (/^wj/.test(id)) return 'whisky_japones';
+  if (/^r\d|^rn/.test(id)) return 'ron';
+  if (/^v\d|^vn/.test(id)) return 'vodka';
+  if (/^t\d|^tn/.test(id)) return 'tequila';
+  if (/^mz/.test(id)) return 'mezcal';
+  if (/^vt|^vi/.test(id)) return 'vino';
+  if (/^es|^esp/.test(id)) return 'espumante';
+  if (/^ap/.test(id)) return 'aperitivo';
+  if (/^l\d|^ln/.test(id)) return 'licor';
+  if (/^cog/.test(id)) return 'cognac';
+  if (/^vmt/.test(id)) return 'vermut';
+  if (/^rtd/.test(id)) return 'rtd';
+  return 'otro';
+}
+
+const SCRAPE_STORE_KEYS = ['unimarc','jumbo','lider','labarra','descorcha','operals','elbrindis','tost'];
+
+let scrCfg = {
+  tab: 'cats',
+  cats: {},
+  brands: {},
+  stores: {},
+  products: {},
+};
+
+function initScrapeCfg() {
+  // Categorías: todas ON
+  CATS.forEach(c => { if (c.id !== 'all') scrCfg.cats[c.id] = true; });
+  // Marcas: todas ON
+  [...new Set(PRODUCTS.map(p => p.brand))].forEach(b => { scrCfg.brands[b] = true; });
+  // Tiendas: todas ON
+  SCRAPE_STORE_KEYS.forEach(s => { scrCfg.stores[s] = true; });
+  // Productos: todos ON
+  PRODUCTS.forEach(p => { scrCfg.products[p.id] = true; });
+}
+initScrapeCfg();
+
+function getSelectedScrapeProducts() {
+  return PRODUCTS.filter(p => {
+    if (!scrCfg.products[p.id]) return false;
+    const cat = p.cat || getProductCat(p.id);
+    if (!scrCfg.cats[cat]) return false;
+    if (!scrCfg.brands[p.brand]) return false;
+    return true;
+  });
+}
+
+function getSelectedScrapeStores() {
+  return SCRAPE_STORE_KEYS.filter(s => scrCfg.stores[s]);
+}
+
+function updateScrapeEstimate() {
+  const prods = getSelectedScrapeProducts().length;
+  const stores = getSelectedScrapeStores().length;
+  const combos = prods * stores;
+  const mins = Math.max(1, Math.round(combos * 0.7 / 60));
+  const el = document.getElementById('scrapeEstimate');
+  if (el) el.innerHTML = `<strong>${prods}</strong> productos × <strong>${stores}</strong> tiendas ≈ <strong>~${mins} min</strong>`;
+}
+
+function openScrapeModal() {
+  initScrapeCfg();
+  scrCfg.tab = 'cats';
+  renderScrapeBody();
+  updateScrapeEstimate();
+  document.getElementById('scrapeModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeScrapeModal(e) {
+  if (e && e.target !== document.getElementById('scrapeModal')) return;
+  document.getElementById('scrapeModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchScrapeTab(tab) {
+  scrCfg.tab = tab;
+  ['cats','brands','stores','products'].forEach(t => {
+    const btn = document.getElementById('scrTab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) {
+      btn.style.borderBottomColor = t === tab ? 'var(--primary-light)' : 'transparent';
+      btn.style.color = t === tab ? 'var(--text)' : 'var(--muted)';
+      btn.style.fontWeight = t === tab ? '600' : '400';
+    }
+  });
+  renderScrapeBody();
+}
+
+function toggleScrBrandsByCat(catId, checked) {
+  const brandsInCat = new Set();
+  PRODUCTS.forEach(p => {
+    const c = p.cat || getProductCat(p.id);
+    if (c === catId) brandsInCat.add(p.brand);
+  });
+  brandsInCat.forEach(b => { scrCfg.brands[b] = checked; });
+  renderScrapeBody();
+  updateScrapeEstimate();
+}
+
+function renderScrapeBody() {
+  const body = document.getElementById('scrapeBody');
+  if (!body) return;
+
+  if (scrCfg.tab === 'cats') {
+    const catCounts = {};
+    PRODUCTS.forEach(p => {
+      const c = p.cat || getProductCat(p.id);
+      catCounts[c] = (catCounts[c] || 0) + 1;
+    });
+    let html = '<div style="display:flex;gap:0.5rem;margin-bottom:1rem">'
+      + '<button onclick="Object.keys(scrCfg.cats).forEach(k=>scrCfg.cats[k]=true);renderScrapeBody();updateScrapeEstimate()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:0.8rem">Todas</button>'
+      + '<button onclick="Object.keys(scrCfg.cats).forEach(k=>scrCfg.cats[k]=false);renderScrapeBody();updateScrapeEstimate()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:0.8rem">Ninguna</button>'
+      + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:0.5rem">';
+    CATS.forEach(c => {
+      if (c.id === 'all') return;
+      const on = scrCfg.cats[c.id];
+      const count = catCounts[c.id] || 0;
+      const bg = on ? 'var(--primary)' : 'transparent';
+      const border = on ? 'var(--primary)' : 'var(--border)';
+      const color = on ? '#fff' : 'var(--muted)';
+      html += `<label style="display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border:1.5px solid ${border};border-radius:8px;cursor:pointer;background:${bg};color:${color};font-size:0.85rem;transition:all 0.15s">`
+        + `<input type="checkbox" ${on ? 'checked' : ''} onchange="scrCfg.cats['${c.id}']=this.checked;renderScrapeBody();updateScrapeEstimate()" style="display:none">`
+        + `${c.emoji} ${c.name} <span style="opacity:0.6;font-size:0.75rem">(${count})</span>`
+        + `</label>`;
+    });
+    html += '</div>';
+    body.innerHTML = html;
+
+  } else if (scrCfg.tab === 'brands') {
+    const brandsByCat = {};
+    PRODUCTS.forEach(p => {
+      const c = p.cat || getProductCat(p.id);
+      if (!brandsByCat[c]) brandsByCat[c] = new Set();
+      brandsByCat[c].add(p.brand);
+    });
+    let html = '<div style="display:flex;gap:0.5rem;margin-bottom:1rem">'
+      + '<button onclick="Object.keys(scrCfg.brands).forEach(k=>scrCfg.brands[k]=true);renderScrapeBody();updateScrapeEstimate()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:0.8rem">Todas</button>'
+      + '<button onclick="Object.keys(scrCfg.brands).forEach(k=>scrCfg.brands[k]=false);renderScrapeBody();updateScrapeEstimate()" style="padding:0.3rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:0.8rem">Ninguna</button>'
+      + '</div>';
+    CATS.forEach(cat => {
+      if (cat.id === 'all' || !brandsByCat[cat.id]) return;
+      const brands = [...brandsByCat[cat.id]].sort();
+      const allOn = brands.every(b => scrCfg.brands[b]);
+      html += `<details ${allOn ? '' : 'open'} style="margin-bottom:0.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">`;
+      html += `<summary style="padding:0.5rem 0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;list-style:none;user-select:none;font-size:0.88rem;font-weight:600">`;
+      html += `<input type="checkbox" ${allOn ? 'checked' : ''} data-cat-brands="${cat.id}" onclick="event.stopPropagation();toggleScrBrandsByCat(this.dataset.catBrands,this.checked)" style="width:14px;height:14px;accent-color:var(--primary-light)">`;
+      html += `${cat.emoji} ${cat.name} <span style="font-size:0.75rem;color:var(--muted);font-weight:400">${brands.length} marcas</span>`;
+      html += `</summary>`;
+      html += `<div style="padding:0.5rem 0.9rem;display:flex;flex-wrap:wrap;gap:0.4rem">`;
+      brands.forEach(b => {
+        const on = scrCfg.brands[b];
+        const prodCount = PRODUCTS.filter(p => p.brand === b).length;
+        const safeB = b.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        html += `<label style="display:flex;align-items:center;gap:0.35rem;padding:0.25rem 0.6rem;border:1px solid ${on ? 'var(--primary-light)' : 'var(--border)'};border-radius:6px;cursor:pointer;background:${on ? 'rgba(180,83,9,0.15)' : 'transparent'};font-size:0.78rem;color:${on ? 'var(--text)' : 'var(--muted)'}">`
+          + `<input type="checkbox" ${on ? 'checked' : ''} data-brand="${safeB}" onchange="scrCfg.brands[this.dataset.brand]=this.checked;renderScrapeBody();updateScrapeEstimate()" style="width:12px;height:12px;accent-color:var(--primary-light)">`
+          + `${safeB} <span style="opacity:0.5">(${prodCount})</span></label>`;
+      });
+      html += '</div></details>';
+    });
+    body.innerHTML = html;
+
+  } else if (scrCfg.tab === 'stores') {
+    let html = '<div style="display:flex;flex-wrap:wrap;gap:0.6rem">';
+    SCRAPE_STORE_KEYS.forEach(sid => {
+      const s = STORES[sid];
+      if (!s) return;
+      const on = scrCfg.stores[sid];
+      html += `<label style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border:1.5px solid ${on ? s.color : 'var(--border)'};border-radius:10px;cursor:pointer;background:${on ? s.color + '18' : 'transparent'};transition:all 0.15s;min-width:140px">`
+        + `<input type="checkbox" ${on ? 'checked' : ''} onchange="scrCfg.stores['${sid}']=this.checked;updateScrapeEstimate()" style="accent-color:${s.color};width:16px;height:16px">`
+        + `<span style="font-size:0.9rem;color:var(--text)">${s.emoji} ${s.name}</span>`
+        + `<span style="font-size:0.72rem;color:var(--muted)">${s.type}</span>`
+        + `</label>`;
+    });
+    html += '</div>';
+    body.innerHTML = html;
+
+  } else if (scrCfg.tab === 'products') {
+    let html = '<div style="margin-bottom:0.75rem;font-size:0.8rem;color:var(--muted)">Selecciona productos individuales. Filtra primero por categoría y marca en las otras pestañas.</div>';
+    CATS.forEach(cat => {
+      if (cat.id === 'all') return;
+      const prods = PRODUCTS.filter(p => (p.cat || getProductCat(p.id)) === cat.id);
+      if (!prods.length) return;
+      const enabledCount = prods.filter(p => scrCfg.products[p.id] && scrCfg.cats[cat.id] && scrCfg.brands[p.brand]).length;
+      html += `<details style="margin-bottom:0.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">`;
+      html += `<summary style="padding:0.5rem 0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;list-style:none;user-select:none;font-size:0.88rem;font-weight:600">`;
+      html += `${cat.emoji} ${cat.name} <span style="font-size:0.75rem;color:var(--muted);font-weight:400">${enabledCount}/${prods.length}</span>`;
+      html += `</summary>`;
+      html += `<div style="padding:0.5rem 0.9rem;display:flex;flex-wrap:wrap;gap:0.4rem">`;
+      prods.forEach(p => {
+        const catOn = scrCfg.cats[cat.id];
+        const brandOn = scrCfg.brands[p.brand];
+        const on = scrCfg.products[p.id] && catOn && brandOn;
+        const disabled = !catOn || !brandOn;
+        html += `<label style="display:flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;border:1px solid ${on ? 'var(--primary-light)' : 'var(--border)'};border-radius:6px;cursor:${disabled ? 'not-allowed' : 'pointer'};background:${on ? 'rgba(180,83,9,0.15)' : 'transparent'};font-size:0.75rem;color:${disabled ? 'var(--border)' : on ? 'var(--text)' : 'var(--muted)'};opacity:${disabled ? '0.4' : '1'}">`
+          + `<input type="checkbox" ${on ? 'checked' : ''} ${disabled ? 'disabled' : ''} onchange="scrCfg.products['${p.id}']=this.checked;updateScrapeEstimate()" style="width:11px;height:11px;accent-color:var(--primary-light)">`
+          + `${p.name}</label>`;
+      });
+      html += '</div></details>';
+    });
+    body.innerHTML = html;
+  }
+}
+
+async function launchSelectiveScrape() {
+  const selectedProducts = getSelectedScrapeProducts().map(p => p.id);
+  const selectedStores = getSelectedScrapeStores();
+
+  if (!selectedProducts.length || !selectedStores.length) {
+    alert('Selecciona al menos un producto y una tienda.');
+    return;
+  }
+
+  closeScrapeModal();
+
+  // Enviar filtros como body del POST (no modifica config.json)
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Iniciando...';
+
+  try {
+    const res = await fetch(`${API}/scrape`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        enabledStores: selectedStores.length === SCRAPE_STORE_KEYS.length ? null : selectedStores,
+        enabledProducts: selectedProducts.length === PRODUCTS.length ? null : selectedProducts,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setStatusBar('scraping', 'Scraping iniciado...');
+      startStatusPolling();
+    } else {
+      alert(data.message || 'No se pudo iniciar el scraping.');
+      btn.disabled = false;
+      btn.textContent = '⚡ Actualizar precios';
+    }
+  } catch {
+    alert('No se puede conectar al servidor. ¿Está corriendo node server.js?');
+    btn.disabled = false;
+    btn.textContent = '⚡ Actualizar precios';
+  }
+}
+
+// ── INICIALIZAR ────────────────────────────────────────
+loadRealPrices();
+</script>
+</body>
+</html>

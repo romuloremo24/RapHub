@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InformeAuto — Historial vehicular Chile</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #1a5276;
+      --blue-dark: #154360;
+      --blue-light:#2980b9;
+      --green:     #1e8449;
+      --red:       #c0392b;
+      --orange:    #d35400;
+      --gray:      #7f8c8d;
+      --bg:        #eaf0fb;
+      --card:      #ffffff;
+      --border:    #d5dde9;
+      --text:      #1c2833;
+      --muted:     #5d6d7e;
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 60%, var(--blue-light) 100%); color: #fff; padding: 18px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width:38px; height:38px; background:rgba(255,255,255,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+    .logo-text { font-size:1.4rem; font-weight:700; letter-spacing:-0.5px; }
+    .logo-sub  { font-size:0.75rem; opacity:0.75; letter-spacing:0.5px; text-transform:uppercase; }
+
+    .search-wrap { background:var(--blue); padding:28px 24px 32px; text-align:center; }
+    .search-wrap h2 { color:#fff; font-size:1.05rem; font-weight:400; margin-bottom:16px; opacity:0.9; }
+    .search-box { display:inline-flex; border-radius:10px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,0.3); max-width:460px; width:100%; }
+    #patente-input { flex:1; padding:14px 18px; font-size:1.25rem; font-weight:700; letter-spacing:3px; border:none; outline:none; text-transform:uppercase; }
+    #patente-input::placeholder { font-weight:400; letter-spacing:1px; opacity:0.45; }
+    #btn-consultar { padding:14px 22px; background:#f39c12; color:#fff; border:none; font-size:0.95rem; font-weight:700; cursor:pointer; white-space:nowrap; transition:background 0.15s; }
+    #btn-consultar:hover { background:#e67e22; }
+    #btn-consultar:disabled { background:#aaa; cursor:wait; }
+
+    main { max-width: 960px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    #state-placeholder { text-align:center; padding:60px 20px; color:var(--muted); }
+    #state-placeholder .icon { font-size:3.5rem; margin-bottom:12px; }
+
+    .skeleton-wrap { display:flex; flex-direction:column; gap:16px; }
+    .skeleton-card { background:var(--card); border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.08); }
+    .skel { background:linear-gradient(90deg,#e0e8f5 25%,#f0f5fd 50%,#e0e8f5 75%); background-size:400% 100%; border-radius:6px; animation:shimmer 1.4s infinite; }
+    .skel-title { height:20px; width:200px; margin-bottom:14px; }
+    .skel-line  { height:14px; width:100%; margin-bottom:8px; }
+    .skel-short { height:14px; width:60%; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .patente-header { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:22px; flex-wrap:wrap; }
+    .patente-left { display:flex; align-items:center; gap:18px; }
+    .patente-plate { background:#fff; border:3px solid var(--blue); border-radius:10px; padding:8px 18px; font-size:1.6rem; font-weight:800; letter-spacing:4px; color:var(--blue-dark); font-family:"Courier New",monospace; }
+    .patente-plate .flag { font-size:0.7rem; letter-spacing:1px; color:var(--blue-light); display:block; text-align:center; margin-bottom:2px; }
+    .report-date { font-size:0.82rem; color:var(--muted); }
+
+    .btn-pdf { display:inline-flex; align-items:center; gap:6px; padding:10px 18px; background:var(--blue); color:#fff; border:none; border-radius:8px; font-size:0.88rem; font-weight:700; cursor:pointer; transition:background 0.15s; white-space:nowrap; }
+    .btn-pdf:hover { background:var(--blue-dark); }
+    .btn-pdf:disabled { background:var(--gray); cursor:wait; }
+
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:24px; }
+    .summary-card { background:var(--card); border-radius:12px; padding:14px 16px; box-shadow:0 1px 6px rgba(0,0,0,0.07); display:flex; align-items:center; gap:10px; border-left:5px solid var(--gray); }
+    .summary-card.ok      { border-left-color:var(--green); }
+    .summary-card.alert   { border-left-color:var(--red); }
+    .summary-card.warn    { border-left-color:var(--orange); }
+    .summary-card.unknown { border-left-color:var(--gray); }
+    .badge-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; background:#eaf0fb; }
+    .ok    .badge-icon { background:#d5f5e3; color:var(--green); }
+    .alert .badge-icon { background:#fadbd8; color:var(--red); }
+    .warn  .badge-icon { background:#fdebd0; color:var(--orange); }
+    .summary-card-info { flex:1; min-width:0; }
+    .summary-title { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+    .summary-state { font-size:0.9rem; font-weight:700; margin-top:2px; }
+    .ok    .summary-state { color:var(--green); }
+    .alert .summary-state { color:var(--red); }
+    .warn  .summary-state { color:var(--orange); }
+    .unknown .summary-state { color:var(--gray); }
+
+    .detail-card { background:var(--card); border-radius:12px; margin-bottom:16px; box-shadow:0 1px 6px rgba(0,0,0,0.07); overflow:hidden; }
+    .detail-header { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8faff; }
+    .detail-header-icon { font-size:1.3rem; }
+    .detail-header-title { font-size:1rem; font-weight:700; flex:1; }
+    .result-badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+    .badge-ok      { background:#d5f5e3; color:#1e8449; }
+    .badge-alert   { background:#fadbd8; color:#c0392b; }
+    .badge-warn    { background:#fdebd0; color:#d35400; }
+    .badge-unknown { background:#eaecee; color:#7f8c8d; }
+    .badge-error   { background:#fdf2f8; color:#922b21; }
+    .detail-body   { padding:16px 18px; }
+
+    .info-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+    .info-table th { background:#f4f6f9; text-align:left; padding:8px 10px; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.4px; color:var(--muted); border-bottom:1px solid var(--border); }
+    .info-table td { padding:9px 10px; border-bottom:1px solid #f0f2f5; vertical-align:middle; }
+    .info-table tr:last-child td { border-bottom:none; }
+
+    /* Ficha vehículo (RNVR) */
+    .vehicle-card { background:linear-gradient(135deg,var(--blue-dark),var(--blue)); color:#fff; border-radius:12px; padding:20px 22px; margin-bottom:16px; box-shadow:0 4px 16px rgba(26,82,118,0.3); }
+    .vehicle-card-title { font-size:0.75rem; opacity:0.75; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+    .vehicle-name { font-size:1.5rem; font-weight:800; margin-bottom:12px; }
+    .vehicle-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
+    .vehicle-field { background:rgba(255,255,255,0.12); border-radius:8px; padding:8px 12px; }
+    .vehicle-field-label { font-size:0.7rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+    .vehicle-field-value { font-size:0.92rem; font-weight:600; }
+
+    .propietario-current { background:#f0f7ff; border:1px solid #bee3f8; border-radius:10px; padding:12px 16px; margin-bottom:12px; }
+    .propietario-current strong { color:var(--blue-dark); display:block; font-size:1rem; margin-bottom:2px; }
+    .propietario-current span { font-size:0.85rem; color:var(--muted); }
+
+    .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+    .dot-ok    { background:var(--green); }
+    .dot-alert { background:var(--red); }
+    .dot-gray  { background:var(--gray); }
+
+    .notice { background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:11px 14px; font-size:0.85rem; color:#7d6608; margin-top:12px; }
+    .notice-info  { background:#eaf4fb; border-color:#aed6f1; color:#1a5276; }
+    .notice-alert { background:#fdedec; border-color:#f1948a; color:#922b21; }
+    .notice-ok    { background:#d5f5e3; border-color:#a9dfbf; color:#1e8449; }
+
+    .manual-verify { display:flex; align-items:flex-start; gap:16px; background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:14px 16px; }
+    .manual-verify-text { flex:1; }
+    .manual-verify-text strong { color:#7d6608; display:block; margin-bottom:4px; }
+    .manual-verify-text p { font-size:0.85rem; color:#7d6608; margin:0; }
+    .verify-btn { display:inline-block; flex-shrink:0; padding:8px 14px; background:var(--blue); color:#fff; border-radius:7px; text-decoration:none; font-size:0.82rem; font-weight:700; white-space:nowrap; transition:background 0.15s; align-self:center; }
+    .verify-btn:hover { background:var(--blue-dark); }
+
+    .unavailable-row { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--border); }
+    .unavailable-row:last-child { border-bottom:none; }
+    .unavailable-row .ui-icon { font-size:1.2rem; }
+    .unavailable-row .ui-msg { flex:1; font-size:0.87rem; color:var(--muted); }
+    .unavailable-row .ui-link { font-size:0.8rem; color:var(--blue); text-decoration:none; white-space:nowrap; }
+    .unavailable-row .ui-link:hover { text-decoration:underline; }
+
+    .source-tag { font-size:0.75rem; color:var(--muted); padding:8px 18px 12px; text-align:right; font-style:italic; }
+    .sources-footer { margin-top:24px; background:var(--card); border-radius:12px; padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,0.07); }
+    .sources-footer h4 { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:10px; }
+    .sources-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .source-link { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:#f4f6f9; border-radius:6px; font-size:0.82rem; color:var(--blue); text-decoration:none; font-weight:500; transition:background 0.15s; }
+    .source-link:hover { background:#dce6f5; }
+
+    .revision-row td:last-child { font-weight:600; }
+    .estado-aceptada  { color:var(--green); }
+    .estado-rechazada { color:var(--red); }
+    .estado-unknown   { color:var(--gray); }
+
+    @media (max-width: 600px) {
+      .patente-plate { font-size:1.2rem; letter-spacing:2px; }
+      main { padding:16px 10px 40px; }
+      .patente-header { flex-direction:column; align-items:flex-start; }
+      .vehicle-grid { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🚗</div>
+  <div>
+    <div class="logo-text">InformeAuto</div>
+    <div class="logo-sub">Historial vehicular Chile</div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <h2>Consulta el historial completo de cualquier vehículo chileno</h2>
+  <div class="search-box">
+    <input id="patente-input" type="text" placeholder="Ej: JCDS27" maxlength="8" autocomplete="off" spellcheck="false" />
+    <button id="btn-consultar" onclick="fetchReport()">Consultar</button>
+  </div>
+</div>
+
+<main>
+  <div id="state-placeholder">
+    <div class="icon">🔍</div>
+    <p>Ingresa la patente para consultar el historial del vehículo</p>
+  </div>
+  <div id="report" style="display:none"></div>
+</main>
+
+<script>
+  const input       = document.getElementById('patente-input');
+  const btn         = document.getElementById('btn-consultar');
+  const placeholder = document.getElementById('state-placeholder');
+  const reportDiv   = document.getElementById('report');
+
+  let lastReportData = null;
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') fetchReport(); });
+  input.addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+
+  function formatPatente(p) {
+    if (!p) return '';
+    if (p.length === 6 && /^[A-Z]{4}\d{2}$/.test(p)) return p.slice(0,4) + '·' + p.slice(4);
+    if (p.length === 6 && /^[A-Z]{2}\d{4}$/.test(p)) return p.slice(0,2) + '·' + p.slice(2);
+    return p;
+  }
+
+  async function fetchReport() {
+    const patente = input.value.trim();
+    if (!patente) return;
+    btn.disabled = true;
+    btn.textContent = 'Consultando...';
+    placeholder.style.display = 'none';
+    reportDiv.style.display = 'block';
+    reportDiv.innerHTML = buildSkeleton(8);
+    try {
+      const resp = await fetch(`/api/report/${patente}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      lastReportData = data;
+      reportDiv.innerHTML = buildReport(data);
+    } catch (err) {
+      reportDiv.innerHTML = `<div class="detail-card"><div class="detail-header"><span class="detail-header-icon">⚠️</span><span class="detail-header-title">Error al consultar</span></div><div class="detail-body"><p>${err.message}</p></div></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Consultar';
+    }
+  }
+
+  function buildSkeleton(n) {
+    const card = () => `<div class="skeleton-card"><div class="skel skel-title"></div><div class="skel skel-line"></div><div class="skel skel-line"></div><div class="skel skel-short"></div></div>`;
+    return `<div class="skeleton-wrap">${Array(n).fill('').map(card).join('')}</div>`;
+  }
+
+  function badgeClass(status) {
+    if (!status) return 'badge-unknown';
+    if (['ok','vigente'].includes(status)) return 'badge-ok';
+    if (['alert','rechazada'].includes(status)) return 'badge-alert';
+    if (['warn','captcha_required'].includes(status)) return 'badge-warn';
+    if (status === 'error') return 'badge-error';
+    return 'badge-unknown';
+  }
+  function badgeLabel(status) {
+    const map = {
+      ok:'OK', vigente:'Vigente', alert:'NO CUMPLE', rechazada:'Rechazada',
+      warn:'Atención', captcha_required:'Verificar', ok_no_data:'Sin datos',
+      unknown:'Sin datos', unavailable:'No disponible', error:'Error',
+    };
+    return map[status] || (status || 'Sin datos');
+  }
+  function summaryState(status) {
+    if (['ok','vigente'].includes(status)) return 'ok';
+    if (['alert','rechazada'].includes(status)) return 'alert';
+    if (['warn','captcha_required'].includes(status)) return 'warn';
+    return 'unknown';
+  }
+
+  /* ─── RNVR (ficha vehículo + propietarios) ─── */
+  function buildRnvr(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+
+    if (d.status === 'unavailable' || d.status === 'error') {
+      return `<div class="detail-card">
+        <div class="detail-header">
+          <span class="detail-header-icon">🔩</span>
+          <span class="detail-header-title">Datos Técnicos del Vehículo (RNVR)</span>
+          <span class="result-badge ${badge}">${label}</span>
+        </div>
+        <div class="detail-body">
+          <div class="manual-verify">
+            <div class="manual-verify-text">
+              <strong>Registro Civil — RNVR</strong>
+              <p>${d.message || 'Solo accesible para el propietario registrado.'}</p>
+              ${d.hint ? `<p style="font-size:0.8rem;color:var(--muted)">${d.hint}</p>` : ''}
+            </div>
+            <a href="${d.direct_url || 'https://www.registrocivil.cl/'}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+          </div>
+        </div>
+        <div class="source-tag">Fuente: Registro Civil — RNVR</div>
+      </div>`;
+    }
+
+    const dt = d.datos_tecnicos || {};
+    const fields = [
+      ['Marca',        dt['marca']       || dt['brand']],
+      ['Modelo',       dt['modelo']      || dt['model']],
+      ['Año',          dt['año']         || dt['year']],
+      ['Color',        dt['color']],
+      ['Combustible',  dt['combustible'] || dt['tipo_combustible']],
+      ['VIN / Chasis', dt['vin']         || dt['chasis'] || dt['bastidor']],
+      ['N° Motor',     dt['motor']       || dt['n° motor']],
+      ['Inscripción',  dt['fecha_inscripcion'] || dt['fecha inscripción']],
+    ].filter(([,v]) => v);
+
+    const vehicleName = [dt['marca'], dt['modelo'], dt['año']].filter(Boolean).join(' ') || 'Vehículo';
+
+    let vehicleCard = '';
+    if (fields.length > 0) {
+      const gridItems = fields.map(([k,v]) => `
+        <div class="vehicle-field">
+          <div class="vehicle-field-label">${k}</div>
+          <div class="vehicle-field-value">${v}</div>
+        </div>`).join('');
+      vehicleCard = `
+        <div class="vehicle-card">
+          <div class="vehicle-card-title">Registro Nacional de Vehículos Rodantes</div>
+          <div class="vehicle-name">${vehicleName}</div>
+          <div class="vehicle-grid">${gridItems}</div>
+        </div>`;
+    } else if (d.status === 'ok_no_data') {
+      vehicleCard = `<p class="notice notice-info">${d.message}</p>`;
+    }
+
+    let propBlock = '';
+    const props = d.propietarios || [];
+    if (props.length > 0) {
+      const current = props[0];
+      propBlock = `
+        <div class="propietario-current">
+          <strong>👤 Propietario actual: ${current.nombre || '—'}</strong>
+          <span>RUT: ${current.rut || '—'}${current.fecha ? ' · Desde: ' + current.fecha : ''}</span>
+        </div>`;
+      if (props.length > 1) {
+        const histRows = props.slice(1).map(pr =>
+          `<tr><td>${pr.nombre||'—'}</td><td>${pr.rut||'—'}</td><td>${pr.fecha||'—'}</td></tr>`
+        ).join('');
+        propBlock += `
+          <p style="font-size:0.85rem;font-weight:600;margin:10px 0 6px;color:var(--muted)">Historial de propietarios anteriores</p>
+          <table class="info-table">
+            <thead><tr><th>Nombre</th><th>RUT</th><th>Fecha</th></tr></thead>
+            <tbody>${histRows}</tbody>
+          </table>`;
+      }
+    }
+
+    return `<div class="detail-card">
+      <div class="detail-header">
+        <span class="detail-header-icon">🔩</span>
+        <span class="detail-header-title">Datos Técnicos del Vehículo (RNVR)</span>
+        <span class="result-badge ${badge}">${label}</span>
+      </div>
+      <div class="detail-body">${vehicleCard}${propBlock}</div>
+      <div class="source-tag">Fuente: Registro Civil — RNVR</div>
+    </div>`;
+  }
+
+  /* ─── THEFT ─── */
+  function buildTheft(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'captcha_required') {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>${d.message || 'CAPTCHA requerido'}</strong>
+          <p>Consulta directamente en autoseguro.gob.cl (PDI / Subsecretaría de Prevención del Delito).</p>
+        </div>
+        <a href="${d.direct_url || 'https://www.autoseguro.gob.cl/'}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+      </div>`;
+    } else if (d.status === 'ok') {
+      body = `<p class="notice notice-ok">Sin encargo por robo en las fuentes consultadas (PDI).</p>`;
+      if (d.sources && d.sources.length > 0) {
+        const rows = d.sources.map(s => `<tr><td>${s.identifier}</td><td><span class="dot dot-ok"></span>${s.state}</td></tr>`).join('');
+        body += `<table class="info-table" style="margin-top:12px"><thead><tr><th>Identificador</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>`;
+      }
+    } else if (d.status === 'alert') {
+      const rows = (d.sources||[]).map(s => `<tr><td>${s.identifier}</td><td><span class="dot dot-alert"></span>${s.state}</td></tr>`).join('');
+      body = `<div class="notice notice-alert" style="margin-bottom:10px">ALERTA: El vehículo presenta encargo por robo.</div>
+        ${rows ? `<table class="info-table"><thead><tr><th>Identificador</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>` : ''}`;
+    } else {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>Sin información</strong>
+          <p>${d.message || 'Sin información.'}</p>
+        </div>
+        ${d.direct_url ? `<a href="${d.direct_url}" target="_blank" class="verify-btn">Abrir &rarr;</a>` : ''}
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">🔒</span><span class="detail-header-title">Encargo por Robo (PDI)</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: autoseguro.gob.cl — PDI</div>
+    </div>`;
+  }
+
+  /* ─── TECH INSPECTION ─── */
+  function buildTech(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'captcha_required') {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>${d.message || 'CAPTCHA requerido'}</strong>
+          <p>Consulta en prt.cl — Plantas de Revisión Técnica.</p>
+        </div>
+        <a href="${d.direct_url || 'https://www.prt.cl/'}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+      </div>`;
+    } else {
+      const rows = [];
+      if (d.last_revision) rows.push(['Última revisión', d.last_revision]);
+      if (d.plant)         rows.push(['Planta', d.plant]);
+      if (d.result)        rows.push(['Resultado', d.result]);
+      if (d.expiry_info)   rows.push(['Vencimiento', d.expiry_info]);
+      if (rows.length > 0) {
+        body = `<table class="info-table"><tbody>${rows.map(([k,v]) => `<tr><td style="width:160px;color:var(--muted)">${k}</td><td>${v}</td></tr>`).join('')}</tbody></table>`;
+      } else {
+        body = `<p class="notice notice-info">${d.message || label}</p>`;
+      }
+      if (d.history && d.history.length > 0) {
+        const histRows = d.history.map(h => {
+          const cls = /aceptada|aprobada|vigente/i.test(h.estado||'') ? 'estado-aceptada' : /rechazada/i.test(h.estado||'') ? 'estado-rechazada' : 'estado-unknown';
+          return `<tr class="revision-row"><td>${h.fecha||'—'}</td><td>${h.planta||'—'}</td><td class="${cls}">${h.estado||'—'}</td></tr>`;
+        }).join('');
+        body += `<p style="margin-top:14px;font-weight:600;font-size:0.9rem;">Historial de revisiones</p>
+          <table class="info-table" style="margin-top:6px"><thead><tr><th>Fecha</th><th>Planta</th><th>Resultado</th></tr></thead><tbody>${histRows}</tbody></table>`;
+      }
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">🔧</span><span class="detail-header-title">Revisión Técnica (PRT)</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: prt.cl</div>
+    </div>`;
+  }
+
+  /* ─── PERMISO CIRCULACIÓN ─── */
+  function buildPermiso(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'ok') {
+      body = `<p class="notice notice-ok">${d.message || 'Sin deuda de permiso de circulación.'}</p>`;
+      if (d.detalle) body += `<p class="notice notice-info" style="margin-top:8px">${d.detalle}</p>`;
+    } else if (d.status === 'alert') {
+      body = `<div class="notice notice-alert">${d.message || 'Tiene deuda.'}${d.deuda ? ` Deuda total: <strong>${d.deuda}</strong>` : ''}</div>`;
+      if (d.deudas && d.deudas.length > 0) {
+        const rows = d.deudas.map(deu => `<tr><td>${deu.periodo}</td><td>${deu.monto}</td></tr>`).join('');
+        body += `<table class="info-table" style="margin-top:12px"><thead><tr><th>Período</th><th>Monto</th></tr></thead><tbody>${rows}</tbody></table>`;
+      }
+    } else {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>TGR — Tesorería General de la República</strong>
+          <p>${d.message || 'Verifica CLAVE_UNICA_RUT y CLAVE_UNICA_PASS.'}</p>
+        </div>
+        <a href="${d.direct_url || 'https://www.tgr.cl/'}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">🏛️</span><span class="detail-header-title">Permiso de Circulación (TGR)</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: tgr.cl — Tesorería General de la República</div>
+    </div>`;
+  }
+
+  /* ─── TAG ─── */
+  function buildTag(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'error' || d.status === 'unavailable') {
+      body = d.direct_url
+        ? `<div class="manual-verify">
+            <div class="manual-verify-text">
+              <strong>No disponible</strong>
+              <p>${d.message || 'No disponible.'}</p>
+            </div>
+            <a href="${d.direct_url}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+          </div>`
+        : `<p class="notice notice-info">${d.message || 'No disponible.'}</p>`;
+    } else if (d.status === 'ok' || d.pending_count === 0) {
+      body = `<p class="notice notice-ok">${d.message || 'Sin tránsitos pendientes de pago.'}</p>`;
+    } else {
+      const rows = (d.transits||[]).map(t => `<tr><td>${t.date}</td><td>${t.highway}</td><td>${t.amount}</td></tr>`).join('');
+      body = `<div class="notice notice-alert" style="margin-bottom:12px"><strong>${d.pending_count}</strong> tránsito(s) pendiente(s).${d.total_debt > 0 ? ` Deuda: <strong>$${d.total_debt.toLocaleString('es-CL')}</strong>` : ''}</div>
+        ${rows ? `<table class="info-table"><thead><tr><th>Fecha</th><th>Autopista</th><th>Monto</th></tr></thead><tbody>${rows}</tbody></table>` : ''}`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">🚧</span><span class="detail-header-title">Tránsitos sin TAG (Autopistas)</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: pasastesintag.cl</div>
+    </div>`;
+  }
+
+  /* ─── SOAP ─── */
+  function buildSoap(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'ok') {
+      const rows = [];
+      if (d.compania)        rows.push(['Compañía', d.compania]);
+      if (d.vigencia_desde)  rows.push(['Vigencia desde', d.vigencia_desde]);
+      if (d.vigencia_hasta)  rows.push(['Vigencia hasta', d.vigencia_hasta]);
+      if (d.poliza)          rows.push(['N° Póliza', d.poliza]);
+      body = rows.length > 0
+        ? `<table class="info-table"><tbody>${rows.map(([k,v]) => `<tr><td style="width:150px;color:var(--muted)">${k}</td><td>${v}</td></tr>`).join('')}</tbody></table>`
+        : `<p class="notice notice-ok">SOAP vigente.</p>`;
+    } else if (d.status === 'alert') {
+      body = `<div class="notice notice-alert">${d.message || 'SOAP vencido o no registrado.'}</div>`;
+    } else {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>SOAP — Seguro Obligatorio</strong>
+          <p>${d.message || 'No consultable automáticamente.'}</p>
+          ${d.hint ? `<p style="margin-top:4px;font-size:0.8rem">${d.hint}</p>` : ''}
+        </div>
+        <a href="${d.direct_url || 'https://www.cmfchile.cl/'}" target="_blank" class="verify-btn">CMF &rarr;</a>
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">📄</span><span class="detail-header-title">SOAP Vigente</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: AACH / CMF</div>
+    </div>`;
+  }
+
+  /* ─── MULTAS ─── */
+  function buildMultas(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'ok') {
+      body = `<p class="notice notice-ok">${d.message || 'Sin multas de tránsito registradas.'}</p>`;
+    } else if (d.status === 'alert' && d.multas && d.multas.length > 0) {
+      const rows = d.multas.map(m => `<tr><td>${m.fecha||'—'}</td><td>${m.tribunal||'—'}</td><td>${m.monto||'—'}</td><td>${m.estado||'—'}</td></tr>`).join('');
+      body = `<div class="notice notice-alert" style="margin-bottom:12px"><strong>${d.total_multas}</strong> multa(s) encontrada(s).${d.total_deuda ? ` Total: <strong>$${d.total_deuda}</strong>` : ''}</div>
+        <table class="info-table"><thead><tr><th>Fecha</th><th>Tribunal</th><th>Monto</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>`;
+    } else {
+      body = `<div class="manual-verify">
+        <div class="manual-verify-text">
+          <strong>Juzgados de Policía Local</strong>
+          <p>${d.message || 'Portal JPL no disponible. Verifica en consultas.jpl.gob.cl.'}</p>
+        </div>
+        <a href="${d.direct_url || 'https://consultas.jpl.gob.cl/'}" target="_blank" class="verify-btn">Abrir &rarr;</a>
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">📋</span><span class="detail-header-title">Multas de Tránsito (JPL)</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: consultas.jpl.gob.cl — Juzgados de Policía Local</div>
+    </div>`;
+  }
+
+  /* ─── REMATES ─── */
+  function buildRemates(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'ok') {
+      body = `<p class="notice notice-ok">Sin registro de remate o pérdida total.</p>`;
+    } else if (d.status === 'alert') {
+      body = `<div class="notice notice-alert">${d.message || 'El vehículo fue declarado pérdida total o subastado.'}</div>`;
+    } else {
+      body = `<div class="unavailable-row">
+        <span class="ui-icon">💥</span>
+        <span class="ui-msg">${d.message || 'Base de datos privada (CASER).'}</span>
+        ${d.direct_url ? `<a href="${d.direct_url}" target="_blank" class="ui-link">Ver alternativas &rarr;</a>` : ''}
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">💥</span><span class="detail-header-title">Remates / Pérdida Total</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: CASER — Cámara de Aseguradores</div>
+    </div>`;
+  }
+
+  /* ─── KILOMETRAJE ─── */
+  function buildKm(d) {
+    if (!d) return '';
+    const badge = badgeClass(d.status);
+    const label = badgeLabel(d.status);
+    let body = '';
+    if (d.status === 'ok' && d.registros) {
+      const rows = d.registros.map(r => `<tr><td>${r.fecha||'—'}</td><td>${r.km||'—'}</td><td>${r.fuente||'—'}</td></tr>`).join('');
+      body = `<table class="info-table"><thead><tr><th>Fecha</th><th>Kilometraje</th><th>Fuente</th></tr></thead><tbody>${rows}</tbody></table>`;
+    } else {
+      body = `<div class="unavailable-row">
+        <span class="ui-icon">📊</span>
+        <span class="ui-msg">${d.message || 'Sin fuente pública disponible.'}</span>
+        ${d.hint ? `<span style="font-size:0.78rem;color:var(--muted);margin-left:8px">${d.hint}</span>` : ''}
+      </div>`;
+    }
+    return `<div class="detail-card">
+      <div class="detail-header"><span class="detail-header-icon">📊</span><span class="detail-header-title">Registros de Kilometraje</span><span class="result-badge ${badge}">${label}</span></div>
+      <div class="detail-body">${body}</div>
+      <div class="source-tag">Fuente: Concesionarias / talleres autorizados</div>
+    </div>`;
+  }
+
+  /* ─── SUMMARY GRID ─── */
+  function buildSummary(data) {
+    const items = [
+      { key: 'rnvr',                 label: 'Datos técnicos',    icon: '🔩' },
+      { key: 'theft_check',          label: 'Encargo robo',      icon: '🔒' },
+      { key: 'technical_inspection', label: 'Rev. técnica',      icon: '🔧' },
+      { key: 'permiso_circulacion',  label: 'Permiso circ.',     icon: '🏛️' },
+      { key: 'soap',                 label: 'SOAP vigente',      icon: '📄' },
+      { key: 'tag_violations',       label: 'TAG autopistas',    icon: '🚧' },
+      { key: 'multas',               label: 'Multas JPL',        icon: '📋' },
+      { key: 'remates',              label: 'Remates',           icon: '💥' },
+    ];
+    return items.map(({ key, label, icon }) => {
+      const d = data[key] || {};
+      const state = summaryState(d.status);
+      const lbl = badgeLabel(d.status);
+      return `<div class="summary-card ${state}">
+        <div class="badge-icon">${icon}</div>
+        <div class="summary-card-info">
+          <div class="summary-title">${label}</div>
+          <div class="summary-state">${lbl}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ─── SOURCES FOOTER ─── */
+  function buildSourcesFooter() {
+    const sources = [
+      { label:'Registro Civil RNVR', url:'https://www.registrocivil.cl/', icon:'🔩' },
+      { label:'autoseguro.gob.cl',   url:'https://www.autoseguro.gob.cl/', icon:'🔒' },
+      { label:'prt.cl',              url:'https://www.prt.cl/', icon:'🔧' },
+      { label:'tgr.cl',              url:'https://www.tgr.cl/', icon:'🏛️' },
+      { label:'pasastesintag.cl',    url:'https://pasastesintag.cl/', icon:'🚧' },
+      { label:'AACH / CMF',          url:'https://www.cmfchile.cl/', icon:'📄' },
+      { label:'JPL',                 url:'https://consultas.jpl.gob.cl/', icon:'📋' },
+    ];
+    return `<div class="sources-footer">
+      <h4>Fuentes consultadas</h4>
+      <div class="sources-list">${sources.map(s => `<a href="${s.url}" target="_blank" class="source-link">${s.icon} ${s.label}</a>`).join('')}</div>
+    </div>`;
+  }
+
+  /* ─── FULL REPORT ─── */
+  function buildReport(data) {
+    const now = new Date().toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
+    return `
+      <div class="patente-header">
+        <div class="patente-left">
+          <div class="patente-plate"><span class="flag">CHILE</span>${formatPatente(data.patente)}</div>
+          <div class="report-date">Informe generado<br>${now}</div>
+        </div>
+        <button class="btn-pdf" onclick="generatePDF()" id="btn-pdf">⬇ Descargar PDF</button>
+      </div>
+      <div class="summary-grid">${buildSummary(data)}</div>
+      ${buildRnvr(data.rnvr)}
+      ${buildTheft(data.theft_check)}
+      ${buildTech(data.technical_inspection)}
+      ${buildPermiso(data.permiso_circulacion)}
+      ${buildSoap(data.soap)}
+      ${buildTag(data.tag_violations)}
+      ${buildMultas(data.multas)}
+      ${buildRemates(data.remates)}
+      ${buildKm(data.kilometraje)}
+      ${buildSourcesFooter()}`;
+  }
+
+  /* ─── PDF ─── */
+  async function generatePDF() {
+    if (!lastReportData) return;
+    const btn = document.getElementById('btn-pdf');
+    if (btn) { btn.disabled = true; btn.textContent = 'Generando PDF...'; }
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = 210, margin = 16, colW = pageW - 2 * margin;
+      let y = 0;
+
+      doc.setFillColor(26, 82, 118);
+      doc.rect(0, 0, pageW, 28, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(18); doc.setFont('helvetica','bold');
+      doc.text('InformeAuto — Historial Vehicular Chile', margin, 12);
+      doc.setFontSize(9); doc.setFont('helvetica','normal');
+      doc.text('RNVR · autoseguro.gob.cl · prt.cl · tgr.cl · pasastesintag.cl · AACH · JPL', margin, 21);
+      y = 36;
+
+      doc.setTextColor(26,82,118); doc.setFontSize(28); doc.setFont('courier','bold');
+      doc.text(lastReportData.patente, margin, y);
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,110,120);
+      doc.text('Informe generado: ' + new Date().toLocaleString('es-CL'), margin, y + 8);
+      y += 22;
+      doc.setDrawColor(213,221,233); doc.line(margin, y, pageW-margin, y); y += 8;
+
+      const addSection = (title, icon, status, lines) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+        const colors = { ok:[30,132,73], vigente:[30,132,73], alert:[192,57,43], rechazada:[192,57,43], captcha_required:[211,84,0], unavailable:[127,140,141], unknown:[127,140,141], error:[150,50,50] };
+        const col = colors[status] || [127,140,141];
+        doc.setFillColor(244,246,249);
+        doc.roundedRect(margin, y, colW, 9, 2, 2, 'F');
+        doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(28,40,51);
+        doc.text(`${icon}  ${title}`, margin+3, y+6.5);
+        doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(col[0],col[1],col[2]);
+        doc.text(badgeLabel(status), pageW-margin-3, y+6.5, { align:'right' });
+        y += 12;
+        doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(60,70,80);
+        lines.forEach(line => {
+          if (!line) return;
+          if (y > 275) { doc.addPage(); y = 20; }
+          const wrapped = doc.splitTextToSize(String(line), colW-6);
+          doc.text(wrapped, margin+3, y);
+          y += wrapped.length * 5 + 1;
+        });
+        y += 5;
+      };
+
+      const d = lastReportData;
+      const dt = (d.rnvr || {}).datos_tecnicos || {};
+      const rnvrLines = Object.entries(dt).map(([k,v]) => `${k}: ${v}`);
+      if ((d.rnvr||{}).propietarios?.length > 0) rnvrLines.push(`Propietario: ${d.rnvr.propietarios[0].nombre}`);
+      addSection('Datos Técnicos (RNVR)', '🔩', (d.rnvr||{}).status, rnvrLines.length ? rnvrLines : ['No disponible']);
+
+      const theft = d.theft_check || {};
+      addSection('Encargo por Robo (PDI)', '🔒', theft.status,
+        theft.status === 'captcha_required' ? [theft.message||'CAPTCHA requerido'] : (theft.sources||[]).map(s=>`${s.identifier}: ${s.state}`) || [theft.message||'—']);
+
+      const tech = d.technical_inspection || {};
+      addSection('Revisión Técnica (PRT)', '🔧', tech.status,
+        tech.status === 'captcha_required' ? [tech.message||'CAPTCHA requerido'] :
+        [tech.last_revision && `Última revisión: ${tech.last_revision}`, tech.plant && `Planta: ${tech.plant}`, tech.result && `Resultado: ${tech.result}`, tech.expiry_info && `Vencimiento: ${tech.expiry_info}`].filter(Boolean));
+
+      const permiso = d.permiso_circulacion || {};
+      addSection('Permiso de Circulación (TGR)', '🏛️', permiso.status, [permiso.message||'—', permiso.deuda && `Deuda: ${permiso.deuda}`].filter(Boolean));
+
+      const soap = d.soap || {};
+      addSection('SOAP Vigente', '📄', soap.status,
+        soap.status === 'ok' ? [soap.compania && `Compañía: ${soap.compania}`, soap.vigencia_hasta && `Vigente hasta: ${soap.vigencia_hasta}`].filter(Boolean) : [soap.message||'—']);
+
+      const tag = d.tag_violations || {};
+      addSection('TAG Autopistas', '🚧', tag.status,
+        tag.status === 'ok' || !tag.pending_count ? [tag.message || 'Sin tránsitos pendientes'] :
+        [`Tránsitos pendientes: ${tag.pending_count}`, tag.total_debt ? `Deuda: $${tag.total_debt.toLocaleString('es-CL')}` : null].filter(Boolean));
+
+      const multas = d.multas || {};
+      addSection('Multas de Tránsito (JPL)', '📋', multas.status,
+        multas.status === 'ok' ? [multas.message||'Sin multas'] : multas.multas?.length > 0 ? [`${multas.total_multas} multa(s) encontrada(s)`] : [multas.message||'—']);
+
+      const remates = d.remates || {};
+      addSection('Remates / Pérdida Total', '💥', remates.status, [remates.message||'—']);
+
+      if (y > 260) { doc.addPage(); y = 20; }
+      y += 4; doc.setDrawColor(213,221,233); doc.line(margin, y, pageW-margin, y); y += 7;
+      doc.setFontSize(8); doc.setFont('helvetica','italic'); doc.setTextColor(130,140,150);
+      doc.text('Datos obtenidos de fuentes públicas — pueden no estar actualizados en tiempo real.', margin, y);
+      doc.text('Para información oficial consulta directamente las fuentes indicadas.', margin, y+5);
+
+      doc.save(`InformeAuto_${lastReportData.patente}_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (err) {
+      alert('Error generando PDF: ' + err.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '⬇ Descargar PDF'; }
+    }
+  }
+</script>
+</body>
+</html>

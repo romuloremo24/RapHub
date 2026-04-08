@@ -1,0 +1,27 @@
+{
+  "name": "@vesta/scraper",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "scrape:meli": "tsx src/run-crawler.ts mercadolibre",
+    "scrape:toctoc": "tsx src/run-crawler.ts toctoc"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "crawlee": "^3",
+    "playwright": "^1",
+    "bullmq": "^5",
+    "ioredis": "^5",
+    "dotenv": "^16",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "typescript": "^5.7",
+    "tsx": "^4",
+    "@types/node": "^22"
+  }
+}

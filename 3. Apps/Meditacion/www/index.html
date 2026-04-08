@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#060d1c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Omnisciente" />
+  <title>Omnisciente — Meditación guiada</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Fondo vivo -->
+  <canvas id="stars-canvas"></canvas>
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <div class="aurora aurora-3"></div>
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="16" fill="url(#logg)"/>
+          <path d="M18 10c0 0-6 4-6 9a6 6 0 0012 0c0-5-6-9-6-9z" fill="white" fill-opacity="0.9"/>
+          <path d="M12 22c-2-1-4-4-3-7" stroke="white" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M24 22c2-1 4-4 3-7" stroke="white" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="logg" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#2dd4bf"/>
+              <stop offset="100%" stop-color="#34d399"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Omnisciente</span>
+        <span class="logo-sub" id="logo-sub">Meditación guiada</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="glass-btn icon-btn" id="history-btn" title="Historial">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+        </svg>
+      </button>
+      <div class="lang-wrap glass-btn">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero: orb + progress ring -->
+    <section class="hero-section">
+      <div class="orb-wrap">
+        <svg class="progress-ring" viewBox="0 0 220 220">
+          <circle class="ring-track" cx="110" cy="110" r="98"/>
+          <circle class="ring-fill" cx="110" cy="110" r="98" id="ring-fill"/>
+        </svg>
+        <div class="orb-rings">
+          <div class="orb-ring r1"></div>
+          <div class="orb-ring r2"></div>
+        </div>
+        <div class="orb" id="orb">
+          <div class="orb-shimmer"></div>
+          <div class="breath-guide" id="breath-guide"></div>
+        </div>
+      </div>
+      <p class="hero-tagline" id="hero-tagline">Respira. Siente. Descansa.</p>
+    </section>
+
+    <!-- Type selector -->
+    <section class="content-section">
+      <div class="section-label" id="types-label">Tipo de meditación</div>
+      <div class="types-grid" id="types-grid"></div>
+    </section>
+
+    <!-- Duration stepper -->
+    <section class="glass-card content-section" id="duration-section">
+      <div class="section-label" id="duration-label">Duración</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" id="dur-minus">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="stepper-display">
+          <span class="stepper-val" id="dur-value">10</span>
+          <span class="stepper-unit" id="step-unit">min</span>
+        </div>
+        <button class="stepper-btn" id="dur-plus">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="wh-fixed-info" id="wh-fixed-info">
+        <span class="wh-fixed-icon">❄️</span>
+        <span id="wh-fixed-text">~11 min · 3 rondas</span>
+      </div>
+    </section>
+
+    <!-- Voice settings -->
+    <section class="glass-card content-section voice-card">
+      <div class="voice-top">
+        <div class="voice-label-col">
+          <span class="voice-title" id="voice-label">Voz guiada</span>
+          <span class="voice-desc" id="voice-sub">Instrucciones por audio</span>
+        </div>
+        <button class="toggle on" id="voice-toggle" aria-label="Toggle voice"></button>
+      </div>
+      <div class="voice-settings" id="voice-settings">
+        <div class="setting-row">
+          <label class="setting-label" id="voice-select-label">Voz</label>
+          <select id="voice-select" class="glass-select"></select>
+        </div>
+        <div class="setting-row">
+          <div class="speed-label-row">
+            <label class="setting-label" id="speed-label">Velocidad</label>
+            <span class="speed-badge" id="speed-val">0.60×</span>
+          </div>
+          <div class="speed-track">
+            <span class="speed-icon">🐢</span>
+            <input type="range" id="speed-slider" min="0.4" max="1.2" step="0.05" value="0.6" />
+            <span class="speed-icon">🐇</span>
+          </div>
+        </div>
+        <button class="preview-voice-btn" id="voice-preview-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <span id="voice-preview-label">Probar voz</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Ambient sound — se puede cambiar en vivo durante la sesión -->
+    <section class="content-section" id="ambient-section">
+      <div class="section-label-wrap">
+        <div class="section-label" id="ambient-label">Sonido ambiental</div>
+        <span class="live-badge" id="ambient-live">● LIVE</span>
+        <button class="ambient-preview-btn" id="ambient-preview-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <span id="ambient-preview-label">Escuchar</span>
+        </button>
+      </div>
+      <div class="ambient-pills" id="ambient-pills"></div>
+    </section>
+
+    <!-- Progress card (only while running) -->
+    <section class="glass-card progress-card" id="progress-section">
+      <div class="phase-text" id="phase-text"></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-times">
+        <span class="time-chip">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span id="elapsed-label">Transcurrido</span>&nbsp;<strong id="elapsed-time">0:00</strong>
+        </span>
+        <span class="time-chip">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <span id="remaining-label">Restante</span>&nbsp;<strong id="remaining-time">10:00</strong>
+        </span>
+      </div>
+
+      <!-- Panel exclusivo Wim Hof (oculto en otros tipos) -->
+      <div class="wh-ui" id="wh-ui">
+        <div class="wh-round-label" id="wh-round-label"></div>
+        <div class="wh-main">
+          <span class="wh-count" id="wh-count">—</span>
+          <span class="wh-count-sub" id="wh-count-sub"></span>
+        </div>
+        <div class="wh-hint" id="wh-hint"></div>
+      </div>
+
+      <!-- Controles de volumen en vivo -->
+      <div class="session-vols">
+        <div class="svol-row">
+          <span class="svol-icon">🎵</span>
+          <span class="svol-label" id="vol-ambient-label">Ambiente</span>
+          <input type="range" class="svol-slider" id="ambient-vol" min="0" max="1" step="0.05" value="0.7" />
+        </div>
+        <div class="svol-row">
+          <span class="svol-icon">🗣</span>
+          <span class="svol-label" id="vol-voice-label">Voz</span>
+          <input type="range" class="svol-slider" id="voice-vol" min="0" max="1" step="0.05" value="1" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Start / Stop button -->
+    <button class="start-btn" id="start-btn">
+      <span class="btn-sparkle">✦</span>
+      <span id="btn-text">Comenzar meditación</span>
+    </button>
+
+  </main>
+
+  <!-- History modal (bottom sheet) -->
+  <div class="modal-overlay" id="history-overlay">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span id="history-title">Historial</span>
+        <button class="modal-close" id="history-close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+      <div class="modal-footer">
+        <button class="danger-btn" id="clear-history">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          <span id="clear-btn-label">Limpiar historial</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

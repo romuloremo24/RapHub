@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-roca: #1a1a1a;
+  --color-roca-light: #242424;
+  --color-gris: #3d3d3d;
+  --color-gris-light: #555555;
+  --color-naranja: #f4622a;
+  --color-naranja-light: #ff7a45;
+  --color-nieve: #fafaf8;
+  --color-nieve-dim: #c4c4c2;
+  --color-verde: #2d6a4f;
+  --color-verde-light: #40916c;
+
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-roca);
+  color: var(--color-nieve);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}

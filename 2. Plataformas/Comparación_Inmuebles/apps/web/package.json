@@ -1,0 +1,29 @@
+{
+  "name": "@vesta/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "~15.3",
+    "react": "^19",
+    "react-dom": "^19",
+    "@supabase/supabase-js": "^2",
+    "@supabase/ssr": "^0.5",
+    "maplibre-gl": "^5",
+    "lucide-react": "^0.460",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5.7",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
+}

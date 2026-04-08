@@ -1,0 +1,98 @@
+# ===== Secrets (NEVER commit) =====
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+*.pem
+*.key
+facebook_cookies.json
+cookies.json
+credentials.json
+service_account*.json
+token.json
+# Keep example files
+!.env.example
+!.env.local.example
+!.env.*.example
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===== Node / Next.js / Web =====
+node_modules/
+.next/
+out/
+dist/
+build/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+*.tsbuildinfo
+.npm/
+.eslintcache
+.pnpm-store/
+
+# ===== Databases / data files =====
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# ===== Generated outputs =====
+exports/
+resultados/
+scrape_log.txt
+*.log
+logs/
+flask.log
+
+# ===== Bank data (sensitive) =====
+Cartola/
+Cartolas/
+cartolas/
+cartola*.pdf
+cartola*.xlsx
+
+# ===== IDE / OS =====
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+*.sublime-workspace
+
+# ===== Claude Code local =====
+.claude/settings.local.json
+.claude/projects/
+
+# ===== Temp =====
+tmp/
+temp/
+.tmp/
+*.tmp
+*.bak
+*.orig

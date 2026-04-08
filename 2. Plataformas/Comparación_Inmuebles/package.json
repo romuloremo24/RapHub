@@ -1,0 +1,20 @@
+{
+  "name": "vesta",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:web": "turbo dev --filter=@vesta/web",
+    "dev:scraper": "turbo dev --filter=@vesta/scraper",
+    "db:migrate": "turbo db:migrate --filter=@vesta/db"
+  },
+  "devDependencies": {
+    "turbo": "^2",
+    "typescript": "^5.7"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp", "unrs-resolver", "msgpackr-extract"]
+  }
+}

@@ -1,0 +1,13 @@
+Tienes que completar las siguientes tareas de forma autónoma. Trabaja en orden, confirma cada paso con un archivo de log, y si encuentras un error documéntalo y continúa con la siguiente tarea.
+
+TAREAS:
+1. Termina la plataforma de informe vehicular, que extraiga toda la información al igual que los informes de Autofact, realiza un bucle infinito hasta que funcione a la perfección y sin problemas, prueba con 3 patentes distintas para estar seguro de que funciona, en caso de que alguna información de autos necesites mis credenciales, sigue avanzando a la siguiente tarea. Agrega la opción de generar un pdf con toda la información del auto. Aprovecha de agregar esto a mi dashboard RapHub.
+2. Mejora mi dashboard personal (RapHub), déjalo de manera minimalista, práctico y que pueda encontrar todo lo que necesito, además, realiza esta tarea que quedó pendiente: necesito que el dashboard, en proyectos por ejemplo, en vez de abrirlo y que tenga todo en una pestaña, al apretar proyectos, justo abajo se muestren todos y uno pueda elegir (pero si uno elige proyectos, quede como está ahora) y si uno aprieta un proyecto en específico, tenga más info (de uso, estado, variables, para qué es, etc).
+3. Necesito crear un sistema para buscar proveedores de algún tipo de producto o servicio. Por ejemplo, a veces necesito buscar proveedores de bombas hidráulicas para pozos, lo ideal sería que yo ingrese el producto que quiero en una plataforma y esta busque (en google u otra fuente) todos los proveedores, obtenga sus números de contacto y correos y genere un correo automático que se guarde en el borrador de mi gmail para yo revisarlo y mandarlo. Que tenga la mayor cantidad de leads (al menos unos 20-30) para poder cotizar de la manera más rápida posible. Toda la búsqueda que quede guardada en un google sheets.
+
+REGLAS:
+- No me preguntes nada, toma decisiones razonables
+- Al terminar cada tarea escribe un resumen en "log_progreso.md"
+- Si una tarea falla, escríbela en "log_errores.md" y sigue con la siguiente
+- Todo esto inclúyelo en mi dashboard personal a medida que vayas trabajando
+- Usa todos los skills necesarios para que las tareas queden lo mejor posible y de la manera más eficiente

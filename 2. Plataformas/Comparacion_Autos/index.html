@@ -1,0 +1,4604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RadarAuto – Comparador de autos Chile</title>
+  <link rel="icon" type="image/png" href="radarauto.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ════════════════════════════════════════
+       CSS VARIABLES
+    ════════════════════════════════════════ */
+    :root {
+      --primary:       #1d52cc;
+      --primary-dark:  #1a3a8f;
+      --primary-light: #eff6ff;
+      --primary-mid:   #bfdbfe;
+      --secondary:     #059669;
+      --secondary-bg:  #ecfdf5;
+      --accent:        #7c3aed;
+      --accent-bg:     #f5f3ff;
+      --bg:            #f1f5f9;
+      --card:          #ffffff;
+      --text:          #0f172a;
+      --muted:         #64748b;
+      --muted-light:   #94a3b8;
+      --border:        #e2e8f0;
+      --border-dark:   #cbd5e1;
+      --danger:        #dc2626;
+      --warning:       #d97706;
+      --warning-bg:    #fffbeb;
+      --indigo:        #4f46e5;
+      --gold:          #b45309;
+      --radius-xs:     0.25rem;
+      --radius-sm:     0.375rem;
+      --radius:        0.75rem;
+      --radius-lg:     1rem;
+      --radius-xl:     1.5rem;
+      --shadow-xs:     0 1px 2px rgba(0,0,0,.05);
+      --shadow:        0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:     0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+      --shadow-lg:     0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+      --transition:    0.16s ease;
+    }
+
+    /* ════════════════════════════════════════
+       BASE
+    ════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    input, select, button { font-size: 0.875rem; }
+    input, select { outline: none; }
+
+    /* ════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, #0d1b3e 0%, #1a3a8f 50%, #1d52cc 100%);
+      color: #fff;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.35);
+    }
+    .header-inner {
+      padding: 0 1.25rem;
+      height: 3.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 2.6rem;
+      height: 2.6rem;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.4));
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 1.375rem;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .logo-text span { color: #60a5fa; }
+    .logo-tagline {
+      font-size: .7rem;
+      color: #93c5fd;
+      font-weight: 500;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .header-spacer { flex: 1; }
+
+    /* Backend status pill */
+    .backend-pill {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .3rem .75rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.8);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .backend-pill:hover { background: rgba(255,255,255,.15); }
+    .backend-pill .dot {
+      width: .5rem; height: .5rem;
+      border-radius: 50%;
+      background: #f87171;
+      flex-shrink: 0;
+    }
+    .backend-pill.connected .dot { background: #34d399; }
+    .backend-pill.connected { border-color: rgba(52,211,153,.4); color: #a7f3d0; }
+    .fb-pill {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .3rem .75rem; border-radius: 999px;
+      font-size: .72rem; font-weight: 700; cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08); color: rgba(255,255,255,.8);
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .fb-pill:hover { background: rgba(255,255,255,.15); }
+    .fb-pill .fb-dot { width:.5rem;height:.5rem;border-radius:50%;background:#f87171;flex-shrink:0; }
+    .fb-pill.connected { border-color:rgba(24,119,242,.6);color:#93c5fd; }
+    .fb-pill.connected .fb-dot { background:#1877F2; }
+    .fb-pill.loading { opacity:.6; pointer-events:none; }
+
+    /* Portal checklist in sidebar */
+    .portal-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .3rem;
+    }
+    .source-toggle {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .3rem .55rem;
+      border-radius: 6px;
+      font-size: .72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      background: transparent;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .source-toggle:hover { border-color: var(--primary); color: var(--primary); }
+    .source-toggle.active {
+      color: #fff;
+      border-color: transparent;
+    }
+    .source-toggle.active[data-src="mercadolibre"] { background: #D4A700; color: #fff; }
+    .source-toggle.active[data-src="chileautos"]   { background: #E63946; }
+    .source-toggle.active[data-src="kavak"]        { background: #00A066; }
+    .source-toggle.active[data-src="yapo"]         { background: #E55A20; }
+    .source-toggle.active[data-src="autocosmos"]   { background: #1565C0; }
+    .source-toggle.active[data-src="autosusados"]  { background: #7B1FA2; }
+    .source-toggle.active[data-src="autocl"]       { background: #00838F; }
+    .source-toggle.active[data-src="clicar"]       { background: #C62828; }
+    .source-toggle.active[data-src="gildemeister"] { background: #01579B; }
+    .source-toggle.active[data-src="autojusto"]    { background: #558B2F; }
+    .source-toggle.active[data-src="economicos"]   { background: #4E342E; }
+    .source-toggle.active[data-src="facebook"]     { background: #1877F2; }
+    .source-toggle .dot-status {
+      width: .4rem; height: .4rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--muted);
+    }
+    .source-toggle.active .dot-status { background: rgba(255,255,255,.8); }
+    #btn-toggle-all {
+      font-size: .7rem;
+      padding: .25rem .5rem;
+      border-radius: 6px;
+      border: 1.5px dashed var(--border-dark);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s, color .15s;
+      grid-column: 1 / -1;
+    }
+    #btn-toggle-all:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ════════════════════════════════════════
+       LAYOUT
+    ════════════════════════════════════════ */
+    .layout {
+      padding: 0 1.25rem;
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 1.25rem;
+      height: calc(100vh - var(--header-h, 108px));
+      overflow: hidden;
+    }
+    .sidebar {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-dark) transparent;
+    }
+    #main-content {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-top: 1.25rem;
+      padding-bottom: 3rem;
+    }
+
+    /* ════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════ */
+    .sidebar-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: .25rem .125rem 5rem;
+    }
+
+    /* ════════════════════════════════════════
+       PANEL
+    ════════════════════════════════════════ */
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .panel-header-left { display: flex; align-items: center; gap: .4rem; }
+    .panel-header h2 { font-size: .875rem; font-weight: 700; }
+    .panel-body { padding: .875rem 1rem; }
+
+    /* ════════════════════════════════════════
+       FORM
+    ════════════════════════════════════════ */
+    .form-group { margin-bottom: .75rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .28rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .375rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: .45rem .7rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #fafbfc;
+      color: var(--text);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+      background: #fff;
+    }
+    select.form-control {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .6rem center;
+      padding-right: 1.8rem;
+    }
+
+    /* ════════════════════════════════════════
+       BUTTONS
+    ════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      padding: .5rem .9rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      transition: all var(--transition);
+      white-space: nowrap;
+      border: 1.5px solid transparent;
+    }
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      width: 100%;
+      padding: .65rem 1rem;
+      font-size: .9375rem;
+      box-shadow: 0 2px 8px rgba(37,99,235,.3);
+      border-radius: var(--radius-sm);
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      width: 100%;
+      font-size: .8125rem;
+    }
+    .btn-ghost:hover { color: var(--danger); background: #fef2f2; border-radius: var(--radius-sm); }
+
+    .btn-sort {
+      background: var(--card);
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      font-size: .775rem;
+      padding: .3rem .65rem;
+      border-radius: var(--radius-sm);
+    }
+    .btn-sort:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .btn-sort.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .btn-compare {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .3rem .6rem;
+      border-radius: var(--radius-sm);
+      font-size: .72rem;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      background: var(--bg);
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .btn-compare:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+    /* Favorite button */
+    .btn-fav {
+      position: absolute; top: .4rem; left: .4rem;
+      background: rgba(0,0,0,.45); border: none; border-radius: 50%;
+      width: 2rem; height: 2rem; cursor: pointer; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; transition: all .15s; line-height: 1;
+    }
+    .btn-fav:hover   { background: rgba(0,0,0,.65); transform: scale(1.1); }
+    .btn-fav.fav-on  { background: rgba(239,68,68,.85); }
+
+    /* History & favorites items in profile modal */
+    .history-item {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .45rem .6rem; border-radius: 6px;
+      cursor: pointer; font-size: .8rem; margin-bottom: .3rem;
+      border: 1px solid var(--border); transition: background .15s;
+    }
+    .history-item:hover { background: var(--bg); }
+    .history-item-label { color: var(--text); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .history-item-date  { color: var(--muted); font-size: .7rem; flex-shrink: 0; }
+    .history-item-del   { background: none; border: none; cursor: pointer; color: var(--muted); font-size: .8rem; flex-shrink: 0; padding: .1rem .3rem; }
+    .btn-compare.selected {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ════════════════════════════════════════
+       PORTAL LINKS
+    ════════════════════════════════════════ */
+    .portal-desc { font-size: .775rem; color: var(--muted); margin-bottom: .625rem; line-height: 1.5; }
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .3rem;
+    }
+    .portal-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+      padding: .35rem .3rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: .68rem;
+      font-weight: 700;
+      text-align: center;
+      transition: all var(--transition);
+    }
+    .portal-link:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    /* ════════════════════════════════════════
+       YEAR DUAL-RANGE SLIDER
+    ════════════════════════════════════════ */
+    .year-slider-wrap { padding: .1rem 0 .5rem; }
+    .year-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .6rem;
+      gap: .25rem;
+    }
+    .year-label-val {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--primary-light);
+      border: 1.5px solid var(--accent);
+      border-radius: .3rem;
+      padding: .1rem .45rem;
+      min-width: 2.5rem;
+      text-align: center;
+    }
+    .year-slider-sep { font-size: .7rem; color: var(--muted); }
+    .dual-range-track {
+      position: relative;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--border);
+      margin: .5rem .1rem .25rem;
+    }
+    .dual-range-fill {
+      position: absolute;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+    .dual-range {
+      position: absolute;
+      width: 100%;
+      height: 5px;
+      top: 0;
+      left: 0;
+      margin: 0;
+      background: transparent;
+      -webkit-appearance: none;
+      appearance: none;
+      pointer-events: none;
+    }
+    .dual-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2.5px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.28);
+      pointer-events: all;
+      cursor: grab;
+      margin-top: -6px;
+    }
+    .dual-range::-webkit-slider-thumb:active { cursor: grabbing; }
+    .dual-range::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2.5px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.28);
+      pointer-events: all;
+      cursor: grab;
+    }
+
+    /* ════════════════════════════════════════
+       CHART TABS
+    ════════════════════════════════════════ */
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .chart-title { font-size: .85rem; font-weight: 700; color: var(--text); }
+    .chart-tabs { display: flex; gap: .25rem; }
+    .chart-tab {
+      padding: .22rem .65rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .chart-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .chart-tab:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ════════════════════════════════════════
+       STATS BAR
+    ════════════════════════════════════════ */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .75rem;
+      margin-bottom: .875rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .75rem 1rem;
+      box-shadow: var(--shadow);
+    }
+    .stat-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .stat-value { font-size: 1.1rem; font-weight: 800; margin-top: .1rem; }
+    .stat-card.total   .stat-value { color: var(--primary); }
+    .stat-card.savg    .stat-value { color: var(--indigo); }
+    .stat-card.smin    .stat-value { color: var(--secondary); }
+    .stat-card.smax    .stat-value { color: var(--warning); }
+
+    /* ════════════════════════════════════════
+       RESULTS CONTROLS
+    ════════════════════════════════════════ */
+    .results-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: .75rem;
+    }
+    .results-meta { font-size: .8rem; color: var(--muted); }
+    .results-meta strong { color: var(--text); }
+    .sort-group { display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; }
+    .sort-label { font-size: .72rem; color: var(--muted); font-weight: 600; }
+
+    /* Source chips in results */
+    .source-chips { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .source-chip {
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .65rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: .2rem;
+    }
+    .source-chip[data-src="mercadolibre"] { background: #fef9c3; color: #713f12; }
+    .source-chip[data-src="chileautos"]   { background: #fee2e2; color: #991b1b; }
+    .source-chip[data-src="kavak"]        { background: #d1fae5; color: #065f46; }
+    .source-chip[data-src="yapo"]         { background: #ffedd5; color: #9a3412; }
+    .source-chip[data-src="autocosmos"]   { background: #dbeafe; color: #1e3a8a; }
+    .source-chip[data-src="autosusados"]  { background: #f3e8ff; color: #6b21a8; }
+    .source-chip[data-src="autocl"]       { background: #ccfbf1; color: #134e4a; }
+    .source-chip[data-src="clicar"]       { background: #fee2e2; color: #7f1d1d; }
+    .source-chip[data-src="gildemeister"] { background: #dbeafe; color: #1e3a8a; }
+    .source-chip[data-src="autojusto"]    { background: #d9f99d; color: #365314; }
+    .source-chip[data-src="economicos"]   { background: #f5f5f4; color: #292524; }
+    .source-chip[data-src="facebook"]     { background: #dbeffe; color: #1e3a8a; }
+
+    /* ════════════════════════════════════════
+       CARDS GRID
+    ════════════════════════════════════════ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+      gap: .875rem;
+    }
+
+    .car-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      position: relative;
+    }
+    .car-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .car-card.in-compare {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent), var(--shadow-md);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      height: 175px;
+      background: #f8fafc;
+      overflow: hidden;
+    }
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s ease;
+    }
+    .car-card:hover .card-img { transform: scale(1.04); }
+    .card-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.25rem;
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    }
+
+    .card-badges-top {
+      position: absolute;
+      top: .45rem;
+      left: .45rem;
+      right: .45rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .badge {
+      padding: .18rem .5rem;
+      border-radius: 999px;
+      font-size: .63rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      line-height: 1.4;
+    }
+    .badge-condition.new   { background: #dcfce7; color: #15803d; }
+    .badge-condition.used  { background: #e0e7ff; color: #4338ca; }
+    .badge-source[data-src="mercadolibre"] { background: #fef08a; color: #713f12; }
+    .badge-source[data-src="chileautos"]   { background: #fca5a5; color: #7f1d1d; }
+    .badge-source[data-src="kavak"]        { background: #6ee7b7; color: #064e3b; }
+    .badge-source[data-src="yapo"]         { background: #fdba74; color: #7c2d12; }
+    .badge-source[data-src="autocosmos"]   { background: #93c5fd; color: #1e3a8a; }
+    .badge-source[data-src="autosusados"]  { background: #d8b4fe; color: #4c1d95; }
+    .badge-source[data-src="autocl"]       { background: #5eead4; color: #134e4a; }
+    .badge-source[data-src="clicar"]       { background: #fca5a5; color: #7f1d1d; }
+    .badge-source[data-src="gildemeister"] { background: #7dd3fc; color: #0c4a6e; }
+    .badge-source[data-src="autojusto"]    { background: #bef264; color: #365314; }
+    .badge-source[data-src="economicos"]   { background: #d6d3d1; color: #292524; }
+    .badge-source[data-src="facebook"]     { background: #bfdbfe; color: #1e3a8a; }
+
+    .card-compare-btn {
+      position: absolute;
+      bottom: .45rem;
+      right: .45rem;
+    }
+
+    .card-body {
+      padding: .8rem .875rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-subtitle {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: .1rem;
+      margin-bottom: .1rem;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+    .card-title {
+      font-size: .84rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: .4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: .4rem;
+      margin-bottom: .5rem;
+    }
+    .card-price {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--secondary);
+      letter-spacing: -.02em;
+    }
+    .card-price.usd { color: var(--warning); }
+    .card-price.no-price { color: var(--muted-light); font-size: .875rem; font-weight: 600; }
+    .card-currency-note { font-size: .65rem; color: var(--muted); }
+
+    .card-attrs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .25rem;
+      margin-bottom: .6rem;
+    }
+    .attr-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .15rem;
+      padding: .15rem .45rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: .68rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .card-footer { margin-top: auto; }
+    .btn-ver {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      width: 100%;
+      padding: .45rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1.5px solid var(--primary-mid);
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 700;
+      transition: all var(--transition);
+    }
+    .btn-ver:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* ════════════════════════════════════════
+       COMPARISON BAR (sticky bottom)
+    ════════════════════════════════════════ */
+    .compare-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: .875rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.4);
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .compare-bar.visible { transform: translateY(0); }
+
+    .compare-bar-slots {
+      display: flex;
+      gap: .75rem;
+      flex: 1;
+      overflow-x: auto;
+    }
+    .compare-slot {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.08);
+      border: 1.5px solid rgba(255,255,255,.15);
+      border-radius: var(--radius-sm);
+      padding: .35rem .65rem;
+      min-width: 160px;
+      max-width: 200px;
+      position: relative;
+    }
+    .compare-slot-img {
+      width: 2.25rem;
+      height: 2.25rem;
+      object-fit: cover;
+      border-radius: var(--radius-xs);
+      background: rgba(255,255,255,.1);
+      flex-shrink: 0;
+    }
+    .compare-slot-info { overflow: hidden; }
+    .compare-slot-title {
+      font-size: .72rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .compare-slot-price { font-size: .65rem; color: #86efac; font-weight: 600; }
+    .compare-slot-remove {
+      position: absolute;
+      top: -.35rem;
+      right: -.35rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      background: #ef4444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .6rem;
+      cursor: pointer;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+    .compare-slot-empty {
+      border-style: dashed;
+      color: rgba(255,255,255,.3);
+      font-size: .72rem;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .compare-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      flex-shrink: 0;
+    }
+    .btn-do-compare {
+      background: #7c3aed;
+      color: #fff;
+      padding: .55rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: .875rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+    .btn-do-compare:hover { background: #6d28d9; }
+    .btn-clear-compare {
+      color: rgba(255,255,255,.5);
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: .35rem .5rem;
+      border-radius: var(--radius-xs);
+      transition: color var(--transition);
+      border: none;
+      background: none;
+    }
+    .btn-clear-compare:hover { color: #f87171; }
+    .compare-count-badge {
+      background: #7c3aed;
+      color: #fff;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ════════════════════════════════════════
+       MODAL
+    ════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s ease, visibility .2s ease;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 1100px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      transform: translateY(20px) scale(.97);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .modal-close {
+      width: 2rem;
+      height: 2rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .modal-close:hover { background: #f1f5f9; color: var(--danger); }
+
+    .modal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 1.25rem 1.5rem;
+    }
+
+    /* Comparison table */
+    .compare-table-wrap { overflow-x: auto; }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    .compare-table th {
+      padding: 1rem .875rem;
+      background: #f8fafc;
+      font-weight: 700;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      min-width: 200px;
+    }
+    .compare-table th:first-child { min-width: 130px; background: #f1f5f9; }
+    .compare-table td {
+      padding: .75rem .875rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .compare-table tr:hover td { background: #fafbff; }
+    .compare-table .row-label {
+      font-weight: 700;
+      color: var(--muted);
+      font-size: .775rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: #f8fafc;
+    }
+    .compare-table .car-th-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      margin-bottom: .5rem;
+    }
+    .compare-table .car-th-title {
+      font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: .25rem;
+    }
+    .compare-table .car-th-price {
+      font-size: 1.125rem;
+      font-weight: 900;
+      color: var(--secondary);
+    }
+    .compare-val-highlight {
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    .compare-val-best-price {
+      background: #f0fdf4;
+    }
+    .compare-val-worst-price {
+      background: #fff7ed;
+    }
+    .compare-val-na { color: var(--muted-light); }
+
+    /* ════════════════════════════════════════
+       PAGINATION
+    ════════════════════════════════════════ */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: .3rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      width: 2.125rem;
+      height: 2.125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      color: var(--text);
+      font-size: .8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ════════════════════════════════════════
+       STATES
+    ════════════════════════════════════════ */
+    .state-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .state-icon { font-size: 3.25rem; margin-bottom: .875rem; }
+    .state-box h3 { font-size: 1.125rem; font-weight: 800; color: var(--text); margin-bottom: .4rem; }
+    .state-box p { font-size: .875rem; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+    .spinner {
+      width: 2.75rem; height: 2.75rem;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Skeleton loaders ── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .skeleton-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .skeleton-img {
+      width: 100%; height: 170px;
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .skeleton-body { padding: 1rem; display:flex; flex-direction:column; gap:.6rem; }
+    .skeleton-line {
+      height: .8rem; border-radius: 4px;
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .skeleton-line.wide  { width: 80%; }
+    .skeleton-line.mid   { width: 55%; }
+    .skeleton-line.short { width: 35%; height: 1.1rem; }
+
+    /* ── Market badge ── */
+    .gangas-toggle {
+      display: flex; align-items: center; gap: .35rem;
+      font-size: .78rem; font-weight: 600; color: var(--muted);
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .gangas-toggle input { accent-color: var(--secondary); cursor: pointer; width: 15px; height: 15px; }
+    .btn-sort-deal { background: linear-gradient(135deg,#fef9c3,#fde68a) !important; color: #92400e !important; font-weight: 700 !important; }
+    .btn-sort-deal.active { background: linear-gradient(135deg,#fde68a,#fbbf24) !important; color: #78350f !important; }
+
+    .deal-score-bar {
+      display: flex; align-items: center; gap: .4rem; margin-top: .25rem;
+    }
+    .deal-score-track {
+      flex: 1; height: 4px; border-radius: 2px; background: #e2e8f0; overflow: hidden;
+    }
+    .deal-score-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #22c55e 100%);
+      transition: width .3s;
+    }
+    .deal-score-val { font-size: .68rem; font-weight: 700; color: var(--muted); min-width: 2rem; text-align: right; }
+
+    .price-score-badge {
+      display: inline-flex; align-items: center; gap: .25rem;
+      padding: .18rem .5rem;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .price-score-badge.bajo  { background: #dcfce7; color: #15803d; }
+    .price-score-badge.justo { background: #fef9c3; color: #a16207; }
+    .price-score-badge.alto  { background: #fee2e2; color: #b91c1c; }
+
+    /* ── Search timestamp ── */
+    .search-timestamp {
+      font-size: .72rem; color: var(--muted-light);
+      margin-left: auto;
+    }
+
+    /* Source status inline */
+    /* ── Search progress bar ── */
+    .search-progress-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.125rem 1.25rem 1rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .search-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .625rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .search-progress-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: .75rem;
+    }
+    .search-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #7c3aed);
+      border-radius: 999px;
+      transition: width .4s ease;
+    }
+    .search-progress-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+    }
+    .sp-chip {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .18rem .5rem;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      opacity: .55;
+      transition: opacity .2s, background .2s, color .2s, border-color .2s;
+    }
+    .sp-chip.done-ok    { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; opacity: 1; }
+    .sp-chip.done-err   { background: #fef2f2; color: #991b1b; border-color: #fecaca; opacity: 1; }
+    .sp-chip.running    { background: #eff6ff; color: var(--primary); border-color: var(--primary-mid); opacity: 1; animation: pulse-chip .9s ease-in-out infinite alternate; }
+    @keyframes pulse-chip { from { opacity: .7; } to { opacity: 1; } }
+
+    .source-status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-bottom: .875rem;
+    }
+    .source-status-chip {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 700;
+      border: 1px solid;
+    }
+    .source-status-chip.ok    { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .source-status-chip.error { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+    /* ════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════ */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: .8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--card);
+      margin-top: 3rem;
+      letter-spacing: .01em;
+    }
+    .footer .footer-sep { margin: 0 .6em; opacity: .4; }
+    .footer a { color: var(--primary); font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ════════════════════════════════════════
+       DIVIDER / UTILITY
+    ════════════════════════════════════════ */
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: .625rem 0; }
+    .hidden { display: none !important; }
+    .btn-actions { margin-top: .875rem; display: flex; flex-direction: column; gap: .4rem; }
+    .small-note { font-size: .7rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ════════════════════════════════════════
+       USER / AUTH
+    ════════════════════════════════════════ */
+    .user-btn {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .3rem .75rem; border-radius: 999px;
+      font-size: .72rem; font-weight: 700; cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08); color: rgba(255,255,255,.8);
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .user-btn:hover { background: rgba(255,255,255,.15); }
+    .user-btn.logged-in { border-color: rgba(96,165,250,.5); color: #93c5fd; }
+
+    /* User dropdown */
+    .user-dropdown-wrap { position: relative; }
+    .user-dropdown {
+      position: absolute; top: calc(100% + .5rem); right: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      min-width: 240px; z-index: 500; overflow: hidden;
+    }
+    .user-dropdown-header {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .user-dropdown-header .ud-name { font-weight: 700; font-size: .9rem; color: var(--text); }
+    .user-dropdown-header .ud-email { font-size: .75rem; color: var(--muted); }
+    .user-dropdown-item {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .65rem 1rem; font-size: .83rem; color: var(--text);
+      cursor: pointer; transition: background var(--transition);
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: inherit;
+    }
+    .user-dropdown-item:hover { background: var(--bg); }
+    .user-dropdown-item.danger { color: #ef4444; }
+    .user-dropdown-divider { border-top: 1px solid var(--border); }
+
+    /* Profile / Mi cuenta modal */
+    .profile-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 900; padding: 1rem;
+    }
+    .profile-modal {
+      background: var(--card); border-radius: var(--radius-lg);
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-lg); overflow: hidden;
+    }
+    .profile-modal-header {
+      padding: 1.1rem 1.4rem .75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .profile-modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .profile-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .profile-tab {
+      flex: 1; padding: .6rem; font-size: .8rem; font-weight: 600;
+      border: none; background: none; cursor: pointer; color: var(--muted);
+      border-bottom: 2px solid transparent; transition: all .15s; font-family: inherit;
+    }
+    .profile-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .profile-modal-body { padding: 1.25rem 1.4rem; }
+
+    /* Auth modal */
+    .auth-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 900; padding: 1rem;
+    }
+    .auth-modal {
+      background: var(--card); border-radius: var(--radius-lg);
+      width: 100%; max-width: 400px;
+      box-shadow: var(--shadow-lg); overflow: hidden;
+    }
+    .auth-modal-header {
+      padding: 1.25rem 1.5rem .75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .auth-modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .auth-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); }
+    .auth-tabs { display: flex; gap: .25rem; padding: .75rem 1.5rem 0; }
+    .auth-tab {
+      flex: 1; padding: .45rem; text-align: center;
+      font-size: .8rem; font-weight: 600; border-radius: var(--radius-sm);
+      cursor: pointer; border: none; background: none; color: var(--muted);
+      border-bottom: 2px solid transparent;
+    }
+    .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .auth-body { padding: 1.25rem 1.5rem 1.5rem; }
+    .auth-field { margin-bottom: 1rem; }
+    .auth-field label { display: block; font-size: .78rem; font-weight: 600; margin-bottom: .35rem; color: var(--text); }
+    .auth-field input {
+      width: 100%; padding: .55rem .75rem;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: .875rem; font-family: inherit; outline: none;
+      transition: border-color var(--transition);
+    }
+    .auth-field input:focus { border-color: var(--primary); }
+    .pass-wrap { position: relative; }
+    .pass-wrap input { padding-right: 2.4rem; }
+    .pass-toggle {
+      position: absolute; right: .6rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: .2rem;
+      color: var(--muted); line-height: 1; font-size: 1rem;
+    }
+    .pass-toggle:hover { color: var(--text); }
+    .auth-submit {
+      width: 100%; padding: .65rem; border: none;
+      background: var(--primary); color: #fff;
+      border-radius: var(--radius-sm); font-size: .875rem;
+      font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: background var(--transition);
+    }
+    .auth-submit:hover { background: var(--primary-dark); }
+    .auth-error { color: var(--danger); font-size: .78rem; margin-top: .5rem; min-height: 1rem; }
+
+    /* User panel (saved searches + alerts) */
+    .user-panel-section { margin-bottom: .5rem; }
+    .user-panel-section h4 {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      color: var(--muted); letter-spacing: .06em; margin-bottom: .4rem;
+    }
+    .saved-search-item, .alert-item {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .4rem .5rem; border-radius: var(--radius-sm);
+      font-size: .78rem; cursor: pointer;
+      transition: background var(--transition);
+      border: 1px solid var(--border);
+      margin-bottom: .3rem;
+    }
+    .saved-search-item:hover { background: var(--primary-light); }
+    .saved-search-name { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-search-del, .alert-del {
+      color: var(--muted); font-size: .75rem; padding: .1rem .3rem;
+      border-radius: 4px; flex-shrink: 0;
+    }
+    .saved-search-del:hover, .alert-del:hover { background: #fee2e2; color: var(--danger); }
+    .alert-item { cursor: default; }
+    .alert-toggle {
+      font-size: .68rem; padding: .15rem .4rem; border-radius: 999px;
+      border: none; cursor: pointer; font-weight: 700; flex-shrink: 0;
+    }
+    .alert-toggle.on  { background: #d1fae5; color: #065f46; }
+    .alert-toggle.off { background: #f1f5f9; color: var(--muted); }
+    .btn-user-action {
+      width: 100%; padding: .45rem; border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm); background: none; color: var(--muted);
+      font-size: .78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all var(--transition); text-align: center; display: block;
+    }
+    .btn-user-action:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* ════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .compare-slot { min-width: 130px; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .portal-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ════════════════════════════════════════
+       MAIN VIEW TABS
+    ════════════════════════════════════════ */
+    .main-tabs-bar {
+      display: flex;
+      gap: .4rem;
+      padding: .5rem 0 .875rem;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .main-tab {
+      padding: .38rem 1.1rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      background: var(--card);
+      transition: all var(--transition);
+    }
+    .main-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .main-tab:hover:not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ════════════════════════════════════════
+       ANALYSIS VIEW
+    ════════════════════════════════════════ */
+    .an-stat-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .4rem .75rem;
+      font-size: .75rem;
+      flex: 1;
+      min-width: 6rem;
+    }
+    .an-stat-chip .an-chip-label {
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .an-stat-chip .an-chip-value {
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      margin-top: .1rem;
+    }
+    .an-year-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .an-year-table th { padding: .4rem .6rem; text-align: left; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: .72rem; }
+    .an-year-table td { padding: .4rem .6rem; border-bottom: 1px solid var(--bg); }
+    .an-year-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <img src="radarauto.png" alt="RadarAuto" class="logo-icon" />
+      <div>
+        <div class="logo-text">Radar<span>Auto</span></div>
+        <div class="logo-tagline">Comparador de autos Chile</div>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <button class="backend-pill" id="backend-pill" onclick="toggleBackendPanel()" title="Backend para más portales">
+      <span class="dot"></span>
+      <span id="backend-label">Solo MercadoLibre</span>
+    </button>
+    <button class="fb-pill" id="fb-pill" onclick="fbLoginClick()" title="Conectar Facebook Marketplace">
+      <span class="fb-dot"></span>
+      <span id="fb-pill-label">Facebook</span>
+    </button>
+    <div class="user-dropdown-wrap" id="user-dropdown-wrap">
+      <button class="user-btn" id="user-btn" onclick="userBtnClick()" title="Cuenta de usuario">
+        <span id="user-btn-icon">👤</span>
+        <span id="user-btn-label">Ingresar</span>
+      </button>
+      <div class="user-dropdown hidden" id="user-dropdown">
+        <div class="user-dropdown-header">
+          <div class="ud-name" id="ud-name">–</div>
+          <div class="ud-email" id="ud-email">–</div>
+        </div>
+        <button class="user-dropdown-item" onclick="openProfileModal('perfil')">👤 Mi cuenta</button>
+        <button class="user-dropdown-item" onclick="openProfileModal('favoritos')">❤️ Favoritos</button>
+        <button class="user-dropdown-item" onclick="openProfileModal('historial')">🕐 Historial</button>
+        <button class="user-dropdown-item" onclick="openProfileModal('busquedas')">🔖 Búsquedas guardadas</button>
+        <button class="user-dropdown-item" onclick="openProfileModal('alertas')">🔔 Alertas</button>
+        <div class="user-dropdown-divider"></div>
+        <button class="user-dropdown-item danger" onclick="closeUserDropdown();logout()">↩ Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+</header>
+
+<!-- ══ LAYOUT ══════════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+  <div class="sidebar-inner">
+
+    <!-- Panel: Portales (selección de fuentes) -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left"><span>🌐</span><h2>Portales</h2></div>
+      </div>
+      <div class="panel-body">
+        <div class="portal-list">
+          <button id="btn-toggle-all" onclick="toggleAllSources()">Todos</button>
+          <button class="source-toggle active" data-src="mercadolibre" onclick="toggleSource(this)">
+            <span class="dot-status"></span> MercadoLibre
+          </button>
+          <button class="source-toggle" data-src="chileautos"   onclick="toggleSource(this)">
+            <span class="dot-status"></span> ChileAutos
+          </button>
+          <button class="source-toggle" data-src="kavak"        onclick="toggleSource(this)">
+            <span class="dot-status"></span> Kavak
+          </button>
+          <button class="source-toggle" data-src="yapo"         onclick="toggleSource(this)">
+            <span class="dot-status"></span> Yapo.cl
+          </button>
+          <button class="source-toggle" data-src="autocosmos"   onclick="toggleSource(this)">
+            <span class="dot-status"></span> AutoCosmos
+          </button>
+          <button class="source-toggle" data-src="autosusados"  onclick="toggleSource(this)">
+            <span class="dot-status"></span> AutosUsados
+          </button>
+          <button class="source-toggle" data-src="autocl"       onclick="toggleSource(this)">
+            <span class="dot-status"></span> Auto.cl
+          </button>
+          <button class="source-toggle" data-src="clicar"       onclick="toggleSource(this)">
+            <span class="dot-status"></span> Clicar
+          </button>
+          <button class="source-toggle" data-src="gildemeister" onclick="toggleSource(this)">
+            <span class="dot-status"></span> Gildemeister
+          </button>
+          <button class="source-toggle" data-src="autojusto"    onclick="toggleSource(this)">
+            <span class="dot-status"></span> AutoJusto
+          </button>
+          <button class="source-toggle" data-src="economicos"   onclick="toggleSource(this)">
+            <span class="dot-status"></span> Económicos
+          </button>
+          <button class="source-toggle" data-src="facebook"     onclick="toggleSource(this)">
+            <span class="dot-status"></span> Facebook
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Filtros -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span>🔍</span>
+          <h2>Filtros</h2>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="form-group">
+          <label class="form-label" for="keywords">Palabras clave</label>
+          <input id="keywords" type="text" class="form-control" placeholder="Ej: 4x4 diesel bajo km…" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="brand">Marca</label>
+          <select id="brand" class="form-control">
+            <option value="">Todas las marcas</option>
+            <option>Alfa Romeo</option>
+            <option>Audi</option>
+            <option>BMW</option>
+            <option>BYD</option>
+            <option>Changan</option>
+            <option>Chery</option>
+            <option>Chevrolet</option>
+            <option>Chrysler</option>
+            <option>Citroën</option>
+            <option>DFSK</option>
+            <option>Dodge</option>
+            <option>Fiat</option>
+            <option>Ford</option>
+            <option>Geely</option>
+            <option>Great Wall</option>
+            <option>Haval</option>
+            <option>Honda</option>
+            <option>Hyundai</option>
+            <option>Infiniti</option>
+            <option>JAC</option>
+            <option>Jeep</option>
+            <option>Kia</option>
+            <option>Land Rover</option>
+            <option>Lexus</option>
+            <option>Mazda</option>
+            <option>Mercedes-Benz</option>
+            <option>MG</option>
+            <option>Mitsubishi</option>
+            <option>Nissan</option>
+            <option>Opel</option>
+            <option>Peugeot</option>
+            <option>Renault</option>
+            <option>Seat</option>
+            <option>Skoda</option>
+            <option>Ssangyong</option>
+            <option>Subaru</option>
+            <option>Suzuki</option>
+            <option>Toyota</option>
+            <option>Volkswagen</option>
+            <option>Volvo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="model">Modelo</label>
+          <select id="model" class="form-control" disabled>
+            <option value="">Elige una marca primero</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="condition">Estado</label>
+          <select id="condition" class="form-control">
+            <option value="">Nuevo y usado</option>
+            <option value="used">Usado</option>
+            <option value="new">Nuevo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Año</label>
+          <div class="year-slider-wrap">
+            <div class="year-slider-labels">
+              <span id="year-from-label" class="year-label-val">1980</span>
+              <span class="year-slider-sep">—</span>
+              <span id="year-to-label" class="year-label-val">2026</span>
+            </div>
+            <div class="dual-range-track">
+              <div class="dual-range-fill" id="year-fill"></div>
+              <input type="range" id="yearFrom" class="dual-range" min="1980" max="2026" value="1980">
+              <input type="range" id="yearTo"   class="dual-range" min="1980" max="2026" value="2026">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Precio (CLP)</label>
+          <div class="form-row">
+            <input id="priceFrom" type="text" inputmode="numeric" class="form-control" placeholder="Desde" />
+            <input id="priceTo"   type="text" inputmode="numeric" class="form-control" placeholder="Hasta" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kilómetros</label>
+          <div style="display:flex;gap:.5rem;">
+            <select id="kmFrom" class="form-control" style="width:50%;">
+              <option value="">Desde</option>
+              <option value="25000">25.000</option>
+              <option value="50000">50.000</option>
+              <option value="75000">75.000</option>
+              <option value="100000">100.000</option>
+              <option value="125000">125.000</option>
+              <option value="150000">150.000</option>
+              <option value="175000">175.000</option>
+              <option value="200000">200.000</option>
+              <option value="225000">225.000</option>
+              <option value="250000">250.000</option>
+              <option value="275000">275.000</option>
+              <option value="300000">300.000</option>
+              <option value="350000">350.000</option>
+              <option value="400000">400.000</option>
+            </select>
+            <select id="kmTo" class="form-control" style="width:50%;">
+              <option value="">Hasta</option>
+              <option value="25000">25.000</option>
+              <option value="50000">50.000</option>
+              <option value="75000">75.000</option>
+              <option value="100000">100.000</option>
+              <option value="125000">125.000</option>
+              <option value="150000">150.000</option>
+              <option value="175000">175.000</option>
+              <option value="200000">200.000</option>
+              <option value="225000">225.000</option>
+              <option value="250000">250.000</option>
+              <option value="275000">275.000</option>
+              <option value="300000">300.000</option>
+              <option value="350000">350.000</option>
+              <option value="400000">400.000</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="fuel">Combustible</label>
+          <select id="fuel" class="form-control">
+            <option value="">Todos</option>
+            <option value="Bencina">Bencina / Nafta</option>
+            <option value="Diésel">Diésel</option>
+            <option value="Eléctrico">Eléctrico</option>
+            <option value="Híbrido">Híbrido</option>
+            <option value="GNC">GNC / Gas</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="transmission">Transmisión</label>
+          <select id="transmission" class="form-control">
+            <option value="">Todas</option>
+            <option value="Manual">Manual</option>
+            <option value="Automático">Automático</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="drivetrain">Tracción</label>
+          <select id="drivetrain" class="form-control">
+            <option value="">Todas</option>
+            <option value="4x4">4x4 / AWD / 4WD</option>
+            <option value="FWD">Delantera (FWD)</option>
+            <option value="RWD">Trasera (RWD)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="region">Región</label>
+          <select id="region" class="form-control">
+            <option value="">Todas las regiones</option>
+            <option>Región Metropolitana</option>
+            <option>Valparaíso</option>
+            <option>Biobío</option>
+            <option>La Araucanía</option>
+            <option>Los Lagos</option>
+            <option>Maule</option>
+            <option>O'Higgins</option>
+            <option>Antofagasta</option>
+            <option>Coquimbo</option>
+            <option>Tarapacá</option>
+            <option>Atacama</option>
+            <option>Los Ríos</option>
+            <option>Aysén</option>
+            <option>Magallanes</option>
+            <option>Ñuble</option>
+            <option>Arica y Parinacota</option>
+          </select>
+        </div>
+
+        <hr class="divider" />
+
+        <button class="btn btn-primary" style="width:100%;margin-bottom:.5rem;" onclick="search(0)">Aplicar filtros</button>
+        <div style="display:flex;gap:.4rem;margin-bottom:.5rem;">
+          <button class="btn btn-ghost" style="flex:1;" onclick="clearFilters()">✕ Limpiar</button>
+          <button class="btn btn-ghost" id="btn-save-default" style="flex:1;" onclick="saveDefaultFilters()" title="Guardar filtros actuales como predeterminados">⭐ Predeterminar</button>
+        </div>
+        <div id="default-filters-bar" class="hidden" style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem;">
+          <span>⭐ Filtros predeterminados activos</span>
+          <button onclick="clearDefaultFilters()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:.72rem;padding:0;">✕</button>
+        </div>
+        <div id="user-search-actions" class="hidden" style="display:flex;flex-direction:column;gap:.35rem">
+          <button class="btn-user-action" onclick="saveCurrentSearch()">🔖 Guardar búsqueda</button>
+          <button class="btn-user-action" onclick="createCurrentAlert()">🔔 Crear alerta por email</button>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Panel: Portales -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left"><span>🌐</span><h2>Abrir en portales</h2></div>
+      </div>
+      <div class="panel-body">
+        <p class="portal-desc">Abre la búsqueda directamente en cada portal</p>
+        <div class="portal-grid">
+          <a id="lnk-ml"          class="portal-link" href="https://autos.mercadolibre.cl/"                   target="_blank" rel="noopener">MercadoLibre</a>
+          <a id="lnk-chileautos"  class="portal-link" href="https://www.chileautos.cl/vehiculos/"             target="_blank" rel="noopener">ChileAutos</a>
+          <a id="lnk-kavak"       class="portal-link" href="https://www.kavak.com/cl/usados"                  target="_blank" rel="noopener">Kavak</a>
+          <a id="lnk-yapo"        class="portal-link" href="https://www.yapo.cl/autos-usados/"                target="_blank" rel="noopener">Yapo.cl</a>
+          <a id="lnk-autosusados" class="portal-link" href="https://www.autosusados.cl/autos/"                target="_blank" rel="noopener">AutosUsados</a>
+          <a id="lnk-autocosmos"  class="portal-link" href="https://www.autocosmos.cl/auto/usado"             target="_blank" rel="noopener">AutoCosmos</a>
+          <a id="lnk-clicar"      class="portal-link" href="https://www.clicar.cl/autos-usados/"              target="_blank" rel="noopener">Clicar</a>
+          <a id="lnk-economicos"  class="portal-link" href="https://www.economicos.cl/autos-camionetas/"      target="_blank" rel="noopener">Económicos</a>
+          <a id="lnk-autojusto"   class="portal-link" href="https://www.autojusto.cl/venta-autos-usados/"     target="_blank" rel="noopener">AutoJusto</a>
+          <a id="lnk-gildemeister" class="portal-link" href="https://gildemeisterusados.cl/"                  target="_blank" rel="noopener">Gildemeister</a>
+          <a id="lnk-facebook"    class="portal-link" href="https://www.facebook.com/marketplace/chile/vehicles" target="_blank" rel="noopener">FB Marketplace</a>
+          <a id="lnk-autofact"    class="portal-link" href="https://www.autofact.cl/guia-precios"             target="_blank" rel="noopener">Autofact</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Mis búsquedas (solo visible cuando hay sesión) -->
+    <div class="panel hidden" id="user-panel">
+      <div class="panel-header">
+        <div class="panel-header-left"><span>🔖</span><h2>Mi cuenta</h2></div>
+        <button style="font-size:.72rem;color:var(--muted);background:none;border:none;cursor:pointer" onclick="logout()">Salir</button>
+      </div>
+      <div class="panel-body">
+        <div class="user-panel-section">
+          <h4>Búsquedas guardadas</h4>
+          <div id="saved-searches-list"><p style="font-size:.78rem;color:var(--muted)">Sin búsquedas guardadas.</p></div>
+        </div>
+        <div class="user-panel-section" style="margin-top:.75rem">
+          <h4>Alertas por email</h4>
+          <div id="alerts-list"><p style="font-size:.78rem;color:var(--muted)">Sin alertas activas.</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.sidebar-inner -->
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main id="main-content">
+
+    <!-- Main view tabs -->
+    <div class="main-tabs-bar">
+      <button class="main-tab active" id="tab-btn-search"   onclick="switchView('search')">🔍 Buscar autos</button>
+      <button class="main-tab"        id="tab-btn-analysis" onclick="switchView('analysis')">📊 Análisis histórico</button>
+    </div>
+
+    <!-- ── SEARCH VIEW ── -->
+    <div id="view-search">
+
+    <!-- Stats bar -->
+    <div id="stats-bar" class="stats-bar hidden">
+      <div class="stat-card total"><div class="stat-label">Total resultados</div><div class="stat-value" id="st-total">–</div></div>
+      <div class="stat-card savg"> <div class="stat-label">Precio promedio</div><div class="stat-value" id="st-avg">–</div></div>
+      <div class="stat-card smin"> <div class="stat-label">Precio mínimo</div> <div class="stat-value" id="st-min">–</div></div>
+      <div class="stat-card smax"> <div class="stat-label">Precio máximo</div> <div class="stat-value" id="st-max">–</div></div>
+    </div>
+
+    <!-- Source status (backend mode) -->
+    <div id="source-status-row" class="source-status-row hidden"></div>
+
+    <!-- Results controls -->
+    <div id="results-controls" class="results-controls hidden">
+      <div class="results-meta" id="results-meta"></div>
+      <span class="search-timestamp" id="search-timestamp"></span>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <button class="btn btn-sort" id="btn-chart-toggle"   onclick="toggleChart()">📊 Gráfico</button>
+        <button class="btn btn-sort" id="btn-history-toggle" onclick="toggleHistory()">📈 Historial</button>
+      </div>
+      <div class="sort-group">
+        <span class="sort-label">Ordenar:</span>
+        <button class="btn btn-sort btn-sort-deal" onclick="sortBy('deal_score', this)" title="Mejor relación precio+km respecto a su año">🔥 Mejor oferta</button>
+        <button class="btn btn-sort" onclick="sortBy('price_asc',  this)">$ ↑ Precio</button>
+        <button class="btn btn-sort" onclick="sortBy('price_desc', this)">$ ↓ Precio</button>
+        <button class="btn btn-sort" onclick="sortBy('year_desc',  this)">📅 Más nuevo</button>
+        <button class="btn btn-sort" onclick="sortBy('year_asc',   this)">📅 Más antiguo</button>
+        <button class="btn btn-sort" onclick="sortBy('km_asc',     this)">🛣️ Menor km</button>
+        <button class="btn btn-sort" onclick="sortBy('km_desc',    this)">🛣️ Mayor km</button>
+      </div>
+      <label class="gangas-toggle" title="Muestra solo autos con precio bajo mercado para su año">
+        <input type="checkbox" id="chk-solo-gangas" onchange="toggleSoloGangas(this.checked)" />
+        Solo gangas
+      </label>
+    </div>
+
+    <!-- Chart -->
+    <div id="chart-wrap" class="hidden" style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+      <div class="chart-header">
+        <span class="chart-title">Análisis de precios</span>
+        <div class="chart-tabs">
+          <button class="chart-tab active" id="chart-tab-km"   onclick="switchChartTab('km')">Precio vs Km</button>
+          <button class="chart-tab"        id="chart-tab-year" onclick="switchChartTab('year')">Precio vs Año</button>
+        </div>
+        <button onclick="toggleChart()" style="font-size:.72rem;color:var(--muted);background:none;border:none;cursor:pointer;white-space:nowrap">Ocultar</button>
+      </div>
+      <canvas id="price-km-chart" style="max-height:300px"></canvas>
+    </div>
+
+    <!-- Price History Panel -->
+    <div id="history-wrap" class="hidden" style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+      <div class="chart-header">
+        <span class="chart-title">Historial de precios &mdash; <span id="history-label" style="color:var(--primary)"></span></span>
+        <button onclick="toggleHistory()" style="font-size:.72rem;color:var(--muted);background:none;border:none;cursor:pointer;white-space:nowrap">Ocultar</button>
+      </div>
+      <!-- Market stats row -->
+      <div id="market-stats-row" style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.75rem 0"></div>
+      <!-- History chart -->
+      <canvas id="history-chart" style="max-height:260px"></canvas>
+      <p id="history-empty" class="hidden" style="color:var(--muted);text-align:center;padding:2rem 1rem;font-size:.85rem">
+        No hay datos históricos aún. El scraper diario acumulará datos a partir de la primera ejecución.
+      </p>
+      <p id="history-loading" style="color:var(--muted);text-align:center;padding:1.5rem;font-size:.85rem">Cargando…</p>
+    </div>
+
+    <!-- Content area -->
+    <div id="content-area">
+      <div class="state-box">
+        <img src="radarauto.png" alt="RadarAuto" style="width:9rem;height:9rem;object-fit:contain;display:block;margin:0 auto 1rem;" />
+        <h3>Bienvenido a RadarAuto</h3>
+        <p>Usa los filtros del panel izquierdo y presiona <strong>Buscar autos</strong> para comparar precios en tiempo real.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination hidden"></div>
+
+    </div><!-- /#view-search -->
+
+    <!-- ── ANALYSIS VIEW ── -->
+    <div id="view-analysis" class="hidden">
+
+      <!-- Search form -->
+      <div style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+        <div style="margin-bottom:.75rem">
+          <span style="font-size:.9rem;font-weight:700">Busca un auto para ver su historial de precios</span>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end">
+          <div class="form-group" style="flex:2;min-width:110px">
+            <label class="form-label">Marca *</label>
+            <input class="form-control" id="an-brand" placeholder="ej: Toyota">
+          </div>
+          <div class="form-group" style="flex:2;min-width:110px">
+            <label class="form-label">Modelo</label>
+            <input class="form-control" id="an-model" placeholder="ej: Corolla">
+          </div>
+          <div class="form-group" style="flex:1;min-width:75px">
+            <label class="form-label">Año desde</label>
+            <input class="form-control" id="an-year-from" type="number" placeholder="2015">
+          </div>
+          <div class="form-group" style="flex:1;min-width:75px">
+            <label class="form-label">Año hasta</label>
+            <input class="form-control" id="an-year-to" type="number" placeholder="2024">
+          </div>
+          <div class="form-group" style="flex:1;min-width:75px">
+            <label class="form-label">KM máx.</label>
+            <input class="form-control" id="an-km-max" type="number" placeholder="150000">
+          </div>
+          <button class="btn btn-primary" style="height:2.25rem;padding:0 1.25rem;white-space:nowrap;flex-shrink:0" onclick="runAnalysis()">Analizar</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="an-loading" class="hidden" style="text-align:center;padding:3rem;color:var(--muted)">
+        <div class="loader" style="margin:0 auto 1rem"></div>
+        <p style="font-size:.85rem">Consultando historial de precios…</p>
+      </div>
+
+      <!-- Empty / intro state -->
+      <div id="an-empty" style="background:var(--card);border-radius:var(--radius);padding:3rem 2rem;text-align:center;box-shadow:var(--shadow)">
+        <div style="font-size:3rem;margin-bottom:1rem">📊</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Análisis histórico de precios</h3>
+        <p style="font-size:.83rem;color:var(--muted);max-width:420px;margin:0 auto">
+          Ingresa una marca (y opcionalmente modelo) para ver el historial de precios del mercado chileno.
+          Los datos se acumulan automáticamente con cada scrape.
+        </p>
+      </div>
+
+      <!-- Analysis content -->
+      <div id="an-content" class="hidden">
+
+        <!-- Market stats row -->
+        <div id="an-stats-row" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem"></div>
+
+        <!-- Price guide -->
+        <div id="an-price-guide" style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);border-left:3.5px solid var(--primary)">
+          <div id="an-guide-text"></div>
+        </div>
+
+        <!-- Charts -->
+        <div style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+          <div class="chart-header" style="margin-bottom:.75rem">
+            <span class="chart-title" id="an-chart-title">Historial de precios</span>
+            <div class="chart-tabs">
+              <button class="chart-tab active" id="an-tab-time" onclick="switchAnalysisTab('time')">Historial</button>
+              <button class="chart-tab"        id="an-tab-km"   onclick="switchAnalysisTab('km')">Precio vs KM</button>
+              <button class="chart-tab"        id="an-tab-year" onclick="switchAnalysisTab('year')">Precio vs Año</button>
+            </div>
+          </div>
+          <canvas id="an-chart" style="max-height:320px"></canvas>
+          <p id="an-chart-empty" class="hidden" style="color:var(--muted);text-align:center;padding:2rem;font-size:.83rem">
+            No hay datos suficientes para este gráfico.
+          </p>
+        </div>
+
+        <!-- Year breakdown table -->
+        <div style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.75rem">Análisis por año</h4>
+          <div id="an-year-table-wrap" style="overflow-x:auto"></div>
+          <div id="an-best-deals"></div>
+        </div>
+
+        <!-- Oportunidades del mercado (from /api/best-deals) -->
+        <div id="an-opportunities-wrap" style="background:var(--card);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Oportunidades del mercado <span style="font-weight:400;color:var(--muted);font-size:.78rem">(últimos 60 días, precio bajo su año)</span></h4>
+          <div id="an-opportunities-content"><p style="color:var(--muted);font-size:.83rem">Cargando...</p></div>
+        </div>
+
+      </div><!-- /#an-content -->
+
+    </div><!-- /#view-analysis -->
+
+  </main>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <p>
+    <strong>RadarAuto</strong>
+    <span class="footer-sep">·</span>
+    Datos en tiempo real de todos los autos usados de Chile
+    <span class="footer-sep">·</span>
+    Los precios son orientativos
+    <span class="footer-sep">·</span>
+    RadarAuto no vende vehículos
+  </p>
+</footer>
+
+<!-- ══ COMPARISON BAR ══ -->
+<div class="compare-bar" id="compare-bar">
+  <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;">
+    <div class="compare-count-badge" id="compare-count">0</div>
+    <span style="font-size:.8rem;font-weight:700;white-space:nowrap;">Comparando</span>
+  </div>
+  <div class="compare-bar-slots" id="compare-slots"></div>
+  <div class="compare-bar-actions">
+    <button class="btn-do-compare" onclick="openCompareModal()">⚖️ Comparar</button>
+    <button class="btn-clear-compare" onclick="clearComparison()">Limpiar</button>
+  </div>
+</div>
+
+<!-- ══ PROFILE MODAL ══ -->
+<div class="profile-modal-overlay hidden" id="profile-modal" onclick="if(event.target===this)closeProfileModal()">
+  <div class="profile-modal">
+    <div class="profile-modal-header">
+      <h3 id="profile-modal-title">Mi cuenta</h3>
+      <button onclick="closeProfileModal()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted)">✕</button>
+    </div>
+    <div class="profile-tabs" style="overflow-x:auto;">
+      <button class="profile-tab active" id="ptab-perfil"     onclick="switchProfileTab('perfil')">Cuenta</button>
+      <button class="profile-tab"        id="ptab-favoritos"  onclick="switchProfileTab('favoritos')">❤️ Favoritos</button>
+      <button class="profile-tab"        id="ptab-historial"  onclick="switchProfileTab('historial')">🕐 Historial</button>
+      <button class="profile-tab"        id="ptab-busquedas"  onclick="switchProfileTab('busquedas')">🔖 Guardadas</button>
+      <button class="profile-tab"        id="ptab-alertas"    onclick="switchProfileTab('alertas')">🔔 Alertas</button>
+    </div>
+
+    <!-- Tab: Perfil -->
+    <div class="profile-modal-body" id="ppanel-perfil">
+      <div style="display:flex;flex-direction:column;gap:.75rem;">
+        <h4 style="font-size:.82rem;color:var(--muted);margin-bottom:.25rem">DATOS PERSONALES</h4>
+        <div style="display:flex;gap:.5rem;">
+          <div style="flex:1">
+            <label class="form-label">Nombre</label>
+            <input id="p-nombre" class="form-control" type="text" placeholder="Nombre">
+          </div>
+          <div style="flex:1">
+            <label class="form-label">Apellido</label>
+            <input id="p-apellido" class="form-control" type="text" placeholder="Apellido">
+          </div>
+        </div>
+        <div id="p-profile-error" style="font-size:.78rem;color:#ef4444;min-height:1rem"></div>
+        <button class="btn btn-primary" onclick="saveProfile()">Guardar cambios</button>
+
+        <hr class="divider" style="margin:.5rem 0">
+        <h4 style="font-size:.82rem;color:var(--muted);margin-bottom:.25rem">CAMBIAR CONTRASEÑA</h4>
+        <input id="p-pass-current" class="form-control" type="password" placeholder="Contraseña actual">
+        <input id="p-pass-new"     class="form-control" type="password" placeholder="Nueva contraseña (mín. 6 caracteres)">
+        <input id="p-pass-new2"    class="form-control" type="password" placeholder="Repetir nueva contraseña">
+        <div id="p-pass-error" style="font-size:.78rem;color:#ef4444;min-height:1rem"></div>
+        <button class="btn btn-ghost" onclick="changePassword()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <!-- Tab: Favoritos -->
+    <div class="profile-modal-body hidden" id="ppanel-favoritos">
+      <div id="p-favorites-list"><p style="font-size:.82rem;color:var(--muted)">Sin favoritos guardados.</p></div>
+    </div>
+
+    <!-- Tab: Historial -->
+    <div class="profile-modal-body hidden" id="ppanel-historial">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
+        <span style="font-size:.78rem;color:var(--muted)">Últimas búsquedas realizadas</span>
+        <button onclick="clearHistory()" style="font-size:.72rem;color:#ef4444;background:none;border:none;cursor:pointer;">✕ Limpiar todo</button>
+      </div>
+      <div id="p-history-list"><p style="font-size:.82rem;color:var(--muted)">Sin historial.</p></div>
+    </div>
+
+    <!-- Tab: Búsquedas favoritas -->
+    <div class="profile-modal-body hidden" id="ppanel-busquedas">
+      <div id="p-saved-searches-list"><p style="font-size:.82rem;color:var(--muted)">Sin búsquedas guardadas.</p></div>
+    </div>
+
+    <!-- Tab: Alertas -->
+    <div class="profile-modal-body hidden" id="ppanel-alertas">
+      <div id="p-alerts-list"><p style="font-size:.82rem;color:var(--muted)">Sin alertas activas.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH MODAL ══ -->
+<div class="auth-modal-overlay hidden" id="auth-modal" onclick="handleAuthOverlayClick(event)">
+  <div class="auth-modal">
+    <div class="auth-modal-header">
+      <h3 id="auth-modal-title">👤 Cuenta</h3>
+      <button class="auth-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login"    onclick="switchAuthTab('login')">Ingresar</button>
+      <button class="auth-tab"        id="tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div class="auth-body">
+      <div id="auth-panel-login">
+        <div class="auth-field">
+          <label for="auth-email-login">Email</label>
+          <input id="auth-email-login" type="email" placeholder="tu@email.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label for="auth-pass-login">Contraseña</label>
+          <div class="pass-wrap">
+            <input id="auth-pass-login" type="password" placeholder="••••••" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter') submitAuth('login')" />
+            <button type="button" class="pass-toggle" onclick="togglePass('auth-pass-login',this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+        <button class="auth-submit" onclick="submitAuth('login')">Ingresar</button>
+        <div class="auth-error" id="auth-error-login"></div>
+      </div>
+      <div id="auth-panel-register" class="hidden">
+        <div style="display:flex;gap:.75rem">
+          <div class="auth-field" style="flex:1">
+            <label for="auth-nombre">Nombre</label>
+            <input id="auth-nombre" type="text" placeholder="Juan" autocomplete="given-name" />
+          </div>
+          <div class="auth-field" style="flex:1">
+            <label for="auth-apellido">Apellido</label>
+            <input id="auth-apellido" type="text" placeholder="Pérez" autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="auth-email-reg">Email</label>
+          <input id="auth-email-reg" type="email" placeholder="tu@email.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label for="auth-pass-reg">Contraseña <span style="font-weight:400;color:var(--muted)">(mín. 6 caracteres)</span></label>
+          <div class="pass-wrap">
+            <input id="auth-pass-reg" type="password" placeholder="••••••" autocomplete="new-password" />
+            <button type="button" class="pass-toggle" onclick="togglePass('auth-pass-reg',this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="auth-pass-reg2">Repetir contraseña</label>
+          <div class="pass-wrap">
+            <input id="auth-pass-reg2" type="password" placeholder="••••••" autocomplete="new-password"
+                   onkeydown="if(event.key==='Enter') submitAuth('register')" />
+            <button type="button" class="pass-toggle" onclick="togglePass('auth-pass-reg2',this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+        <button class="auth-submit" onclick="submitAuth('register')">Crear cuenta</button>
+        <div class="auth-error" id="auth-error-register"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPARE MODAL ══ -->
+<div class="modal-overlay" id="compare-modal" onclick="handleModalClick(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">⚖️ Comparación de autos</div>
+      <div class="modal-close" onclick="closeCompareModal()" title="Cerrar">✕</div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────────────────────────
+   CONFIG
+──────────────────────────────────────────────────────────────── */
+// When served directly from the backend (localhost:8000), use same-origin paths.
+// When opened as file://, try localhost:8000 explicitly.
+const IS_BACKEND_ORIGIN = window.location.protocol === 'http:' && window.location.hostname === 'localhost';
+const BACKEND_URL = IS_BACKEND_ORIGIN ? '' : 'http://localhost:8000';
+const ML_API      = 'https://api.mercadolibre.com/sites/MLC/search';
+const ML_CATEGORY = 'MLC1744';
+const PAGE_SIZE   = 50;
+const MAX_PAGES   = 6;
+const COMPARE_MAX = 4;
+
+const SOURCE_LABELS = {
+  mercadolibre: 'ML',
+  chileautos:   'ChileAutos',
+  kavak:        'Kavak',
+  yapo:         'Yapo',
+  autocosmos:   'AutoCosmos',
+  autosusados:  'AutosUsados',
+  autocl:       'Auto.cl',
+  clicar:       'Clicar',
+  gildemeister: 'Gildemeister',
+  autojusto:    'AutoJusto',
+  economicos:   'Económicos',
+  facebook:     'Facebook',
+};
+
+/* ────────────────────────────────────────────────────────────────
+   STATE
+──────────────────────────────────────────────────────────────── */
+let allResults     = [];
+let filteredResult = [];
+let totalFromAPI   = 0;
+let currentPage    = 0;
+let backendOK      = false;
+let compareList    = [];       // array of car objects
+let activeSources  = new Set(['mercadolibre']);
+
+/* ────────────────────────────────────────────────────────────────
+   UTILS
+──────────────────────────────────────────────────────────────── */
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function fmtPrice(price, currency) {
+  if (price == null || isNaN(price)) return null;
+  if (currency === 'USD') return 'USD ' + Number(price).toLocaleString('en-US');
+  return '$' + Number(price).toLocaleString('es-CL');
+}
+
+function fmtPriceShort(price) {
+  if (price == null || isNaN(price)) return '–';
+  const n = Number(price);
+  if (n >= 1_000_000) return '$' + (n/1_000_000).toFixed(1).replace('.',',') + 'M';
+  if (n >= 1_000)     return '$' + (n/1_000).toFixed(0) + 'K';
+  return '$' + n;
+}
+
+function fmtKm(km) {
+  if (km == null) return null;
+  return Number(km).toLocaleString('es-CL') + ' km';
+}
+
+/* ── Drivetrain detection ── */
+function detectDrivetrain(text) {
+  const t = (text || '').toLowerCase();
+  if (/4wd|4x4|awd|4×4|doble tracci[oó]n|tracci[oó]n total|cuatro por cuatro|4 por 4/.test(t)) return '4x4';
+  if (/\bfwd\b|tracci[oó]n delantera/.test(t)) return 'FWD';
+  if (/\brwd\b|tracci[oó]n trasera/.test(t))   return 'RWD';
+  return null;
+}
+
+/* ── Price/km input formatting ── */
+function fmtInputNumber(val) {
+  const n = parseInt(String(val).replace(/\D/g, ''), 10);
+  if (isNaN(n)) return '';
+  return n.toLocaleString('es-CL');
+}
+function rawInputNumber(el) {
+  return parseInt(el.value.replace(/\D/g, ''), 10) || 0;
+}
+function initNumberInputs() {
+  ['priceFrom','priceTo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('blur', () => {
+      const raw = parseInt(el.value.replace(/\D/g,''), 10);
+      if (!isNaN(raw) && raw > 0) el.value = raw.toLocaleString('es-CL');
+    });
+    el.addEventListener('focus', () => {
+      const raw = parseInt(el.value.replace(/\D/g,''), 10);
+      if (!isNaN(raw) && raw > 0) el.value = raw;
+    });
+  });
+}
+
+function updateYearSlider() {
+  const from = document.getElementById('yearFrom');
+  const to   = document.getElementById('yearTo');
+  const fill = document.getElementById('year-fill');
+  const fromLabel = document.getElementById('year-from-label');
+  const toLabel   = document.getElementById('year-to-label');
+  if (!from || !to || !fill) return;
+  const min = parseInt(from.min);
+  const max = parseInt(from.max);
+  let f = parseInt(from.value);
+  let t = parseInt(to.value);
+  if (f > t) {
+    if (document.activeElement === from) { to.value = f; t = f; }
+    else { from.value = t; f = t; }
+  }
+  const pF = ((f - min) / (max - min)) * 100;
+  const pT = ((t - min) / (max - min)) * 100;
+  fill.style.left  = pF + '%';
+  fill.style.width = (pT - pF) + '%';
+  if (fromLabel) fromLabel.textContent = f;
+  if (toLabel)   toLabel.textContent   = t;
+}
+
+function initYearSlider() {
+  const from = document.getElementById('yearFrom');
+  const to   = document.getElementById('yearTo');
+  if (!from || !to) return;
+  from.addEventListener('input', updateYearSlider);
+  to.addEventListener('input',   updateYearSlider);
+  updateYearSlider();
+}
+
+/* ── Chart ── */
+let priceKmChart = null;
+let chartVisible = false;
+let currentChartTab = 'km';
+
+function toggleChart() {
+  chartVisible = !chartVisible;
+  const wrap = document.getElementById('chart-wrap');
+  const btn  = document.getElementById('btn-chart-toggle');
+  wrap.classList.toggle('hidden', !chartVisible);
+  if (btn) btn.classList.toggle('active', chartVisible);
+  if (chartVisible && filteredResult.length) renderChart(filteredResult);
+}
+
+function switchChartTab(tab) {
+  currentChartTab = tab;
+  document.getElementById('chart-tab-km').classList.toggle('active',   tab === 'km');
+  document.getElementById('chart-tab-year').classList.toggle('active', tab === 'year');
+  if (filteredResult.length) renderChart(filteredResult);
+}
+
+// Source → color mapping (mirrors SOURCE_INFO in backend)
+const SOURCE_COLORS = {
+  mercadolibre: '#F59E0B',  // amber
+  chileautos:   '#EF4444',  // red
+  kavak:        '#10B981',  // emerald
+  yapo:         '#F97316',  // orange
+  autocosmos:   '#4F46E5',  // indigo
+  autosusados:  '#7C3AED',  // violet
+  autocl:       '#06B6D4',  // cyan
+  clicar:       '#EC4899',  // pink
+  gildemeister: '#0369A1',  // sky blue
+  autojusto:    '#84CC16',  // lime
+  economicos:   '#92400E',  // brown
+  facebook:     '#2563EB',  // blue
+};
+
+function renderChart(data) {
+  const canvas = document.getElementById('price-km-chart');
+  if (!canvas) return;
+
+  if (currentChartTab === 'km') {
+    _renderPriceVsKm(canvas, data);
+  } else {
+    _renderPriceVsYear(canvas, data);
+  }
+}
+
+function _chartTooltipLabel(p) {
+  const price = '$' + Number(p.y).toLocaleString('es-CL');
+  const km    = p.km != null ? Number(p.km).toLocaleString('es-CL') + ' km' : '– km';
+  const yr    = p.year || '–';
+  return [`${p.label}`, `${price}  ·  ${km}  ·  ${yr}  ·  ${p.source}`];
+}
+
+function _renderPriceVsKm(canvas, data) {
+  const pts = data.filter(c => c.price && c.km != null && c.currency === 'CLP');
+  if (!pts.length) return;
+
+  // Group by source for legend
+  const sourceGroups = {};
+  pts.forEach(c => {
+    if (!sourceGroups[c.source]) sourceGroups[c.source] = [];
+    sourceGroups[c.source].push({
+      x: c.km, y: c.price,
+      label: c.title, year: c.year, km: c.km,
+      source: SOURCE_LABELS[c.source] || c.source,
+      url: c.url,
+    });
+  });
+
+  const datasets = Object.entries(sourceGroups).map(([src, points]) => ({
+    label: SOURCE_LABELS[src] || src,
+    data: points,
+    backgroundColor: (SOURCE_COLORS[src] || '#888') + 'CC',
+    borderColor:     (SOURCE_COLORS[src] || '#888'),
+    pointRadius: 5,
+    pointHoverRadius: 8,
+    borderWidth: 1,
+  }));
+
+  if (priceKmChart) priceKmChart.destroy();
+  priceKmChart = new Chart(canvas, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: Object.keys(sourceGroups).length > 1,
+          labels: { boxWidth: 10, font: { size: 10 } },
+        },
+        tooltip: {
+          callbacks: { label: ctx => _chartTooltipLabel(ctx.raw) },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Kilómetros', font: { size: 11 } },
+          ticks: { callback: v => Number(v).toLocaleString('es-CL') },
+        },
+        y: {
+          title: { display: true, text: 'Precio (CLP)', font: { size: 11 } },
+          ticks: { callback: v => '$' + (v / 1_000_000).toFixed(1) + 'M' },
+        },
+      },
+      onClick: (_, els) => {
+        if (els.length) {
+          const url = datasets[els[0].datasetIndex].data[els[0].index].url;
+          if (url) window.open(url, '_blank');
+        }
+      },
+    },
+  });
+}
+
+function _renderPriceVsYear(canvas, data) {
+  const pts = data.filter(c => c.price && c.year && c.currency === 'CLP');
+  if (!pts.length) return;
+
+  const maxKm = Math.max(...pts.map(c => c.km || 0)) || 1;
+
+  // Group by source for legend
+  const sourceGroups = {};
+  pts.forEach(c => {
+    if (!sourceGroups[c.source]) sourceGroups[c.source] = [];
+    const kmRatio = Math.min((c.km || 0) / Math.max(maxKm, 1), 1);
+    // Color: newer km = greener, higher km = more orange/red
+    sourceGroups[c.source].push({
+      x: c.year, y: c.price,
+      label: c.title, year: c.year, km: c.km,
+      source: SOURCE_LABELS[c.source] || c.source,
+      url: c.url,
+      _kmRatio: kmRatio,
+    });
+  });
+
+  const datasets = Object.entries(sourceGroups).map(([src, points]) => ({
+    label: SOURCE_LABELS[src] || src,
+    data: points,
+    backgroundColor: points.map(p => {
+      // Km gradient: 0km → accent color, maxKm → muted orange
+      const r = Math.round(59  + (230 - 59)  * p._kmRatio);
+      const g = Math.round(130 + (100 - 130) * p._kmRatio);
+      const b = Math.round(246 + (20  - 246) * p._kmRatio);
+      return `rgba(${r},${g},${b},0.75)`;
+    }),
+    pointRadius: 5,
+    pointHoverRadius: 8,
+  }));
+
+  if (priceKmChart) priceKmChart.destroy();
+  priceKmChart = new Chart(canvas, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: Object.keys(sourceGroups).length > 1,
+          labels: { boxWidth: 10, font: { size: 10 } },
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const p = ctx.raw;
+              const price = '$' + Number(p.y).toLocaleString('es-CL');
+              const km    = p.km != null ? Number(p.km).toLocaleString('es-CL') + ' km' : '–';
+              return [`${p.label}`, `${price}  ·  ${km}  ·  ${p.year}  ·  ${p.source}`];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Año', font: { size: 11 } },
+          ticks: { stepSize: 1, callback: v => v },
+        },
+        y: {
+          title: { display: true, text: 'Precio (CLP)', font: { size: 11 } },
+          ticks: { callback: v => '$' + (v / 1_000_000).toFixed(1) + 'M' },
+        },
+      },
+      onClick: (_, els) => {
+        if (els.length) {
+          const url = datasets[els[0].datasetIndex].data[els[0].index].url;
+          if (url) window.open(url, '_blank');
+        }
+      },
+    },
+  });
+}
+
+/* ── Price History ── */
+let historyChart = null;
+let historyVisible = false;
+
+function toggleHistory() {
+  historyVisible = !historyVisible;
+  const wrap = document.getElementById('history-wrap');
+  const btn  = document.getElementById('btn-history-toggle');
+  wrap.classList.toggle('hidden', !historyVisible);
+  if (btn) btn.classList.toggle('active', historyVisible);
+}
+
+async function loadPriceHistory(f) {
+  const brand = f.brand || '';
+  const model = f.model || '';
+  if (!brand && !model) return;   // need at least brand
+
+  const label = document.getElementById('history-label');
+  const empty = document.getElementById('history-empty');
+  const loading = document.getElementById('history-loading');
+  const statsRow = document.getElementById('market-stats-row');
+  if (label) label.textContent = [brand, model].filter(Boolean).join(' ');
+  if (empty) empty.classList.add('hidden');
+  if (loading) loading.classList.remove('hidden');
+  if (statsRow) statsRow.innerHTML = '';
+
+  try {
+    const params = new URLSearchParams({ brand, model });
+    if (f.yearFrom) params.set('year_from', f.yearFrom);
+    if (f.yearTo)   params.set('year_to',   f.yearTo);
+
+    const [histRes, statsRes] = await Promise.all([
+      fetch(`${BACKEND_URL}/api/price-history?${params}`),
+      fetch(`${BACKEND_URL}/api/market-stats?${params}`),
+    ]);
+
+    if (loading) loading.classList.add('hidden');
+
+    const hist  = histRes.ok  ? await histRes.json()  : null;
+    const stats = statsRes.ok ? await statsRes.json() : null;
+
+    // Render market stats chips
+    if (statsRow && stats && stats.stats && stats.stats.count) {
+      const s = stats.stats;
+      const fmt = v => '$' + Math.round(v).toLocaleString('es-CL');
+      const chips = [
+        ['Registros (30d)', s.count],
+        ['Mediana',  fmt(s.median)],
+        ['Promedio', fmt(s.avg)],
+        ['Mínimo',   fmt(s.min)],
+        ['Máximo',   fmt(s.max)],
+        ['P25',      fmt(s.p25)],
+        ['P75',      fmt(s.p75)],
+      ];
+      statsRow.innerHTML = chips.map(([k, v]) => `
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.35rem .7rem;font-size:.75rem;min-width:5.5rem">
+          <div style="color:var(--muted);font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em">${k}</div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--text)">${v}</div>
+        </div>`).join('');
+    }
+
+    // Render history line chart
+    const data = hist && hist.data ? hist.data : [];
+    if (!data.length) {
+      if (empty) empty.classList.remove('hidden');
+      if (historyChart) { historyChart.destroy(); historyChart = null; }
+      return;
+    }
+
+    const canvas = document.getElementById('history-chart');
+    if (!canvas) return;
+    if (historyChart) { historyChart.destroy(); historyChart = null; }
+
+    const labels    = data.map(d => d.scraped_date);
+    const avgPrices = data.map(d => d.avg_price);
+    const minPrices = data.map(d => d.min_price);
+    const maxPrices = data.map(d => d.max_price);
+
+    historyChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Precio promedio',
+            data: avgPrices,
+            borderColor: 'var(--primary)',
+            backgroundColor: 'rgba(29,82,204,.08)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointRadius: data.length < 30 ? 4 : 2,
+          },
+          {
+            label: 'Mínimo',
+            data: minPrices,
+            borderColor: 'var(--secondary)',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0,
+          },
+          {
+            label: 'Máximo',
+            data: maxPrices,
+            borderColor: 'var(--danger)',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { labels: { boxWidth: 10, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString('es-CL'),
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { maxRotation: 45, font: { size: 10 }, maxTicksLimit: 15 },
+          },
+          y: {
+            ticks: { callback: v => '$' + (v / 1_000_000).toFixed(1) + 'M', font: { size: 10 } },
+          },
+        },
+      },
+    });
+
+  } catch (err) {
+    if (loading) loading.classList.add('hidden');
+    console.warn('Price history error:', err);
+  }
+}
+
+/* MercadoLibre attribute helper */
+function mlAttr(item, id) {
+  if (!item.attributes) return null;
+  const a = item.attributes.find(a => a.id === id);
+  return a ? a.value_name : null;
+}
+function mlAttrNum(item, id) {
+  const v = mlAttr(item, id);
+  if (!v) return null;
+  const n = parseFloat(String(v).replace(/[^\d.]/g,''));
+  return isNaN(n) ? null : n;
+}
+
+/* Normalize a car object to a common shape */
+function normML(item) {
+  const year  = mlAttrNum(item, 'VEHICLE_YEAR');
+  const km    = mlAttrNum(item, 'KILOMETERS');
+  const fuel  = mlAttr(item, 'FUEL_TYPE');
+  const trans = mlAttr(item, 'TRANSMISSION');
+  const brand = mlAttr(item, 'BRAND');
+  const model = mlAttr(item, 'MODEL');
+  const color = mlAttr(item, 'COLOR');
+  const doors = mlAttrNum(item, 'DOORS_QUANTITY');
+  const thumb = item.thumbnail ? item.thumbnail.replace('http://','https://') : null;
+  return {
+    id: 'ml_' + item.id,
+    source: 'mercadolibre',
+    title: item.title || '',
+    brand, model, year, km,
+    price: item.price,
+    currency: item.currency_id || 'CLP',
+    condition: item.condition,
+    transmission: trans,
+    fuel_type: fuel,
+    color, doors,
+    drivetrain: detectDrivetrain(item.title),
+    image_url: thumb,
+    url: item.permalink || '',
+    location: item.address?.city_name || null,
+  };
+}
+
+/* ────────────────────────────────────────────────────────────────
+   BACKEND CHECK
+──────────────────────────────────────────────────────────────── */
+async function checkBackend() {
+  // If the page itself was served from localhost:8000, we're already connected.
+  if (IS_BACKEND_ORIGIN) {
+    backendOK = true;
+    updateBackendUI(true);
+    return;
+  }
+  try {
+    const r = await fetch(BACKEND_URL + '/health', { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      backendOK = true;
+      updateBackendUI(true);
+    } else throw new Error();
+  } catch {
+    backendOK = false;
+    updateBackendUI(false);
+  }
+}
+
+function updateBackendUI(ok) {
+  const pill  = document.getElementById('backend-pill');
+  const label = document.getElementById('backend-label');
+  const btns  = document.querySelectorAll('.source-toggle[data-src]');
+
+  if (ok) {
+    pill.classList.add('connected');
+    label.textContent = 'Todos los portales';
+    // Activate all source toggles
+    btns.forEach(b => {
+      b.removeAttribute('disabled');
+      b.classList.add('active');
+      b.style.opacity = '';
+      activeSources.add(b.dataset.src);
+    });
+  } else {
+    pill.classList.remove('connected');
+    label.textContent = 'Solo MercadoLibre';
+    // Visually dim non-ML buttons (but keep clickable so toast fires)
+    btns.forEach(b => {
+      if (b.dataset.src !== 'mercadolibre') {
+        b.classList.remove('active');
+        b.style.opacity = '0.45';
+        activeSources.delete(b.dataset.src);
+      }
+    });
+    activeSources.add('mercadolibre');
+    document.querySelector('.source-toggle[data-src="mercadolibre"]').classList.add('active');
+  }
+}
+
+function toggleBackendPanel() {}   // pill just shows status, click does nothing critical
+
+function toggleAllSources() {
+  if (!backendOK) { showToast('Inicia el backend (start.bat) para usar todos los portales'); return; }
+  const btns = document.querySelectorAll('.source-toggle[data-src]');
+  const allActive = [...btns].every(b => b.classList.contains('active'));
+  const btn = document.getElementById('btn-toggle-all');
+  if (allActive) {
+    // Deselect all except the first one (keep at least one)
+    btns.forEach((b, i) => { if (i > 0) { b.classList.remove('active'); activeSources.delete(b.dataset.src); } });
+    btn.textContent = 'Todos';
+  } else {
+    btns.forEach(b => { b.classList.add('active'); activeSources.add(b.dataset.src); });
+    btn.textContent = 'Ninguno';
+  }
+}
+
+function toggleSource(btn) {
+  const src = btn.dataset.src;
+  const needsBackend = src !== 'mercadolibre';
+
+  if (needsBackend && !backendOK) {
+    showToast('Inicia el backend (start.bat) para usar este portal');
+    return;
+  }
+
+  if (btn.classList.contains('active')) {
+    if (activeSources.size <= 1) return; // keep at least one
+    btn.classList.remove('active');
+    activeSources.delete(src);
+  } else {
+    btn.classList.add('active');
+    activeSources.add(src);
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:.55rem 1.1rem;border-radius:.5rem;font-size:.8rem;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);pointer-events:none;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   FILTERS
+──────────────────────────────────────────────────────────────── */
+
+const BRAND_MODELS = {
+  'Alfa Romeo': ['Giulia','Giulietta','Stelvio','147','156','159'],
+  'Audi': ['A1','A3','A4','A5','A6','A7','A8','Q2','Q3','Q5','Q7','Q8','TT','e-tron'],
+  'BMW': ['116i','118i','120i','218i','320i','330i','420i','520i','530i','X1','X2','X3','X4','X5','X6','Z4','M3','M5'],
+  'BYD': ['Atto 3','Han','Tang','Dolphin','Seal','Yuan Plus'],
+  'Changan': ['Alsvin','CS35','CS55','CS75','Uni-K','Uni-T','Uni-V'],
+  'Chery': ['Arrizo 5','Arrizo 6','Tiggo 2','Tiggo 4','Tiggo 7','Tiggo 8'],
+  'Chevrolet': ['Aveo','Captiva','Colorado','Cruze','Equinox','Montana','Sail','Spin','Tracker','Trax','Onix'],
+  'Chrysler': ['300','Pacifica','Voyager'],
+  'Citroën': ['Berlingo','C3','C4','C5','C-Elysée','Jumpy','Spacetourer'],
+  'DFSK': ['Glory 330','Glory 360','Glory 500','Glory 580'],
+  'Dodge': ['Durango','Journey','Neon','Ram 1500'],
+  'Fiat': ['Argo','Cronos','Ducato','Mobi','Pulse','Strada','Tipo'],
+  'Ford': ['Bronco','Edge','Escape','Expedition','Explorer','F-150','Fiesta','Focus','Fusion','Kuga','Maverick','Mustang','Ranger','Territory'],
+  'Geely': ['Azkarra','CK','Coolray','Emgrand','MK','Tugella'],
+  'Great Wall': ['Haval H2','Haval H6','Poer','Voleex'],
+  'Haval': ['H2','H6','H9','Jolion'],
+  'Honda': ['City','Civic','CR-V','Fit','HR-V','Jazz','Pilot','Ridgeline','WR-V'],
+  'Hyundai': ['Accent','Creta','Elantra','i10','i20','i30','i35','Ioniq','Ioniq 5','Ioniq 6','Kona','Santa Fe','Sonata','Starex','Tucson','Venue'],
+  'Infiniti': ['Q50','Q60','QX50','QX60','QX80'],
+  'JAC': ['E10X','J4','J7','S2','S3','T8'],
+  'Jeep': ['Cherokee','Compass','Grand Cherokee','Renegade','Wrangler'],
+  'Kia': ['Carnival','Ceed','Cerato','EV6','Morning','Niro','Picanto','Rio','Seltos','Sorento','Soul','Sportage','Stinger'],
+  'Land Rover': ['Defender','Discovery','Discovery Sport','Freelander','Range Rover','Range Rover Evoque','Range Rover Sport','Range Rover Velar'],
+  'Lexus': ['CT','ES','IS','LX','NX','RX','UX'],
+  'Mazda': ['2','3','6','BT-50','CX-3','CX-30','CX-5','CX-8','CX-9','MX-5'],
+  'Mercedes-Benz': ['A 180','A 200','B 200','C 180','C 200','C 250','CLA','CLS','E 200','E 250','E 300','GLA','GLB','GLC','GLE','GLS','S 400','Sprinter','Vito'],
+  'MG': ['3','5','6','ZS','HS','RX5','Marvel R'],
+  'Mitsubishi': ['ASX','Eclipse Cross','Galant','L200','Lancer','Montero','Outlander','Pajero'],
+  'Nissan': ['Altima','Frontier','Kicks','Leaf','March','Murano','Navara','NP300','Pathfinder','Qashqai','Sentra','Tiida','Versa','X-Trail'],
+  'Opel': ['Astra','Corsa','Crossland','Grandland','Insignia','Mokka','Zafira'],
+  'Peugeot': ['2008','3008','4008','5008','208','301','308','408','508','Boxer','Expert','Partner'],
+  'Renault': ['Captur','Clio','Duster','Fluence','Kangoo','Koleos','Kwid','Logan','Master','Megane','Oroch','Sandero','Stepway','Symbol','Triber'],
+  'Seat': ['Arona','Ateca','Ibiza','Leon','Tarraco'],
+  'Skoda': ['Fabia','Karoq','Kodiaq','Octavia','Superb'],
+  'Ssangyong': ['Actyon','Korando','Musso','Rexton','Tivoli'],
+  'Subaru': ['BRZ','Forester','Impreza','Legacy','Levorg','Outback','WRX','XV'],
+  'Suzuki': ['Baleno','Celerio','Dzire','Ertiga','Grand Vitara','Ignis','Jimny','S-Cross','Swift','Vitara'],
+  'Toyota': ['4Runner','Avalon','C-HR','Camry','Corolla','Corolla Cross','FJ Cruiser','Fortuner','Hilux','Land Cruiser','Prius','RAV4','Rush','Sequoia','Yaris'],
+  'Volkswagen': ['Amarok','Arteon','Caravelle','Crafter','Golf','ID.4','Jetta','Passat','Polo','T-Cross','T-Roc','Taos','Teramont','Tiguan','Touareg','Touran','Transporter'],
+  'Volvo': ['C40','S60','S90','V40','V60','V90','XC40','XC60','XC90'],
+};
+
+function onBrandChange() {
+  const brand = document.getElementById('brand').value;
+  const modelSel = document.getElementById('model');
+  modelSel.innerHTML = '';
+  if (!brand) {
+    modelSel.disabled = true;
+    modelSel.innerHTML = '<option value="">Elige una marca primero</option>';
+    return;
+  }
+  modelSel.disabled = false;
+  modelSel.innerHTML = '<option value="">Todos los modelos</option>';
+  const models = BRAND_MODELS[brand] || [];
+  models.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    modelSel.appendChild(opt);
+  });
+}
+
+document.getElementById('brand').addEventListener('change', onBrandChange);
+
+function getFilters() {
+  const rawNum = id => parseInt(document.getElementById(id).value.replace(/\D/g,''), 10) || null;
+
+  // Year: range slider — treat boundary values as "no filter"
+  const yFrom = parseInt(document.getElementById('yearFrom').value);
+  const yTo   = parseInt(document.getElementById('yearTo').value);
+
+  const kmFrom = parseInt(document.getElementById('kmFrom').value) || null;
+  const maxKm  = parseInt(document.getElementById('kmTo').value)   || null;
+
+  return {
+    brand:        document.getElementById('brand').value.trim(),
+    model:        document.getElementById('model').value.trim(),
+    keywords:     document.getElementById('keywords').value.trim(),
+    condition:    document.getElementById('condition').value,
+    yearFrom:     yFrom > 1980 ? yFrom : null,
+    yearTo:       yTo   < 2026 ? yTo   : null,
+    priceFrom:    rawNum('priceFrom'),
+    priceTo:      rawNum('priceTo'),
+    kmFrom,
+    maxKm,
+    fuel:         document.getElementById('fuel').value,
+    transmission: document.getElementById('transmission').value,
+    region:       document.getElementById('region').value,
+    drivetrain:   document.getElementById('drivetrain').value,
+  };
+}
+
+function setKmRange(from, to) {
+  document.getElementById('kmFrom').value = from || '';
+  document.getElementById('kmTo').value   = to   || '';
+  doSearch();
+}
+
+function clearFilters() {
+  ['brand','model','condition','priceFrom','priceTo','fuel','transmission','region','drivetrain','kmFrom','kmTo']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('yearFrom').value = 1980;
+  document.getElementById('yearTo').value   = 2026;
+  updateYearSlider();
+  updatePortalLinks();
+}
+
+/* ────────────────────────────────────────────────────────────────
+   PORTAL LINKS
+──────────────────────────────────────────────────────────────── */
+function updatePortalLinks() {
+  const brand = document.getElementById('brand').value.trim();
+  const model = document.getElementById('model').value.trim();
+  const parts = [brand, model].filter(Boolean);
+  const q     = parts.join(' ');
+  const qEnc  = encodeURIComponent(q);
+  const bSlug = brand.toLowerCase().replace(/\s+/g, '-');
+  const mSlug = model.toLowerCase().replace(/\s+/g, '-');
+  const qHyph = parts.join('-').toLowerCase().replace(/\s+/g, '-') || 'autos';
+
+  const set = (id, href) => { const el = document.getElementById(id); if (el) el.href = href; };
+
+  if (q) {
+    set('lnk-ml',           `https://autos.mercadolibre.cl/${qHyph}/`);
+    set('lnk-chileautos',   brand ? `https://www.chileautos.cl/vehiculos/${bSlug}/${mSlug ? mSlug + '/' : ''}` : `https://www.chileautos.cl/vehiculos/?q=${qEnc}`);
+    set('lnk-kavak',        brand ? `https://www.kavak.com/cl/usados/${bSlug}` : `https://www.kavak.com/cl/usados?q=${qEnc}`);
+    set('lnk-yapo',         `https://www.yapo.cl/autos-usados/?q=f_make.${encodeURIComponent(brand || q)}`);
+    set('lnk-autosusados',  `https://autosusados.cl/autos/${bSlug}${mSlug ? '/' + mSlug : ''}`);
+    set('lnk-autocosmos',   `https://www.autocosmos.cl/auto/usado/${bSlug}${mSlug ? '/' + mSlug : ''}`);
+    set('lnk-clicar',       brand ? `https://www.clicar.cl/marcas/${bSlug}/usado/` : 'https://www.clicar.cl/autos-usados/');
+    set('lnk-economicos',   `https://www.economicos.cl/autos-camionetas/?q=${qEnc}`);
+    set('lnk-autojusto',    'https://www.autojusto.cl/venta-autos-usados/');
+    set('lnk-gildemeister', brand ? `https://gildemeisterusados.cl/?s=${qEnc}` : 'https://gildemeisterusados.cl/');
+    set('lnk-facebook',     `https://www.facebook.com/marketplace/chile/vehicles?query=${qEnc}&exact=false`);
+    set('lnk-autofact',     `https://www.autofact.cl/guia-precios?q=${qEnc}`);
+  } else {
+    set('lnk-ml',           'https://autos.mercadolibre.cl/');
+    set('lnk-chileautos',   'https://www.chileautos.cl/vehiculos/');
+    set('lnk-kavak',        'https://www.kavak.com/cl/usados');
+    set('lnk-yapo',         'https://www.yapo.cl/autos-usados/');
+    set('lnk-autosusados',  'https://autosusados.cl/autos/');
+    set('lnk-autocosmos',   'https://www.autocosmos.cl/auto/usado');
+    set('lnk-clicar',       'https://www.clicar.cl/autos-usados/');
+    set('lnk-economicos',   'https://www.economicos.cl/autos-camionetas/');
+    set('lnk-autojusto',    'https://www.autojusto.cl/venta-autos-usados/');
+    set('lnk-gildemeister', 'https://gildemeisterusados.cl/');
+    set('lnk-facebook',     'https://www.facebook.com/marketplace/chile/vehicles');
+    set('lnk-autofact',     'https://www.autofact.cl/guia-precios');
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   SEARCH
+──────────────────────────────────────────────────────────────── */
+async function search(page = 0) {
+  currentPage = page;
+  const f = getFilters();
+  updatePortalLinks();
+
+  const sourceNames = backendOK
+    ? [...activeSources].map(id => {
+        const btn = document.querySelector(`.source-toggle[data-src="${id}"]`);
+        const name = btn ? btn.textContent.trim() : id;
+        return [id, name];
+      })
+    : [];
+  showLoading(sourceNames);
+
+  try {
+    let cars = [];
+    let sourceStatuses = null;
+
+    if (backendOK) {
+      const result = await searchBackend(f, page);
+      cars = result.results;
+      totalFromAPI = result.total;
+      sourceStatuses = result.sources;
+    } else {
+      const result = await searchML(f, page);
+      cars = result;
+    }
+
+    allResults    = cars;
+    filteredResult = applyClientFilters(cars, f);
+
+    // Save to history if there are real filters
+    const params = getFiltersAsParams();
+    if (params.brand || params.model || params.q) addToHistory(params);
+
+    // Apply saved sort preference
+    const savedSort = localStorage.getItem(LS_SORT);
+    if (savedSort) sortBy(savedSort, null);
+
+    renderSourceStatus(sourceStatuses);
+    renderResults();
+    renderPagination();
+    if ((f.brand || f.model) && page === 0) loadPriceHistory(f);
+    const ts = document.getElementById('search-timestamp');
+    if (ts) {
+      const now = new Date();
+      ts.textContent = `Datos de ${now.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'})}`;
+    }
+  } catch (err) {
+    showError(err.message || 'Error al conectar con la API.');
+  }
+}
+
+async function searchML(f, page) {
+  const parts = [f.brand, f.model, f.keywords].filter(Boolean);
+  const q = parts.join(' ') || 'auto';
+  const params = new URLSearchParams({
+    category: ML_CATEGORY, q, limit: PAGE_SIZE, offset: page * PAGE_SIZE,
+  });
+  if (f.condition) params.set('condition', f.condition);
+  if (f.priceFrom) params.set('price_from', f.priceFrom);
+  if (f.priceTo)   params.set('price_to',   f.priceTo);
+
+  const res = await fetch(`${ML_API}?${params}`);
+  if (!res.ok) {
+    if (res.status === 429) throw new Error('Límite de solicitudes alcanzado. Espera unos segundos.');
+    throw new Error(`Error API MercadoLibre: ${res.status}`);
+  }
+  const data = await res.json();
+  totalFromAPI = data.paging?.total || 0;
+  return (data.results || []).map(normML);
+}
+
+function buildSearchParams(f, page) {
+  const params = new URLSearchParams({ limit: PAGE_SIZE, offset: page * PAGE_SIZE });
+  if (f.brand)        params.set('brand',        f.brand);
+  if (f.model)        params.set('model',        f.model);
+  if (f.keywords)     params.set('query',        f.keywords);
+  if (f.condition)    params.set('condition',    f.condition);
+  if (f.yearFrom)     params.set('year_from',    f.yearFrom);
+  if (f.yearTo)       params.set('year_to',      f.yearTo);
+  if (f.priceFrom)    params.set('price_from',   f.priceFrom);
+  if (f.priceTo)      params.set('price_to',     f.priceTo);
+  if (f.maxKm)        params.set('km_max',       f.maxKm);
+  if (f.fuel)         params.set('fuel_type',    f.fuel);
+  if (f.transmission) params.set('transmission', f.transmission);
+  if (f.region)       params.set('region',       f.region);
+  params.set('sources', [...activeSources].join(','));
+  return params;
+}
+
+async function searchBackend(f, page) {
+  const params = buildSearchParams(f, page);
+  const res = await fetch(`${BACKEND_URL}/api/search/stream?${params}`);
+  if (!res.ok) throw new Error(`Error backend: ${res.status}`);
+
+  const reader  = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let boundary;
+    while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+      const line = buffer.slice(0, boundary).trim();
+      buffer = buffer.slice(boundary + 2);
+      if (!line.startsWith('data: ')) continue;
+      const data = JSON.parse(line.slice(6));
+      if (data.event === 'progress') {
+        updateSearchProgress(data);
+      } else if (data.event === 'done') {
+        return data;
+      } else if (data.event === 'error') {
+        throw new Error(data.message || 'Error en el stream');
+      }
+    }
+  }
+  throw new Error('Stream terminó sin datos');
+}
+
+// Normalize brand/model: strip hyphens, dots, spaces → lowercase
+// "X-Trail" → "xtrail", "CX-5" → "cx5", "Grand i10" → "grandi10"
+function normName(s) { return s.replace(/[\s\-\.]+/g, '').toLowerCase(); }
+
+function applyClientFilters(cars, f) {
+  // Brand/model filtering is handled by the backend — don't re-filter here
+  // since scrapers may return imperfect brand/condition metadata.
+  // Only apply filters that complement backend or refine locally.
+  return cars.filter(c => {
+    if (f.yearFrom  && c.year  && c.year  < f.yearFrom)  return false;
+    if (f.yearTo    && c.year  && c.year  > f.yearTo)    return false;
+    if (f.priceFrom && c.price && c.price < f.priceFrom) return false;
+    if (f.priceTo   && c.price && c.price > f.priceTo)   return false;
+    if (f.kmFrom    && c.km    && c.km    < f.kmFrom)    return false;
+    if (f.maxKm     && c.km    && c.km    > f.maxKm)     return false;
+    if (f.fuel         && c.fuel_type    && !normName(c.fuel_type).includes(normName(f.fuel)))                         return false;
+    if (f.transmission && c.transmission && !normName(c.transmission).includes(normName(f.transmission)))              return false;
+    if (f.region       && c.location     && !c.location.toLowerCase().includes(f.region.toLowerCase()))                return false;
+    if (f.drivetrain   && c.drivetrain   && !c.drivetrain.toLowerCase().includes(f.drivetrain.toLowerCase()))          return false;
+    if (_soloGangas && c.price_score !== 'bajo') return false;
+    return true;
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────
+   SORT
+──────────────────────────────────────────────────────────────── */
+function sortBy(key, btn) {
+  document.querySelectorAll('.btn-sort').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    // Called programmatically — find and highlight the matching button
+    const match = document.querySelector(`.btn-sort[onclick*="'${key}'"]`);
+    if (match) match.classList.add('active');
+  }
+  localStorage.setItem(LS_SORT, key);
+
+  const arr = filteredResult;
+  switch (key) {
+    case 'deal_score': arr.sort((a,b) => (b.deal_score ?? 0) - (a.deal_score ?? 0)); break;
+    case 'price_asc':  arr.sort((a,b) => (a.price ?? Infinity) - (b.price ?? Infinity)); break;
+    case 'price_desc': arr.sort((a,b) => (b.price ?? -1)       - (a.price ?? -1));       break;
+    case 'year_desc':  arr.sort((a,b) => (b.year  ?? 0)        - (a.year  ?? 0));        break;
+    case 'year_asc':   arr.sort((a,b) => (a.year  ?? Infinity) - (b.year  ?? Infinity)); break;
+    case 'km_asc':     arr.sort((a,b) => (a.km    ?? Infinity) - (b.km    ?? Infinity)); break;
+    case 'km_desc':    arr.sort((a,b) => (b.km    ?? -1)       - (a.km    ?? -1));       break;
+  }
+  renderCards();
+}
+
+let _soloGangas = false;
+function toggleSoloGangas(on) {
+  _soloGangas = on;
+  filteredResult = applyClientFilters(allResults, getFilters());
+  renderResults();
+}
+
+/* ────────────────────────────────────────────────────────────────
+   RENDER
+──────────────────────────────────────────────────────────────── */
+function showLoading(sourceNames) {
+  document.getElementById('stats-bar').classList.add('hidden');
+  document.getElementById('results-controls').classList.add('hidden');
+  document.getElementById('pagination').classList.add('hidden');
+  document.getElementById('source-status-row').classList.add('hidden');
+
+  const chips = (sourceNames || []).map(([id, name]) =>
+    `<span class="sp-chip running" id="sp-chip-${id}" data-source="${id}">⏳ ${name}</span>`
+  ).join('');
+
+  const skeletonCard = `
+    <div class="skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line wide"></div>
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line mid"></div>
+        <div class="skeleton-line" style="width:45%"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('content-area').innerHTML = `
+    <div class="search-progress-wrap" id="search-progress-wrap">
+      <div class="search-progress-header">
+        <span id="sp-label">Buscando en todas las fuentes…</span>
+        <span id="sp-pct">0%</span>
+      </div>
+      <div class="search-progress-track">
+        <div class="search-progress-fill" id="sp-fill"></div>
+      </div>
+      <div class="search-progress-chips" id="sp-chips">${chips}</div>
+    </div>
+    <div class="cards-grid">${skeletonCard.repeat(8)}</div>`;
+}
+
+function updateSearchProgress(data) {
+  const fill  = document.getElementById('sp-fill');
+  const pct   = document.getElementById('sp-pct');
+  const label = document.getElementById('sp-label');
+  if (fill)  fill.style.width  = data.progress + '%';
+  if (pct)   pct.textContent   = data.progress + '%';
+  if (label) label.textContent = `${data.completed} de ${data.total_sources} fuentes completadas`;
+
+  const chip = document.getElementById(`sp-chip-${data.source}`);
+  if (chip) {
+    chip.classList.remove('running');
+    chip.classList.add(data.error ? 'done-err' : 'done-ok');
+    chip.textContent = (data.error ? '✗' : '✓') + ' ' + data.name + ': ' + data.count;
+  }
+}
+
+function showError(msg) {
+  document.getElementById('stats-bar').classList.add('hidden');
+  document.getElementById('results-controls').classList.add('hidden');
+  document.getElementById('content-area').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">😕</div>
+      <h3>No pudimos conectarnos</h3>
+      <p>${esc(msg)}</p>
+    </div>`;
+}
+
+function renderSourceStatus(statuses) {
+  const row = document.getElementById('source-status-row');
+  if (!statuses) { row.classList.add('hidden'); return; }
+  row.classList.remove('hidden');
+  row.innerHTML = Object.entries(statuses).map(([id, s]) => `
+    <div class="source-status-chip ${s.ok ? 'ok' : 'error'}">
+      ${s.ok ? '✓' : '✗'} ${esc(s.name)}: ${s.ok ? s.count + ' resultados' : 'Error'}
+    </div>`).join('');
+}
+
+function renderResults() {
+  const prices = filteredResult.filter(c => c.currency === 'CLP' && c.price).map(c => c.price);
+
+  if (prices.length > 0) {
+    const avg = prices.reduce((a,b) => a+b, 0) / prices.length;
+    document.getElementById('st-total').textContent = filteredResult.length.toLocaleString('es-CL');
+    document.getElementById('st-avg').textContent   = fmtPriceShort(avg);
+    document.getElementById('st-min').textContent   = fmtPriceShort(Math.min(...prices));
+    document.getElementById('st-max').textContent   = fmtPriceShort(Math.max(...prices));
+    document.getElementById('stats-bar').classList.remove('hidden');
+  } else {
+    document.getElementById('stats-bar').classList.add('hidden');
+  }
+
+  const meta = document.getElementById('results-meta');
+  const shown = filteredResult.length;
+  const total = Math.max(shown, totalFromAPI);
+  meta.innerHTML = shown >= total
+    ? `<strong>${shown.toLocaleString('es-CL')}</strong> resultados`
+    : `Mostrando <strong>${shown.toLocaleString('es-CL')}</strong> de <strong>${total.toLocaleString('es-CL')}</strong> resultados`;
+
+  if (filteredResult.length > 0) {
+    document.getElementById('results-controls').classList.remove('hidden');
+  }
+
+  if (chartVisible) renderChart(filteredResult);
+  renderCards();
+}
+
+function renderCards() {
+  const area = document.getElementById('content-area');
+  if (!filteredResult.length) {
+    area.innerHTML = `
+      <div class="state-box">
+        <div class="state-icon">🔎</div>
+        <h3>Sin resultados</h3>
+        <p>Amplía la búsqueda: menos filtros, más rango de precio o prueba otra marca.</p>
+      </div>`;
+    return;
+  }
+  area.innerHTML = `<div class="cards-grid">${filteredResult.map(renderCard).join('')}</div>`;
+}
+
+function renderCard(car) {
+  const isCompared  = compareList.some(c => c.id === car.id);
+  const priceStr    = fmtPrice(car.price, car.currency);
+  const condLabel   = car.condition === 'new' ? 'Nuevo' : 'Usado';
+  const condClass   = car.condition === 'new' ? 'new' : 'used';
+  const isUSD       = car.currency === 'USD';
+
+  const imgHTML = car.image_url
+    ? `<img class="card-img" src="${esc(car.image_url)}" alt="${esc(car.title)}" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+       <div class="card-img-placeholder" style="display:none">🚗</div>`
+    : `<div class="card-img-placeholder">🚗</div>`;
+
+  // Brand + model subtitle (show if we have at least one)
+  const brandModel = [car.brand, car.model].filter(Boolean).join(' ');
+  const subtitle = (brandModel && brandModel.toLowerCase() !== car.title.toLowerCase())
+    ? `<div class="card-subtitle">${esc(brandModel)}</div>` : '';
+
+  const attrs = [];
+  if (car.year)         attrs.push(`<span class="attr-pill">📅 ${esc(car.year)}</span>`);
+  if (car.km != null)   attrs.push(`<span class="attr-pill">🛣️ ${esc(fmtKm(car.km))}</span>`);
+  if (car.fuel_type)    attrs.push(`<span class="attr-pill">⛽ ${esc(car.fuel_type)}</span>`);
+  if (car.transmission) attrs.push(`<span class="attr-pill">⚙️ ${esc(car.transmission)}</span>`);
+  if (car.drivetrain)   attrs.push(`<span class="attr-pill">🔧 ${esc(car.drivetrain)}</span>`);
+  if (car.color)        attrs.push(`<span class="attr-pill">🎨 ${esc(car.color)}</span>`);
+  if (car.location)     attrs.push(`<span class="attr-pill">📍 ${esc(car.location)}</span>`);
+
+  const carJson = esc(JSON.stringify(car));
+
+  return `
+    <article class="car-card${isCompared ? ' in-compare' : ''}" id="card-${esc(car.id)}">
+      <div class="card-img-wrap">
+        ${imgHTML}
+        <div class="card-badges-top">
+          <span class="badge badge-condition ${condClass}">${condLabel}</span>
+          <span class="badge badge-source" data-src="${esc(car.source)}">${esc(SOURCE_LABELS[car.source] || car.source)}</span>
+        </div>
+        <button class="btn-fav${isFavorite(car.id) ? ' fav-on' : ''}"
+                onclick='event.stopPropagation();toggleFavorite(${carJson})'
+                title="${isFavorite(car.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}">
+          ${isFavorite(car.id) ? '❤️' : '🤍'}
+        </button>
+        <div class="card-compare-btn">
+          <button class="btn-compare${isCompared ? ' selected' : ''}"
+                  onclick='handleCompareClick(${carJson})'
+                  title="${isCompared ? 'Quitar de comparación' : 'Agregar a comparación'}">
+            ${isCompared ? '✓ En comparación' : '+ Comparar'}
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${esc(car.title)}</div>
+        ${subtitle}
+        <div class="card-price-row">
+          ${priceStr
+            ? `<div class="card-price${isUSD ? ' usd' : ''}">${esc(priceStr)}</div>
+               ${isUSD ? '<span class="card-currency-note">USD · consultar CLP</span>' : ''}
+               ${car.price_score ? `<span class="price-score-badge ${esc(car.price_score)}">${
+                 car.price_score === 'bajo'  ? `▼ ${Math.abs(car.price_diff_pct)}% bajo mercado` :
+                 car.price_score === 'alto'  ? `▲ ${Math.abs(car.price_diff_pct)}% sobre mercado` :
+                 '✓ Precio justo'
+               }</span>` : ''}`
+            : `<div class="card-price no-price">Precio a consultar</div>`}
+        </div>
+        ${car.deal_score != null ? `<div class="deal-score-bar" title="Puntaje de oferta: precio+km vs autos del mismo año (${car.deal_score}/100)">
+          <div class="deal-score-track"><div class="deal-score-fill" style="width:${car.deal_score}%"></div></div>
+          <span class="deal-score-val">${car.deal_score}/100</span>
+        </div>` : ''}
+        ${attrs.length ? `<div class="card-attrs">${attrs.join('')}</div>` : ''}
+        <div class="card-footer">
+          <a class="btn-ver" href="${esc(car.url)}" target="_blank" rel="noopener">
+            Ver oferta →
+          </a>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderPagination() {
+  const el = document.getElementById('pagination');
+  const total = Math.min(MAX_PAGES, Math.ceil(totalFromAPI / PAGE_SIZE));
+  if (total <= 1) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.innerHTML = Array.from({length: total}, (_,i) =>
+    `<button class="page-btn${i===currentPage?' active':''}" onclick="search(${i})">${i+1}</button>`
+  ).join('');
+}
+
+/* ────────────────────────────────────────────────────────────────
+   COMPARISON
+──────────────────────────────────────────────────────────────── */
+function handleCompareClick(car) {
+  const idx = compareList.findIndex(c => c.id === car.id);
+  if (idx >= 0) {
+    compareList.splice(idx, 1);
+  } else {
+    if (compareList.length >= COMPARE_MAX) {
+      alert(`Puedes comparar hasta ${COMPARE_MAX} autos a la vez.`);
+      return;
+    }
+    compareList.push(car);
+  }
+  updateCompareBar();
+  // Re-render the specific card to update its button state
+  const cardEl = document.getElementById('card-' + car.id);
+  if (cardEl) {
+    const newCard = document.createElement('div');
+    newCard.innerHTML = renderCard(car);
+    cardEl.replaceWith(newCard.firstElementChild);
+  }
+}
+
+function updateCompareBar() {
+  const bar   = document.getElementById('compare-bar');
+  const slots = document.getElementById('compare-slots');
+  const count = document.getElementById('compare-count');
+
+  count.textContent = compareList.length;
+
+  if (compareList.length === 0) {
+    bar.classList.remove('visible');
+    return;
+  }
+  bar.classList.add('visible');
+
+  const slotsHTML = [];
+  for (let i = 0; i < COMPARE_MAX; i++) {
+    const car = compareList[i];
+    if (car) {
+      const priceStr = fmtPrice(car.price, car.currency) || 'A consultar';
+      slotsHTML.push(`
+        <div class="compare-slot">
+          ${car.image_url
+            ? `<img class="compare-slot-img" src="${esc(car.image_url)}" alt="${esc(car.title)}"
+                    onerror="this.style.background='rgba(255,255,255,.1)';this.src=''" />`
+            : `<div class="compare-slot-img" style="display:flex;align-items:center;justify-content:center;font-size:1.1rem">🚗</div>`}
+          <div class="compare-slot-info">
+            <div class="compare-slot-title">${esc(car.title)}</div>
+            <div class="compare-slot-price">${esc(priceStr)}</div>
+          </div>
+          <div class="compare-slot-remove" onclick="removeFromCompare('${esc(car.id)}')">✕</div>
+        </div>`);
+    } else {
+      slotsHTML.push(`<div class="compare-slot compare-slot-empty">+ Agregar auto</div>`);
+    }
+  }
+  slots.innerHTML = slotsHTML.join('');
+}
+
+function removeFromCompare(id) {
+  const car = compareList.find(c => c.id === id);
+  if (!car) return;
+  compareList = compareList.filter(c => c.id !== id);
+  updateCompareBar();
+  // Update card button
+  const cardEl = document.getElementById('card-' + id);
+  if (cardEl) {
+    const newCard = document.createElement('div');
+    newCard.innerHTML = renderCard(car);
+    cardEl.replaceWith(newCard.firstElementChild);
+  }
+}
+
+function clearComparison() {
+  const ids = compareList.map(c => c.id);
+  compareList = [];
+  updateCompareBar();
+  ids.forEach(id => {
+    const cardEl = document.getElementById('card-' + id);
+    const car = allResults.find(c => c.id === id);
+    if (cardEl && car) {
+      const newCard = document.createElement('div');
+      newCard.innerHTML = renderCard(car);
+      cardEl.replaceWith(newCard.firstElementChild);
+    }
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────
+   COMPARE MODAL
+──────────────────────────────────────────────────────────────── */
+function openCompareModal() {
+  if (compareList.length < 2) {
+    alert('Selecciona al menos 2 autos para comparar.');
+    return;
+  }
+  document.getElementById('modal-body').innerHTML = buildCompareTable();
+  document.getElementById('compare-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCompareModal() {
+  document.getElementById('compare-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleModalClick(e) {
+  if (e.target === e.currentTarget) closeCompareModal();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeCompareModal();
+});
+
+function buildCompareTable() {
+  const cars = compareList;
+
+  // Determine best price (lowest, CLP only)
+  const clpCars = cars.filter(c => c.currency === 'CLP' && c.price);
+  const minPrice = clpCars.length ? Math.min(...clpCars.map(c => c.price)) : null;
+  const maxPrice = clpCars.length ? Math.max(...clpCars.map(c => c.price)) : null;
+
+  const rows = [
+    { label: 'Precio',       key: 'price',        fmt: (v,c) => fmtPrice(v, c.currency) || '–' },
+    { label: 'Año',          key: 'year',         fmt: v => v || '–' },
+    { label: 'Kilómetros',   key: 'km',           fmt: v => fmtKm(v) || '–' },
+    { label: 'Estado',       key: 'condition',    fmt: v => v === 'new' ? 'Nuevo' : v === 'used' ? 'Usado' : '–' },
+    { label: 'Marca',        key: 'brand',        fmt: v => v || '–' },
+    { label: 'Modelo',       key: 'model',        fmt: v => v || '–' },
+    { label: 'Combustible',  key: 'fuel_type',    fmt: v => v || '–' },
+    { label: 'Transmisión',  key: 'transmission', fmt: v => v || '–' },
+    { label: 'Color',        key: 'color',        fmt: v => v || '–' },
+    { label: 'Puertas',      key: 'doors',        fmt: v => v || '–' },
+    { label: 'Motor',        key: 'engine',       fmt: v => v || '–' },
+    { label: 'Ubicación',    key: 'location',     fmt: v => v || '–' },
+    { label: 'Portal',       key: 'source',       fmt: v => v || '–' },
+  ];
+
+  const headCols = cars.map(car => {
+    const priceStr = fmtPrice(car.price, car.currency) || 'A consultar';
+    const isBest   = minPrice && car.price === minPrice && car.currency === 'CLP';
+    return `
+      <th>
+        ${car.image_url
+          ? `<img class="car-th-img" src="${esc(car.image_url)}" alt="${esc(car.title)}"
+                  onerror="this.style.background='#f1f5f9';this.removeAttribute('src')" />`
+          : `<div class="car-th-img" style="background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:2rem">🚗</div>`}
+        <div class="car-th-title">${esc(car.title)}</div>
+        <div class="car-th-price${isBest ? '' : ''}">${esc(priceStr)}</div>
+        ${isBest ? '<div style="font-size:.65rem;color:#15803d;font-weight:700;margin-top:.15rem">✓ Menor precio</div>' : ''}
+        <a href="${esc(car.url)}" target="_blank" rel="noopener"
+           style="display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--primary);font-weight:700">
+          Ver oferta →
+        </a>
+      </th>`;
+  }).join('');
+
+  const bodyRows = rows.map(row => {
+    const tds = cars.map(car => {
+      const raw = car[row.key];
+      const val = row.fmt(raw, car);
+      const isNA = val === '–' || val == null;
+
+      let tdClass = '';
+      if (row.key === 'price' && car.currency === 'CLP' && car.price) {
+        if (car.price === minPrice) tdClass = 'compare-val-best-price';
+        if (car.price === maxPrice && minPrice !== maxPrice) tdClass = 'compare-val-worst-price';
+      }
+      if (row.key === 'km' && car.km != null) {
+        const minKm = Math.min(...cars.filter(c=>c.km!=null).map(c=>c.km));
+        if (car.km === minKm) tdClass = 'compare-val-best-price';
+      }
+      if (row.key === 'year' && car.year) {
+        const maxYear = Math.max(...cars.filter(c=>c.year).map(c=>c.year));
+        if (car.year === maxYear) tdClass = 'compare-val-best-price';
+      }
+
+      return `<td class="${tdClass}${isNA ? ' compare-val-na' : ''}">${esc(val)}</td>`;
+    }).join('');
+
+    return `<tr><td class="row-label">${esc(row.label)}</td>${tds}</tr>`;
+  }).join('');
+
+  return `
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead><tr><th></th>${headCols}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   AUTH & USER STATE
+════════════════════════════════════════════════════════════════ */
+let currentUser = null;   // { email, token }
+
+function authHeaders() {
+  return currentUser ? { 'Authorization': `Bearer ${currentUser.token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
+
+// ── Persist session ──────────────────────────────────────────────
+function saveSession(user) {
+  currentUser = user;
+  try { localStorage.setItem('ra_user', JSON.stringify(user)); } catch {}
+}
+function clearSession() {
+  currentUser = null;
+  try { localStorage.removeItem('ra_user'); } catch {}
+}
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem('ra_user');
+    if (raw) currentUser = JSON.parse(raw);
+  } catch {}
+}
+
+// ── UI helpers ───────────────────────────────────────────────────
+function updateUserUI() {
+  const btn    = document.getElementById('user-btn');
+  const label  = document.getElementById('user-btn-label');
+  const panel  = document.getElementById('user-panel');
+  const actions = document.getElementById('user-search-actions');
+  if (currentUser) {
+    btn.classList.add('logged-in');
+    const displayName = [currentUser.nombre, currentUser.apellido].filter(Boolean).join(' ')
+      || currentUser.email.split('@')[0];
+    label.textContent = displayName;
+    document.getElementById('ud-name').textContent  = displayName;
+    document.getElementById('ud-email').textContent = currentUser.email || '';
+    panel.classList.remove('hidden');
+    if (actions) { actions.classList.remove('hidden'); actions.style.display = 'flex'; }
+    loadUserData();
+  } else {
+    btn.classList.remove('logged-in');
+    label.textContent = 'Ingresar';
+    panel.classList.add('hidden');
+    if (actions) { actions.classList.add('hidden'); }
+  }
+}
+
+// ── User dropdown ────────────────────────────────────────────────
+function userBtnClick() {
+  if (!currentUser) { openAuthModal(); return; }
+  const dd = document.getElementById('user-dropdown');
+  dd.classList.toggle('hidden');
+}
+function closeUserDropdown() {
+  document.getElementById('user-dropdown').classList.add('hidden');
+}
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('user-dropdown-wrap');
+  if (wrap && !wrap.contains(e.target)) closeUserDropdown();
+});
+
+// ── Profile modal ────────────────────────────────────────────────
+function openProfileModal(tab = 'perfil') {
+  closeUserDropdown();
+  if (currentUser) {
+    document.getElementById('p-nombre').value   = currentUser.nombre   || '';
+    document.getElementById('p-apellido').value = currentUser.apellido || '';
+    document.getElementById('p-profile-error').textContent = '';
+    document.getElementById('p-pass-error').textContent    = '';
+    ['p-pass-current','p-pass-new','p-pass-new2'].forEach(id => document.getElementById(id).value = '');
+  }
+  switchProfileTab(tab);
+  document.getElementById('profile-modal').classList.remove('hidden');
+  renderProfileSearches();
+  renderProfileAlerts();
+  renderFavorites();
+  renderHistory();
+}
+function closeProfileModal() {
+  document.getElementById('profile-modal').classList.add('hidden');
+}
+function switchProfileTab(tab) {
+  ['perfil','favoritos','historial','busquedas','alertas'].forEach(t => {
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`ppanel-${t}`).classList.toggle('hidden', t !== tab);
+  });
+}
+async function saveProfile() {
+  const nombre   = document.getElementById('p-nombre').value.trim();
+  const apellido = document.getElementById('p-apellido').value.trim();
+  const errEl    = document.getElementById('p-profile-error');
+  errEl.textContent = '';
+  if (!nombre || !apellido) { errEl.textContent = 'Nombre y apellido son obligatorios'; return; }
+  try {
+    const r = await fetch(BACKEND_URL + '/api/auth/me', {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ nombre, apellido }),
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.detail || 'Error al guardar'; return; }
+    currentUser = { ...currentUser, nombre: d.nombre, apellido: d.apellido };
+    saveSession(currentUser);
+    updateUserUI();
+    showToast('Perfil actualizado ✓');
+  } catch { errEl.textContent = 'Error de conexión'; }
+}
+async function changePassword() {
+  const current = document.getElementById('p-pass-current').value;
+  const newP    = document.getElementById('p-pass-new').value;
+  const newP2   = document.getElementById('p-pass-new2').value;
+  const errEl   = document.getElementById('p-pass-error');
+  errEl.textContent = '';
+  if (!current || !newP)      { errEl.textContent = 'Completa todos los campos'; return; }
+  if (newP.length < 6)        { errEl.textContent = 'Mínimo 6 caracteres'; return; }
+  if (newP !== newP2)         { errEl.textContent = 'Las contraseñas no coinciden'; return; }
+  try {
+    const r = await fetch(BACKEND_URL + '/api/auth/password', {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ current_password: current, new_password: newP }),
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.detail || 'Error'; return; }
+    ['p-pass-current','p-pass-new','p-pass-new2'].forEach(id => document.getElementById(id).value = '');
+    showToast('Contraseña cambiada ✓');
+  } catch { errEl.textContent = 'Error de conexión'; }
+}
+// ── Default filters ──────────────────────────────────────────────
+const LS_DEFAULT = 'radarauto_default_filters';
+function saveDefaultFilters() {
+  const params = getFiltersAsParams();
+  localStorage.setItem(LS_DEFAULT, JSON.stringify(params));
+  document.getElementById('default-filters-bar').classList.remove('hidden');
+  showToast('Filtros predeterminados guardados ⭐');
+}
+function clearDefaultFilters() {
+  localStorage.removeItem(LS_DEFAULT);
+  document.getElementById('default-filters-bar').classList.add('hidden');
+  showToast('Filtros predeterminados eliminados');
+}
+function loadDefaultFilters() {
+  const raw = localStorage.getItem(LS_DEFAULT);
+  if (!raw) return;
+  try {
+    applyParams(JSON.parse(raw));
+    document.getElementById('default-filters-bar').classList.remove('hidden');
+  } catch {}
+}
+
+// ── Search history ───────────────────────────────────────────────
+const LS_HISTORY = 'radarauto_search_history';
+function addToHistory(params) {
+  const label = [params.brand, params.model, params.q].filter(Boolean).join(' ') || 'Búsqueda general';
+  const history = getHistory();
+  const entry = { label, params, ts: Date.now() };
+  // Remove duplicate labels, keep newest first
+  const filtered = history.filter(h => h.label !== label);
+  filtered.unshift(entry);
+  localStorage.setItem(LS_HISTORY, JSON.stringify(filtered.slice(0, 15)));
+}
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(LS_HISTORY) || '[]'); } catch { return []; }
+}
+function clearHistory() {
+  localStorage.removeItem(LS_HISTORY);
+  renderHistory();
+  showToast('Historial eliminado');
+}
+function renderHistory() {
+  const el = document.getElementById('p-history-list');
+  if (!el) return;
+  const list = getHistory();
+  if (!list.length) { el.innerHTML = '<p style="font-size:.82rem;color:var(--muted)">Sin historial.</p>'; return; }
+  el.innerHTML = list.map((h, i) => {
+    const date = new Date(h.ts).toLocaleDateString('es-CL', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    return `<div class="history-item">
+      <span class="history-item-label" onclick="closeProfileModal();applyParams(${JSON.stringify(h.params).replaceAll('"','&quot;')})">${esc(h.label)}</span>
+      <span class="history-item-date">${date}</span>
+      <button class="history-item-del" onclick="removeHistoryEntry(${i})" title="Eliminar">✕</button>
+    </div>`;
+  }).join('');
+}
+function removeHistoryEntry(i) {
+  const history = getHistory();
+  history.splice(i, 1);
+  localStorage.setItem(LS_HISTORY, JSON.stringify(history));
+  renderHistory();
+}
+
+// ── Favorites ────────────────────────────────────────────────────
+const LS_FAVORITES = 'radarauto_favorites';
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem(LS_FAVORITES) || '[]'); } catch { return []; }
+}
+function isFavorite(id) {
+  return getFavorites().some(f => f.id === id);
+}
+function toggleFavorite(car) {
+  let favs = getFavorites();
+  const idx = favs.findIndex(f => f.id === car.id);
+  if (idx >= 0) {
+    favs.splice(idx, 1);
+    showToast('Eliminado de favoritos');
+  } else {
+    favs.unshift(car);
+    showToast('Guardado en favoritos ❤️');
+  }
+  localStorage.setItem(LS_FAVORITES, JSON.stringify(favs.slice(0, 100)));
+  // Re-render the card
+  const card = document.getElementById(`card-${car.id}`);
+  if (card) card.outerHTML = renderCard(car);
+  renderFavorites();
+}
+function renderFavorites() {
+  const el = document.getElementById('p-favorites-list');
+  if (!el) return;
+  const favs = getFavorites();
+  if (!favs.length) { el.innerHTML = '<p style="font-size:.82rem;color:var(--muted)">Sin favoritos guardados. Haz click en ❤️ en cualquier auto.</p>'; return; }
+  el.innerHTML = favs.map(car => {
+    const price = car.price ? fmtPrice(car.price, car.currency) : 'Consultar';
+    return `<div class="saved-search-item" style="flex-direction:column;align-items:flex-start;gap:.2rem;">
+      <div style="display:flex;width:100%;align-items:center;">
+        <span class="saved-search-name" style="flex:1">${esc(car.title)}</span>
+        <button class="saved-search-del" onclick="toggleFavorite(${JSON.stringify(car).replaceAll('"','&quot;')})" title="Quitar">✕</button>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);display:flex;gap:.6rem;">
+        ${car.year ? `<span>📅 ${car.year}</span>` : ''}
+        ${car.km != null ? `<span>🛣️ ${fmtKm(car.km)}</span>` : ''}
+        <span style="color:var(--primary);font-weight:700;">${esc(price)}</span>
+      </div>
+      <a href="${esc(car.url)}" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--primary);">Ver oferta →</a>
+    </div>`;
+  }).join('');
+}
+
+// ── Sort persistence ─────────────────────────────────────────────
+const LS_SORT = 'radarauto_sort';
+function renderProfileSearches() {
+  const el = document.getElementById('p-saved-searches-list');
+  if (!el) return;
+  const list = _cachedSearches || [];
+  if (!list.length) { el.innerHTML = '<p style="font-size:.82rem;color:var(--muted)">Sin búsquedas guardadas.</p>'; return; }
+  el.innerHTML = list.map(s => `
+    <div class="saved-search-item" onclick="closeProfileModal();applyParams(${JSON.stringify(s.params).replaceAll('"','&quot;')})">
+      <span class="saved-search-name" title="${esc(s.name)}">${esc(s.name)}</span>
+      <button class="saved-search-del" onclick="event.stopPropagation();deleteSavedSearch(${s.id})" title="Eliminar">✕</button>
+    </div>`).join('');
+}
+function renderProfileAlerts() {
+  const el = document.getElementById('p-alerts-list');
+  if (!el) return;
+  const list = _cachedAlerts || [];
+  if (!list.length) { el.innerHTML = '<p style="font-size:.82rem;color:var(--muted)">Sin alertas activas.</p>'; return; }
+  el.innerHTML = list.map(a => `
+    <div class="alert-item">
+      <span class="saved-search-name">${esc(a.name)}</span>
+      <button class="alert-toggle ${a.active ? 'on' : 'off'}" onclick="toggleAlert(${a.id})">${a.active ? 'ON' : 'OFF'}</button>
+      <button class="saved-search-del" onclick="deleteAlert(${a.id})" title="Eliminar">✕</button>
+    </div>`).join('');
+}
+
+// ── Auth modal ───────────────────────────────────────────────────
+function openAuthModal() {
+  if (currentUser) { switchAuthTab('login'); }
+  document.getElementById('auth-modal').classList.remove('hidden');
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.add('hidden');
+}
+function handleAuthOverlayClick(e) {
+  if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+}
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('auth-panel-login').classList.toggle('hidden',    tab !== 'login');
+  document.getElementById('auth-panel-register').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('auth-error-login').textContent    = '';
+  document.getElementById('auth-error-register').textContent = '';
+}
+
+async function submitAuth(mode) {
+  const errEl = document.getElementById(`auth-error-${mode}`);
+  errEl.textContent = '';
+
+  if (mode === 'login') {
+    const email = document.getElementById('auth-email-login').value.trim();
+    const pass  = document.getElementById('auth-pass-login').value;
+    if (!email || !pass) { errEl.textContent = 'Completa todos los campos'; return; }
+    try {
+      const r    = await fetch(BACKEND_URL + '/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const data = await r.json();
+      if (!r.ok) { errEl.textContent = data.detail || 'Email o contraseña incorrectos'; return; }
+      saveSession({ email: data.email, token: data.token });
+      closeAuthModal();
+      updateUserUI();
+      showToast(`Bienvenido 👋`);
+    } catch { errEl.textContent = 'Error de conexión con el backend'; }
+    return;
+  }
+
+  // Register
+  const nombre   = document.getElementById('auth-nombre').value.trim();
+  const apellido = document.getElementById('auth-apellido').value.trim();
+  const email    = document.getElementById('auth-email-reg').value.trim();
+  const pass     = document.getElementById('auth-pass-reg').value;
+  const pass2    = document.getElementById('auth-pass-reg2').value;
+
+  if (!nombre || !apellido)       { errEl.textContent = 'Ingresa tu nombre y apellido'; return; }
+  if (!email)                     { errEl.textContent = 'Ingresa tu email'; return; }
+  if (!pass)                      { errEl.textContent = 'Ingresa una contraseña'; return; }
+  if (pass.length < 6)            { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres'; return; }
+  if (pass !== pass2)             { errEl.textContent = 'Las contraseñas no coinciden'; return; }
+
+  try {
+    const r    = await fetch(BACKEND_URL + '/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, nombre, apellido, password: pass }),
+    });
+    const data = await r.json();
+    if (!r.ok) { errEl.textContent = data.detail || 'Error al registrarse'; return; }
+    saveSession({ email: data.email, token: data.token, nombre: data.nombre, apellido: data.apellido });
+    closeAuthModal();
+    updateUserUI();
+    showToast(`Bienvenido, ${data.nombre} 👋`);
+  } catch { errEl.textContent = 'Error de conexión con el backend'; }
+}
+
+function logout() {
+  clearSession();
+  updateUserUI();
+  showToast('Sesión cerrada');
+}
+
+// ── Saved searches ───────────────────────────────────────────────
+function getFiltersAsParams() {
+  const f = getFilters();
+  return {
+    brand:        f.brand        || null,
+    model:        f.model        || null,
+    year_from:    f.yearFrom     || null,
+    year_to:      f.yearTo       || null,
+    price_from:   f.priceFrom    || null,
+    price_to:     f.priceTo      || null,
+    km_from:      f.kmFrom       || null,
+    km_max:       f.maxKm        || null,
+    km_from_val:  document.getElementById('kmFrom').value || null,
+    km_to_val:    document.getElementById('kmTo').value   || null,
+    fuel_type:    f.fuel         || null,
+    transmission: f.transmission || null,
+    region:       f.region       || null,
+    sources:      [...activeSources],
+  };
+}
+
+async function saveCurrentSearch() {
+  if (!currentUser) { openAuthModal(); return; }
+  const params = getFiltersAsParams();
+  const label  = params.brand || params.model || 'Búsqueda';
+  const name   = prompt('Nombre para esta búsqueda:', label);
+  if (!name) return;
+  try {
+    const r = await fetch(BACKEND_URL + '/api/saved-searches', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ name, params }),
+    });
+    if (!r.ok) throw new Error();
+    showToast('Búsqueda guardada ✓');
+    loadUserData();
+  } catch { showToast('Error al guardar búsqueda'); }
+}
+
+async function deleteSavedSearch(id) {
+  try {
+    await fetch(BACKEND_URL + `/api/saved-searches/${id}`, { method: 'DELETE', headers: authHeaders() });
+    loadUserData();
+  } catch { showToast('Error al eliminar'); }
+}
+
+function applyParams(params) {
+  if (params.brand) {
+    document.getElementById('brand').value = params.brand;
+    onBrandChange();
+    if (params.model) document.getElementById('model').value = params.model;
+  }
+  if (params.year_from) {
+    document.getElementById('yearFrom').value = params.year_from;
+    updateYearSlider();
+  }
+  if (params.year_to) {
+    document.getElementById('yearTo').value = params.year_to;
+    updateYearSlider();
+  }
+  if (params.price_from)   document.getElementById('priceFrom').value = Number(params.price_from).toLocaleString('es-CL');
+  if (params.price_to)     document.getElementById('priceTo').value   = Number(params.price_to).toLocaleString('es-CL');
+  if (params.km_from_val)  document.getElementById('kmFrom').value = params.km_from_val;
+  if (params.km_to_val)    document.getElementById('kmTo').value   = params.km_to_val;
+  if (params.fuel_type)    document.getElementById('fuel').value        = params.fuel_type;
+  if (params.transmission) document.getElementById('transmission').value = params.transmission;
+  if (params.region)       document.getElementById('region').value      = params.region;
+  if (params.sources && backendOK) {
+    const srcs = new Set(params.sources);
+    document.querySelectorAll('.source-toggle[data-src]').forEach(b => {
+      const on = srcs.has(b.dataset.src);
+      b.classList.toggle('active', on);
+      if (on) activeSources.add(b.dataset.src); else activeSources.delete(b.dataset.src);
+    });
+  }
+  search(0);
+}
+
+// ── Alerts ───────────────────────────────────────────────────────
+async function createCurrentAlert() {
+  if (!currentUser) { openAuthModal(); return; }
+  const params = getFiltersAsParams();
+  const label  = params.brand || params.model || 'Alerta';
+  const name   = prompt('Nombre para esta alerta:', label);
+  if (!name) return;
+  try {
+    const r = await fetch(BACKEND_URL + '/api/alerts', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ name, params }),
+    });
+    if (!r.ok) throw new Error();
+    showToast('Alerta creada – recibirás un email cuando haya nuevos autos 🔔');
+    loadUserData();
+  } catch { showToast('Error al crear alerta'); }
+}
+
+async function toggleAlert(id) {
+  try {
+    const r = await fetch(BACKEND_URL + `/api/alerts/${id}`, { method: 'PATCH', headers: authHeaders() });
+    const d = await r.json();
+    loadUserData();
+    showToast(d.active ? 'Alerta activada' : 'Alerta pausada');
+  } catch { showToast('Error'); }
+}
+
+async function deleteAlert(id) {
+  try {
+    await fetch(BACKEND_URL + `/api/alerts/${id}`, { method: 'DELETE', headers: authHeaders() });
+    loadUserData();
+  } catch { showToast('Error al eliminar alerta'); }
+}
+
+// ── Load & render user data ──────────────────────────────────────
+let _cachedSearches = [];
+let _cachedAlerts   = [];
+
+async function loadUserData() {
+  if (!currentUser) return;
+  try {
+    const [sr, ar] = await Promise.all([
+      fetch(BACKEND_URL + '/api/saved-searches', { headers: authHeaders() }),
+      fetch(BACKEND_URL + '/api/alerts',         { headers: authHeaders() }),
+    ]);
+    if (sr.status === 401 || ar.status === 401) { clearSession(); updateUserUI(); return; }
+    _cachedSearches = await sr.json();
+    _cachedAlerts   = await ar.json();
+    renderSavedSearches(_cachedSearches);
+    renderAlerts(_cachedAlerts);
+    renderProfileSearches();
+    renderProfileAlerts();
+  } catch {}
+}
+
+function renderSavedSearches(list) {
+  const el = document.getElementById('saved-searches-list');
+  if (!list.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--muted)">Sin búsquedas guardadas.</p>'; return; }
+  el.innerHTML = list.map(s => `
+    <div class="saved-search-item" onclick="applyParams(${JSON.stringify(s.params).replaceAll('"',"&quot;")})">
+      <span class="saved-search-name" title="${esc(s.name)}">${esc(s.name)}</span>
+      <button class="saved-search-del" onclick="event.stopPropagation();deleteSavedSearch(${s.id})" title="Eliminar">✕</button>
+    </div>`).join('');
+}
+
+function renderAlerts(list) {
+  const el = document.getElementById('alerts-list');
+  if (!list.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--muted)">Sin alertas activas.</p>'; return; }
+  el.innerHTML = list.map(a => {
+    const lastRun = a.last_run
+      ? new Date(a.last_run).toLocaleDateString('es-CL', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
+      : 'Nunca ejecutada';
+    return `<div class="alert-item" style="flex-direction:column;align-items:flex-start;gap:.2rem;">
+      <div style="display:flex;width:100%;align-items:center;gap:.3rem;">
+        <span class="saved-search-name" style="flex:1" title="${esc(a.name)}">${esc(a.name)}</span>
+        <button class="alert-toggle ${a.active ? 'on' : 'off'}" onclick="toggleAlert(${a.id})">${a.active ? 'ON' : 'OFF'}</button>
+        <button class="alert-del" onclick="deleteAlert(${a.id})" title="Eliminar">✕</button>
+      </div>
+      <span style="font-size:.7rem;color:var(--muted)">Última ejecución: ${lastRun}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ────────────────────────────────────────────────────────────────
+   EVENT LISTENERS
+──────────────────────────────────────────────────────────────── */
+document.querySelectorAll('.form-control').forEach(el => {
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') search(0); });
+});
+document.getElementById('brand').addEventListener('change', updatePortalLinks);
+document.getElementById('model').addEventListener('input',  updatePortalLinks);
+
+/* ────────────────────────────────────────────────────────────────
+   FACEBOOK LOGIN
+──────────────────────────────────────────────────────────────── */
+async function checkFacebookStatus() {
+  const pill = document.getElementById('fb-pill');
+  const label = document.getElementById('fb-pill-label');
+  if (!pill) return;
+  try {
+    const r = await fetch('/api/facebook/status');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.logged_in) {
+      pill.classList.add('connected');
+      label.textContent = 'FB ✓';
+      pill.title = 'Facebook Marketplace conectado — click para desconectar';
+    } else {
+      pill.classList.remove('connected');
+      label.textContent = 'Facebook';
+      pill.title = 'Conectar Facebook Marketplace';
+    }
+  } catch (_) {}
+}
+
+async function fbLoginClick() {
+  const pill = document.getElementById('fb-pill');
+  const label = document.getElementById('fb-pill-label');
+  if (!pill) return;
+
+  const isConnected = pill.classList.contains('connected');
+
+  if (isConnected) {
+    if (!confirm('¿Desconectar Facebook Marketplace?')) return;
+    await fetch('/api/facebook/logout', { method: 'POST' });
+    await checkFacebookStatus();
+    return;
+  }
+
+  // Login flow
+  pill.classList.add('loading');
+  label.textContent = 'Abriendo...';
+  showToast('Se abrirá un browser — inicia sesión en Facebook y ciérralo o espera que detecte el login.');
+
+  try {
+    const r = await fetch('/api/facebook/login', { method: 'POST' });
+    const d = await r.json();
+    if (r.ok && d.ok) {
+      showToast(`Facebook conectado (${d.cookies} cookies guardadas)`);
+      await checkFacebookStatus();
+    } else {
+      showToast('Error: ' + (d.detail || 'No se pudo conectar'));
+    }
+  } catch (e) {
+    showToast('Error conectando con el servidor');
+  } finally {
+    pill.classList.remove('loading');
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────────────────────────── */
+updatePortalLinks();
+checkBackend();
+setInterval(checkBackend, 30000);
+checkFacebookStatus();
+setInterval(checkFacebookStatus, 60000);
+restoreSession();
+updateUserUI();
+initNumberInputs();
+initYearSlider();
+loadDefaultFilters();
+
+// Show ⭐ bar if default filters exist
+if (localStorage.getItem(LS_DEFAULT)) {
+  document.getElementById('default-filters-bar').classList.remove('hidden');
+}
+
+// Measure real header height → CSS var used by sticky sidebar
+function syncHeaderHeight() {
+  const h = document.querySelector('.header');
+  if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+}
+syncHeaderHeight();
+// Re-sync after fonts/layout settle and on resize
+setTimeout(syncHeaderHeight, 200);
+window.addEventListener('resize', syncHeaderHeight);
+
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+/* ════════════════════════════════════════════════════════
+   MAIN VIEW TABS
+════════════════════════════════════════════════════════ */
+function switchView(view) {
+  const isAnalysis = view === 'analysis';
+  document.getElementById('view-search').classList.toggle('hidden', isAnalysis);
+  document.getElementById('view-analysis').classList.toggle('hidden', !isAnalysis);
+  document.getElementById('tab-btn-search').classList.toggle('active', !isAnalysis);
+  document.getElementById('tab-btn-analysis').classList.toggle('active', isAnalysis);
+
+  if (isAnalysis) {
+    // Auto-fill from current search filters
+    const f = getFilters();
+    if (f.brand) document.getElementById('an-brand').value = f.brand;
+    if (f.model) document.getElementById('an-model').value = f.model;
+    if (f.yearFrom) document.getElementById('an-year-from').value = f.yearFrom;
+    if (f.yearTo)   document.getElementById('an-year-to').value   = f.yearTo;
+    if (f.maxKm)    document.getElementById('an-km-max').value    = f.maxKm;
+
+    // Auto-run if we have at least a brand
+    if (f.brand) runAnalysis();
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   ANALYSIS VIEW
+════════════════════════════════════════════════════════ */
+let anChart       = null;
+let anCurrentTab  = 'time';
+let anHistoryData  = [];   // from /api/price-history
+let anListingsData = [];   // from /api/history-listings
+
+async function runAnalysis() {
+  const brand    = (document.getElementById('an-brand').value    || '').trim();
+  const model    = (document.getElementById('an-model').value    || '').trim();
+  const yearFrom = (document.getElementById('an-year-from').value || '').trim();
+  const yearTo   = (document.getElementById('an-year-to').value  || '').trim();
+  const kmMax    = (document.getElementById('an-km-max').value   || '').trim();
+
+  if (!brand) { showToast('Ingresa al menos una marca'); return; }
+
+  document.getElementById('an-content').classList.add('hidden');
+  document.getElementById('an-empty').classList.add('hidden');
+  document.getElementById('an-loading').classList.remove('hidden');
+
+  const params = new URLSearchParams({ brand });
+  if (model)    params.set('model',     model);
+  if (yearFrom) params.set('year_from', yearFrom);
+  if (yearTo)   params.set('year_to',   yearTo);
+  if (kmMax)    params.set('km_max',    kmMax);
+
+  try {
+    const dealsParams = new URLSearchParams(params);
+    dealsParams.set('days', '60');
+    dealsParams.set('limit', '15');
+    const [histRes, listRes, statsRes, dealsRes] = await Promise.all([
+      fetch(`${BACKEND_URL}/api/price-history?${params}`),
+      fetch(`${BACKEND_URL}/api/history-listings?${params}`),
+      fetch(`${BACKEND_URL}/api/market-stats?${params}`),
+      fetch(`${BACKEND_URL}/api/best-deals?${dealsParams}`),
+    ]);
+
+    anHistoryData  = histRes.ok  ? ((await histRes.json()).data     || []) : [];
+    anListingsData = listRes.ok  ? ((await listRes.json()).listings || []) : [];
+    const statsObj = statsRes.ok ? ((await statsRes.json()).stats   || null) : null;
+    const dealsObj = dealsRes.ok ? ((await dealsRes.json()).deals   || []) : [];
+
+    document.getElementById('an-loading').classList.add('hidden');
+
+    if (!anHistoryData.length && !anListingsData.length) {
+      document.getElementById('an-empty').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('an-content').classList.remove('hidden');
+    _anRenderStats(statsObj);
+    _anRenderGuide(brand, model, statsObj, anListingsData);
+    switchAnalysisTab(anCurrentTab);
+    _anRenderYearTable(anListingsData);
+    _anRenderOpportunities(dealsObj);
+
+  } catch (err) {
+    document.getElementById('an-loading').classList.add('hidden');
+    document.getElementById('an-empty').classList.remove('hidden');
+    console.error('Analysis error:', err);
+  }
+}
+
+function _anRenderStats(stats) {
+  const row = document.getElementById('an-stats-row');
+  if (!row) return;
+  if (!stats || !stats.count) { row.innerHTML = ''; return; }
+  const fmt = v => '$' + Math.round(v).toLocaleString('es-CL');
+  const chips = [
+    ['Registros (30d)',   stats.count],
+    ['Mediana mercado',   fmt(stats.median)],
+    ['Promedio',          fmt(stats.avg)],
+    ['Mínimo',            fmt(stats.min)],
+    ['Máximo',            fmt(stats.max)],
+    ['Buena oferta (P25)', fmt(stats.p25)],
+    ['Precio alto (P75)', fmt(stats.p75)],
+  ];
+  row.innerHTML = chips.map(([k, v]) =>
+    `<div class="an-stat-chip"><div class="an-chip-label">${k}</div><div class="an-chip-value">${v}</div></div>`
+  ).join('');
+}
+
+function _anRenderGuide(brand, model, stats, listings) {
+  const el = document.getElementById('an-guide-text');
+  if (!el) return;
+  if (!stats || !stats.count) { el.innerHTML = ''; return; }
+
+  const fmt = v => '<strong>$' + Math.round(v).toLocaleString('es-CL') + '</strong>';
+  const label = [brand, model].filter(Boolean).join(' ');
+
+  // Year median breakdown
+  const byYear = {};
+  listings.forEach(l => {
+    if (!l.year || !l.price) return;
+    (byYear[l.year] = byYear[l.year] || []).push(l.price);
+  });
+  const yearParts = Object.entries(byYear)
+    .sort(([a], [b]) => b - a).slice(0, 6)
+    .map(([yr, prices]) => {
+      prices.sort((a, b) => a - b);
+      const med = prices[Math.floor(prices.length / 2)];
+      return `<span style="white-space:nowrap"><strong>${yr}</strong>: $${Math.round(med).toLocaleString('es-CL')}</span>`;
+    }).join(' &nbsp;·&nbsp; ');
+
+  el.innerHTML = `
+    <div style="font-weight:700;font-size:.85rem;color:var(--primary);margin-bottom:.4rem">💡 ¿Cuánto debería pagar por un ${label}?</div>
+    <p style="font-size:.82rem;line-height:1.7;margin-bottom:.4rem">
+      Basado en <strong>${stats.count}</strong> registros de los últimos 30 días:
+      el precio típico de mercado es ${fmt(stats.median)} (mediana).
+      Una <span style="color:var(--secondary);font-weight:600">buena oferta</span> está por debajo de ${fmt(stats.p25)} —
+      cualquier precio sobre ${fmt(stats.p75)} está por encima del mercado.
+      El rango habitual va de ${fmt(stats.p25)} a ${fmt(stats.p75)}.
+    </p>
+    ${yearParts ? `<p style="font-size:.77rem;color:var(--muted)">Mediana por año: ${yearParts}</p>` : ''}`;
+}
+
+function switchAnalysisTab(tab) {
+  anCurrentTab = tab;
+  ['time', 'km', 'year'].forEach(t => {
+    const btn = document.getElementById(`an-tab-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  const titles = { time: 'Historial de precios en el tiempo', km: 'Precio vs Kilometraje', year: 'Precio vs Año de fabricación' };
+  const titleEl = document.getElementById('an-chart-title');
+  if (titleEl) titleEl.textContent = titles[tab] || '';
+  _anRenderChart(tab);
+}
+
+function _anRenderChart(tab) {
+  const canvas = document.getElementById('an-chart');
+  const empty  = document.getElementById('an-chart-empty');
+  if (!canvas) return;
+  if (anChart) { anChart.destroy(); anChart = null; }
+
+  const showEmpty = () => {
+    if (empty) empty.classList.remove('hidden');
+    canvas.style.display = 'none';
+  };
+  const showCanvas = () => {
+    if (empty) empty.classList.add('hidden');
+    canvas.style.display = '';
+  };
+
+  if (tab === 'time') {
+    if (!anHistoryData.length) { showEmpty(); return; }
+    showCanvas();
+    anChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: anHistoryData.map(d => d.scraped_date),
+        datasets: [
+          { label: 'Promedio', data: anHistoryData.map(d => d.avg_price), borderColor: '#1d52cc', backgroundColor: 'rgba(29,82,204,.08)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: anHistoryData.length < 30 ? 4 : 1 },
+          { label: 'Mínimo',   data: anHistoryData.map(d => d.min_price), borderColor: '#059669', borderWidth: 1.5, borderDash: [4, 3], fill: false, tension: 0.3, pointRadius: 0 },
+          { label: 'Máximo',   data: anHistoryData.map(d => d.max_price), borderColor: '#dc2626', borderWidth: 1.5, borderDash: [4, 3], fill: false, tension: 0.3, pointRadius: 0 },
+        ],
+      },
+      options: _anChartOptions('Fecha', 'Precio (CLP)', null,
+        ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString('es-CL')
+      ),
+    });
+  }
+
+  else if (tab === 'km') {
+    const pts = anListingsData.filter(l => l.km != null && l.price);
+    if (!pts.length) { showEmpty(); return; }
+    showCanvas();
+
+    const palette = ['#1d52cc','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#65a30d','#c2410c'];
+    const years = [...new Set(pts.map(l => l.year).filter(Boolean))].sort();
+    const datasets = years.map((yr, i) => ({
+      label: String(yr),
+      data: pts.filter(l => l.year === yr).map(l => ({ x: l.km, y: l.price, title: l.title, source: l.source, url: l.url })),
+      backgroundColor: palette[i % palette.length] + '99',
+      pointRadius: 5,
+    }));
+    const noYr = pts.filter(l => !l.year);
+    if (noYr.length) datasets.push({ label: 'Sin año', data: noYr.map(l => ({ x: l.km, y: l.price, title: l.title, url: l.url })), backgroundColor: '#94a3b8bb', pointRadius: 4 });
+
+    // Linear regression + highlight best deals (>12% below trend)
+    let reg = null;
+    if (pts.length > 3) {
+      reg = _linReg(pts.map(l => ({ x: l.km, y: l.price })));
+      const xMin = Math.min(...pts.map(l => l.km)), xMax = Math.max(...pts.map(l => l.km));
+      datasets.push({ label: 'Tendencia', type: 'line', data: [{ x: xMin, y: reg.slope * xMin + reg.intercept }, { x: xMax, y: reg.slope * xMax + reg.intercept }], borderColor: '#94a3b8', borderWidth: 1.5, borderDash: [6, 4], pointRadius: 0, fill: false });
+      const bestDeals = pts.filter(l => {
+        const predicted = reg.slope * l.km + reg.intercept;
+        return predicted > 0 && l.price < predicted * 0.88;
+      });
+      if (bestDeals.length) {
+        datasets.push({
+          label: 'Mejor oferta',
+          data: bestDeals.map(l => ({ x: l.km, y: l.price, title: l.title, source: l.source, url: l.url })),
+          backgroundColor: '#22c55e',
+          borderColor: '#15803d',
+          borderWidth: 2,
+          pointRadius: 9,
+          pointStyle: 'star',
+        });
+      }
+      // Render best deals list below the chart
+      _anRenderBestDeals(pts, reg);
+    }
+
+    anChart = new Chart(canvas, {
+      type: 'scatter', data: { datasets },
+      options: _anChartOptions('Kilometraje', 'Precio (CLP)',
+        v => (v / 1000).toFixed(0) + 'k km',
+        ctx => {
+          const p = ctx.raw;
+          if (!p.title) return ctx.dataset.label;
+          return [`${p.title}`, `$${Math.round(p.y).toLocaleString('es-CL')} · ${(p.x / 1000).toFixed(0)}k km`, p.source || ''];
+        }
+      ),
+    });
+    // Click on point → open listing
+    canvas.onclick = (evt) => {
+      const items = anChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+      if (!items.length) return;
+      const pt = anChart.data.datasets[items[0].datasetIndex].data[items[0].index];
+      if (pt && pt.url) window.open(pt.url, '_blank', 'noopener');
+    };
+  }
+
+  else if (tab === 'year') {
+    const pts = anListingsData.filter(l => l.year && l.price);
+    if (!pts.length) { showEmpty(); return; }
+    showCanvas();
+
+    const byYear = {};
+    pts.forEach(l => (byYear[l.year] = byYear[l.year] || []).push(l.price));
+    const years = Object.keys(byYear).map(Number).sort();
+    const avgs = years.map(yr => byYear[yr].reduce((s, v) => s + v, 0) / byYear[yr].length);
+    const mins = years.map(yr => Math.min(...byYear[yr]));
+    const maxs = years.map(yr => Math.max(...byYear[yr]));
+
+    anChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          { label: 'Promedio', data: avgs, borderColor: '#1d52cc', backgroundColor: 'rgba(29,82,204,.09)', borderWidth: 2.5, fill: false, tension: 0.2, pointRadius: 5, pointHoverRadius: 7 },
+          { label: 'Mínimo',   data: mins, borderColor: '#059669', borderWidth: 1.5, fill: false, tension: 0.2, pointRadius: 3 },
+          { label: 'Máximo',   data: maxs, borderColor: '#dc2626', borderWidth: 1.5, fill: false, tension: 0.2, pointRadius: 3 },
+        ],
+      },
+      options: _anChartOptions('Año', 'Precio (CLP)', v => String(v),
+        ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString('es-CL')
+      ),
+    });
+  }
+}
+
+function _anRenderYearTable(listings) {
+  const wrap = document.getElementById('an-year-table-wrap');
+  if (!wrap) return;
+  const byYear = {};
+  listings.forEach(l => {
+    if (!l.year || !l.price) return;
+    const d = byYear[l.year] = byYear[l.year] || { prices: [], kms: [] };
+    d.prices.push(l.price);
+    if (l.km) d.kms.push(l.km);
+  });
+  const years = Object.keys(byYear).map(Number).sort((a, b) => b - a);
+  if (!years.length) { wrap.innerHTML = '<p style="font-size:.8rem;color:var(--muted)">Sin datos por año disponibles.</p>'; return; }
+  const fmt = v => '$' + Math.round(v).toLocaleString('es-CL');
+  const rows = years.map(yr => {
+    const d = byYear[yr];
+    d.prices.sort((a, b) => a - b);
+    const med = d.prices[Math.floor(d.prices.length / 2)];
+    const p25 = d.prices[Math.floor(d.prices.length / 4)];
+    const p75 = d.prices[Math.floor(3 * d.prices.length / 4)];
+    const avgKm = d.kms.length ? d.kms.reduce((s, v) => s + v, 0) / d.kms.length : null;
+    return `<tr>
+      <td style="font-weight:700">${yr}</td>
+      <td>${d.prices.length}</td>
+      <td style="color:var(--primary);font-weight:600">${fmt(med)}</td>
+      <td style="color:var(--secondary)">${fmt(p25)}</td>
+      <td style="color:var(--danger)">${fmt(p75)}</td>
+      <td>${fmt(d.prices[0])}</td>
+      <td>${fmt(d.prices[d.prices.length - 1])}</td>
+      <td style="color:var(--muted)">${avgKm ? Math.round(avgKm / 1000) + 'k km' : '–'}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `
+    <table class="an-year-table">
+      <thead><tr>
+        <th>Año</th><th>Reg.</th><th>Mediana</th><th>P25</th><th>P75</th><th>Mínimo</th><th>Máximo</th><th>KM prom.</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function _anRenderBestDeals(pts, reg) {
+  const wrap = document.getElementById('an-best-deals');
+  if (!wrap) return;
+  const deals = pts
+    .map(l => {
+      const predicted = reg.slope * l.km + reg.intercept;
+      const pct = predicted > 0 ? (l.price - predicted) / predicted * 100 : 0;
+      return { ...l, _predicted: predicted, _pct: pct };
+    })
+    .filter(l => l._pct < -8)
+    .sort((a, b) => a._pct - b._pct)
+    .slice(0, 10);
+
+  if (!deals.length) { wrap.innerHTML = ''; return; }
+
+  const rows = deals.map(l => `
+    <tr onclick="window.open('${esc(l.url)}','_blank','noopener')" style="cursor:pointer" title="Ver oferta">
+      <td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.title || (l.brand + ' ' + l.model))}</td>
+      <td>${l.year || '–'}</td>
+      <td>${l.km ? Math.round(l.km / 1000) + 'k' : '–'}</td>
+      <td style="color:var(--secondary);font-weight:700">$${Math.round(l.price).toLocaleString('es-CL')}</td>
+      <td style="color:var(--secondary);font-weight:700">${Math.abs(Math.round(l._pct))}% bajo</td>
+      <td style="color:var(--muted);font-size:.75rem">${esc(l.source || '')}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = `
+    <div style="margin-top:1.5rem">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:.6rem;color:var(--text)">Mejores oportunidades detectadas (precio vs km)</div>
+      <div style="overflow-x:auto">
+        <table class="an-year-table">
+          <thead><tr><th>Auto</th><th>Año</th><th>KM</th><th>Precio</th><th>Ahorro</th><th>Portal</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function _anRenderOpportunities(deals) {
+  const wrap = document.getElementById('an-opportunities-content');
+  if (!wrap) return;
+  if (!deals || !deals.length) {
+    wrap.innerHTML = `<p style="color:var(--muted);font-size:.83rem">Sin datos suficientes aún. Los datos se acumulan con cada scrape semanal.</p>`;
+    return;
+  }
+  const fmt = v => '$' + Math.round(v).toLocaleString('es-CL');
+  const rows = deals.map(d => `
+    <tr onclick="window.open('${esc(d.url)}','_blank','noopener')" style="cursor:pointer" title="Ver oferta">
+      <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.title || ((d.brand||'') + ' ' + (d.model||'')))}</td>
+      <td>${d.year || '–'}</td>
+      <td>${d.km ? Math.round(d.km / 1000) + 'k' : '–'}</td>
+      <td style="color:var(--secondary);font-weight:700">${fmt(d.price)}</td>
+      <td style="color:var(--muted);font-size:.8rem">${fmt(d.year_median)}</td>
+      <td style="color:var(--secondary);font-weight:700">${Math.abs(d.price_diff_pct)}% menos</td>
+      <td><span style="background:linear-gradient(90deg,#bbf7d0,#86efac);color:#15803d;font-weight:700;padding:.15rem .4rem;border-radius:6px;font-size:.75rem">${d.deal_score}/100</span></td>
+      <td style="color:var(--muted);font-size:.75rem">${esc(d.source || '')}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = `<div style="overflow-x:auto"><table class="an-year-table">
+    <thead><tr>
+      <th>Auto</th><th>Año</th><th>KM</th><th>Precio</th><th>Mediana año</th><th>Ahorro</th><th>Score</th><th>Portal</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function _linReg(points) {
+  const n = points.length;
+  const sx = points.reduce((s, p) => s + p.x, 0);
+  const sy = points.reduce((s, p) => s + p.y, 0);
+  const sxy = points.reduce((s, p) => s + p.x * p.y, 0);
+  const sx2 = points.reduce((s, p) => s + p.x * p.x, 0);
+  const denom = n * sx2 - sx * sx;
+  const slope = denom ? (n * sxy - sx * sy) / denom : 0;
+  return { slope, intercept: (sy - slope * sx) / n };
+}
+
+function _anChartOptions(xTitle, yTitle, xTickFmt, tooltipLabelFn) {
+  return {
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { labels: { boxWidth: 10, font: { size: 10 } } },
+      tooltip: tooltipLabelFn ? { callbacks: { label: ctx => tooltipLabelFn(ctx) } } : {},
+    },
+    scales: {
+      x: {
+        title: { display: true, text: xTitle, font: { size: 10 } },
+        ticks: { font: { size: 9 }, maxTicksLimit: 14, ...(xTickFmt ? { callback: xTickFmt } : {}) },
+      },
+      y: {
+        title: { display: true, text: yTitle, font: { size: 10 } },
+        ticks: { callback: v => '$' + (v / 1_000_000).toFixed(1) + 'M', font: { size: 9 } },
+      },
+    },
+  };
+}
+
+async function triggerScrapeNow() {
+  const btn = document.getElementById('btn-scrape-now');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Iniciando…'; }
+  try {
+    const r = await fetch(BACKEND_URL + '/api/admin/scrape-now', { method: 'POST' });
+    if (!r.ok) throw new Error(r.status);
+    showToast('Scraper iniciado. Tarda ~10–15 min. Vuelve a analizar cuando termine.');
+  } catch {
+    showToast('Error al iniciar el scraper. ¿Está corriendo el backend?');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⚡ Correr scraper ahora'; }
+  }
+}
+
+</script>
+
+</body>
+</html>
