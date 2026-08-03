@@ -1,2 +1,5 @@
 Archivos/
 Transcripciones/
+.streamlit/secrets.toml
+.env
+__pycache__/
